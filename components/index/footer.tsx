@@ -66,15 +66,15 @@ export function IndexFooter() {
     <footer className="bg-black text-white">
       <div className="mx-auto w-full px-5 py-10 sm:px-8 lg:px-12">
         <div className="grid gap-10 border-b border-white/15 pb-10 lg:grid-cols-[1.2fr_2fr]">
-          <div>
+          <div className="flex flex-col gap-5">
             <h2 className="font-heading text-xl font-semibold">
               Join Our Newsletter
             </h2>
-            <p className="mt-4 max-w-sm text-sm leading-6 text-white/75">
+            <p className="max-w-sm text-sm leading-6 text-white/75">
               Be the first to know about new arrivals, exclusive offers and
               style inspiration.
             </p>
-            <form className="mt-7 flex max-w-md items-center border-b border-white/45">
+            <form className="flex max-w-md items-center border-b border-white/45">
               <label htmlFor="newsletter-email" className="sr-only">
                 Email address
               </label>
@@ -96,11 +96,11 @@ export function IndexFooter() {
 
           <div className="grid grid-cols-2 gap-8 sm:grid-cols-4">
             {footerGroups.map((group) => (
-              <div key={group.title}>
+              <div key={group.title} className="flex flex-col gap-5">
                 <h3 className="font-heading text-sm font-semibold">
                   {group.title}
                 </h3>
-                <ul className="mt-5 space-y-3">
+                <ul className="space-y-3">
                   {group.links.map((label) => (
                     <li key={label}>
                       <Link
@@ -118,11 +118,11 @@ export function IndexFooter() {
         </div>
 
         <div className="grid gap-8 pt-8 lg:grid-cols-[1fr_auto] lg:items-end">
-          <div>
+          <div className="flex flex-col gap-4">
             <p className="font-heading text-[clamp(4rem,15vw,12rem)] font-bold leading-none text-white">
               0210Gold
             </p>
-            <p className="mt-4 text-xs text-white/65">
+            <p className="text-xs text-white/65">
               © 2026 0210 Gold. All Rights Reserved.
             </p>
           </div>

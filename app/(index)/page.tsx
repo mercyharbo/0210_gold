@@ -1,3 +1,9 @@
+import { HeroBanner } from '@/components/index/hero-banner'
+
 export default function page() {
-  return <div>home page</div>;
+  return (
+    <main className=''>
+      <HeroBanner />
+    </main>
+  )
 }
