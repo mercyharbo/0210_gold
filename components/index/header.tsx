@@ -13,6 +13,7 @@ import { useLayoutEffect, useRef, useState } from 'react'
 
 const navItems = [
   { href: '/about', label: 'About' },
+  { href: '/companies', label: 'Companies' },
   { href: '/categories', label: 'Collections' },
   { href: '/shop', label: 'Shop' },
   { href: '/personal-shopper-request', label: 'Personal Shopper' },
