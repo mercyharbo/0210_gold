@@ -1,0 +1,181 @@
+import { ArrowRight, HelpCircle, PackageCheck, ShoppingBag } from 'lucide-react'
+import Link from 'next/link'
+
+const faqGroups = [
+  {
+    title: 'Shopping',
+    questions: [
+      {
+        question: 'What can I shop on 0210 Gold?',
+        answer:
+          'You can browse fashion, gold jewellery, accessories, abaya, modest sets, bags, shoes, and clothing categories.',
+      },
+      {
+        question: 'Are the products on the shop page real products?',
+        answer:
+          'The shop is structured as the product catalog and will hold the available products, prices, images, and product detail pages.',
+      },
+      {
+        question: 'Can I request something that is not listed?',
+        answer:
+          'Yes. Use the personal shopper request page to send item links, screenshots, sizes, colors, budget, and any preferred UK store.',
+      },
+    ],
+  },
+  {
+    title: 'Personal Shopper',
+    questions: [
+      {
+        question: 'How does the UK personal shopping service work?',
+        answer:
+          'You send your request, we review the details, source the item in the UK, confirm the order information, and prepare it for delivery to Nigeria.',
+      },
+      {
+        question: 'What details should I include in my request?',
+        answer:
+          'Include the item type, size, color, quantity, budget, delivery city, deadline, links, screenshots, and any important styling preferences.',
+      },
+      {
+        question: 'Can you shop from specific UK stores?',
+        answer:
+          'Yes. Add the store name or product link in your request so the item can be reviewed and sourced correctly.',
+      },
+    ],
+  },
+  {
+    title: 'Delivery & Orders',
+    questions: [
+      {
+        question: 'Do you deliver to Nigeria?',
+        answer:
+          'Yes. The personal shopping service is UK-based and supports waybill delivery to Nigeria.',
+      },
+      {
+        question: 'Can I track my order?',
+        answer:
+          'The project already has a track order route. Tracking details can be connected as order processing is wired into the site.',
+      },
+      {
+        question: 'What currency are prices shown in?',
+        answer:
+          'Shop prices are shown in Nigerian naira, using the ₦ currency symbol.',
+      },
+    ],
+  },
+  {
+    title: 'Businesses',
+    questions: [
+      {
+        question: 'Is 0210 only for gold jewellery?',
+        answer:
+          'No. 0210 Gold is fashion and jewellery focused, while the wider 0210 group also includes personal shopping and Nigerian delicacies.',
+      },
+      {
+        question: 'How do I ask about Nigerian delicacies?',
+        answer:
+          'Use the contact page and select Nigerian delicacies as the enquiry type, then include the meal type, quantity, date, and delivery or pickup details.',
+      },
+      {
+        question: 'Where can I see all businesses?',
+        answer:
+          'Visit the companies page to see the current businesses under 0210.',
+      },
+    ],
+  },
+]
+
+const quickLinks = [
+  {
+    title: 'Shop products',
+    description: 'Browse fashion, gold, bags, shoes, and accessories.',
+    href: '/shop',
+    Icon: ShoppingBag,
+  },
+  {
+    title: 'Request shopper',
+    description: 'Send a UK shopping request for Nigeria delivery.',
+    href: '/personal-shopper-request',
+    Icon: PackageCheck,
+  },
+  {
+    title: 'Contact us',
+    description: 'Ask about orders, services, companies, or support.',
+    href: '/contact',
+    Icon: HelpCircle,
+  },
+]
+
+export default function FaqPage() {
+  return (
+    <div className='bg-white text-black'>
+      <section className='bg-[#f7f5f0]'>
+        <div className='mx-auto grid w-full gap-10 px-5 py-16 sm:px-8 lg:grid-cols-[0.9fr_1.1fr] lg:items-end lg:px-12 lg:py-24'>
+          <div className='max-w-3xl'>
+            <p className='mb-4 text-sm font-medium uppercase text-black/55'>
+              FAQs
+            </p>
+            <h1 className='font-heading text-5xl font-bold leading-[0.95] sm:text-6xl lg:text-7xl'>
+              Answers for shopping, delivery, and services
+            </h1>
+          </div>
+
+          <p className='max-w-2xl text-base leading-7 text-black/68 lg:ml-auto'>
+            Find quick answers about the shop, UK personal shopping, Nigeria
+            delivery, orders, and the businesses under 0210.
+          </p>
+        </div>
+      </section>
+
+      <section>
+        <div className='mx-auto grid w-full gap-10 px-5 py-16 sm:px-8 lg:grid-cols-[0.72fr_1.28fr] lg:px-12 lg:py-20'>
+          <aside className='space-y-4'>
+            {quickLinks.map(({ title, description, href, Icon }) => (
+              <Link
+                key={title}
+                href={href}
+                className='group block border border-black/10 p-5 transition-colors hover:border-black/35'
+              >
+                <Icon className='mb-6 size-5 stroke-[1.6]' />
+                <h2 className='font-heading text-xl font-semibold'>{title}</h2>
+                <p className='mt-3 text-sm leading-6 text-black/65'>
+                  {description}
+                </p>
+                <span className='mt-5 inline-flex items-center gap-3 text-sm font-medium text-black'>
+                  Open
+                  <ArrowRight className='size-4 stroke-[1.8] transition-transform group-hover:translate-x-1' />
+                </span>
+              </Link>
+            ))}
+          </aside>
+
+          <div className='space-y-10'>
+            {faqGroups.map((group) => (
+              <section key={group.title}>
+                <h2 className='mb-5 font-heading text-3xl font-semibold'>
+                  {group.title}
+                </h2>
+                <div className='divide-y divide-black/10 border-y border-black/10'>
+                  {group.questions.map((item) => (
+                    <details key={item.question} className='group py-5'>
+                      <summary className='flex cursor-pointer list-none items-start justify-between gap-6 text-left'>
+                        <span className='font-heading text-2xl font-semibold leading-tight'>
+                          {item.question}
+                        </span>
+                        <span className='mt-1 text-2xl leading-none text-black/45 transition-transform group-open:rotate-45'>
+                          +
+                        </span>
+                      </summary>
+                      <p className='mt-4 max-w-3xl text-sm leading-6 text-black/65'>
+                        {item.answer}
+                      </p>
+                    </details>
+                  ))}
+                </div>
+              </section>
+            ))}
+          </div>
+        </div>
+      </section>
+    </div>
+  )
+}
