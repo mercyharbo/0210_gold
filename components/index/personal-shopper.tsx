@@ -22,17 +22,17 @@ const serviceSteps = [
 
 export function PersonalShopper() {
   return (
-    <section className='bg-[#f7f5f0] text-black'>
+    <section className='bg-muted text-black'>
       <div className='mx-auto grid w-full gap-10 px-5 py-16 sm:px-8 lg:grid-cols-[1fr_0.9fr] lg:px-12 lg:py-20'>
         <div className='flex flex-col justify-between gap-10'>
           <div className='max-w-3xl'>
-            <p className='mb-3 text-sm font-medium uppercase text-black/50'>
+            <p className='mb-3 text-sm font-medium uppercase text-muted-foreground'>
               Personal shopper
             </p>
             <h2 className='font-heading text-4xl font-bold leading-tight sm:text-5xl lg:text-6xl'>
               Shop from the UK, delivered to Nigeria
             </h2>
-            <p className='mt-5 max-w-2xl text-base leading-7 text-black/68'>
+            <p className='mt-5 max-w-2xl text-base leading-7 text-muted-foreground'>
               Based in the UK, we help clients shop fashion, gold, accessories,
               shoes, bags, and special requests, then arrange waybill delivery
               to Nigeria.
@@ -44,7 +44,7 @@ export function PersonalShopper() {
               <div key={title} className='border border-black/10 bg-white p-5'>
                 <Icon className='mb-6 size-5 stroke-[1.6] text-black' />
                 <h3 className='font-heading text-xl font-semibold'>{title}</h3>
-                <p className='mt-3 text-sm leading-6 text-black/65'>
+                <p className='mt-3 text-sm leading-6 text-muted-foreground'>
                   {description}
                 </p>
               </div>

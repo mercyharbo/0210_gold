@@ -15,7 +15,18 @@ import Link from 'next/link'
 
 import { formatNaira } from '@/components/index/shop/shop-data'
 import { ProfileForms } from '@/components/profile/profile-forms'
+import {
+  Card,
+  CardAction,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card'
 import { requireUser } from '@/lib/auth/session'
+import {
+  getActiveCategories,
+  getProfileCategoryPreferences,
+} from '@/lib/profile/categories'
 import {
   CustomerProfileSetupError,
   ensureCustomerProfile,
@@ -121,22 +132,26 @@ function ProfileSetupRequired() {
   return (
     <div className='bg-white text-black'>
       <section className='px-5 py-16 sm:px-8 lg:px-12'>
-        <div className='mx-auto max-w-3xl border border-[#d6b04d] bg-[#fff7d8] p-6 sm:p-8'>
-          <Database className='mb-5 size-6 text-[#9b6b12]' strokeWidth={1.7} />
-          <p className='text-xs font-semibold uppercase text-[#9b6b12]'>
-            Supabase setup required
-          </p>
-          <h1 className='mt-3 font-heading text-4xl font-semibold sm:text-5xl'>
-            Customer profiles are ready in the app, but the database tables are
-            not available yet.
-          </h1>
-          <p className='mt-5 text-sm leading-6 text-black/65'>
-            Open your Supabase project SQL editor and run the setup script at
-            <span className='font-semibold'> supabase/profiles-and-addresses.sql</span>.
-            After it runs, refresh this page. If you already ran it, refresh
-            Supabase schema cache or restart the dev server.
-          </p>
-        </div>
+        <Card className='mx-auto max-w-3xl rounded-none bg-gold/10 ring-gold/40 [--card-spacing:--spacing(6)] sm:[--card-spacing:--spacing(8)]'>
+          <CardContent className='space-y-5'>
+            <Database className='size-6 text-gold' strokeWidth={1.7} />
+            <div className='space-y-3'>
+              <p className='text-xs font-semibold uppercase text-gold'>
+                Supabase setup required
+              </p>
+              <h1 className='font-heading text-4xl font-semibold sm:text-5xl'>
+                Customer profiles are ready in the app, but the database tables
+                are not available yet.
+              </h1>
+            </div>
+            <p className='text-sm leading-6 text-muted-foreground'>
+              Open your Supabase project SQL editor and run the setup script at
+              <span className='font-semibold'> supabase/profiles-and-addresses.sql</span>.
+              After it runs, refresh this page. If you already ran it, refresh
+              Supabase schema cache or restart the dev server.
+            </p>
+          </CardContent>
+        </Card>
       </section>
     </div>
   )
@@ -147,10 +162,21 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
   const params = await searchParams
   let profile
   let addresses
+  let categories
+  let selectedCategoryIds
 
   try {
     profile = await ensureCustomerProfile(user)
-    addresses = await getCustomerAddresses(user.id)
+    const [nextAddresses, nextCategories, nextSelectedCategoryIds] =
+      await Promise.all([
+        getCustomerAddresses(user.id),
+        getActiveCategories(),
+        getProfileCategoryPreferences(user.id),
+      ])
+
+    addresses = nextAddresses
+    categories = nextCategories
+    selectedCategoryIds = nextSelectedCategoryIds
   } catch (error) {
     if (error instanceof CustomerProfileSetupError) {
       return <ProfileSetupRequired />
@@ -174,23 +200,26 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
 
   return (
     <div className='bg-white text-black'>
-      <section className='border-b border-black/10 bg-[#f7f5f0] px-5 py-14 sm:px-8 lg:px-12 lg:py-20'>
+      <section className='border-b border-black/10 bg-muted px-5 py-14 sm:px-8 lg:px-12 lg:py-20'>
         <div className='mx-auto grid max-w-7xl gap-10 lg:grid-cols-[1fr_auto] lg:items-end'>
-          <div>
-            <p className='mb-4 text-xs font-semibold uppercase text-[#b88a2b]'>
-              Customer profile
-            </p>
+          <div className='space-y-6'>
+            <div className='space-y-4'>
+              <p className='text-xs font-semibold uppercase text-gold'>
+                Customer profile
+              </p>
             <h1 className='max-w-3xl font-heading text-5xl font-semibold leading-[0.95] sm:text-6xl lg:text-7xl'>
               Your shopping history and account details.
             </h1>
-            <p className='mt-6 max-w-2xl text-base leading-7 text-black/65'>
+            </div>
+            <p className='max-w-2xl text-base leading-7 text-muted-foreground'>
               Manage orders, reviews, saved items, delivery addresses, and UK to
               Nigeria personal shopping requests from one customer profile.
             </p>
           </div>
 
-          <div className='border border-black/10 bg-white p-6 lg:min-w-80'>
-            <div className='flex items-center gap-4'>
+          <Card className='rounded-none bg-white lg:min-w-80'>
+            <CardContent className='space-y-6'>
+              <div className='flex items-center gap-4'>
               <span className='grid size-14 place-items-center bg-black text-white'>
                 <User className='size-6' strokeWidth={1.7} />
               </span>
@@ -198,43 +227,52 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
                 <h2 className='font-heading text-2xl font-semibold'>
                   {fullName}
                 </h2>
-                <p className='text-sm text-black/55'>
+                <p className='text-sm text-muted-foreground'>
                   {profile.email ?? user?.email}
                 </p>
               </div>
             </div>
-            <div className='mt-6 grid grid-cols-2 gap-3'>
+            <div className='grid grid-cols-2 gap-3'>
               {stats.map((stat) => (
-                <div key={stat.label} className='border border-black/10 p-4'>
+                <Card key={stat.label} className='rounded-none bg-white' size='sm'>
+                  <CardContent className='space-y-1'>
                   <p className='font-heading text-3xl font-semibold'>
                     {stat.value}
                   </p>
-                  <p className='mt-1 text-xs font-semibold uppercase text-black/45'>
+                  <p className='text-xs font-semibold uppercase text-muted-foreground'>
                     {stat.label}
                   </p>
-                </div>
+                  </CardContent>
+                </Card>
               ))}
             </div>
-          </div>
+            </CardContent>
+          </Card>
         </div>
       </section>
 
       <section className='px-5 py-12 sm:px-8 lg:px-12'>
-        <div className='mx-auto max-w-7xl'>
+        <div className='mx-auto max-w-7xl space-y-6'>
           {params?.message ? (
-            <div className='mb-6 border border-[#d6b04d] bg-[#fff7d8] p-4 text-sm font-semibold text-black'>
-              {params.message}
-            </div>
+            <Card className='rounded-none bg-gold/10 ring-gold/40' size='sm'>
+              <CardContent className='text-sm font-semibold text-black'>
+                {params.message}
+              </CardContent>
+            </Card>
           ) : null}
           {params?.error ? (
-            <div className='mb-6 border border-red-200 bg-red-50 p-4 text-sm font-semibold text-red-700'>
-              {params.error}
-            </div>
+            <Card className='rounded-none bg-red-50 ring-red-200' size='sm'>
+              <CardContent className='text-sm font-semibold text-red-700'>
+                {params.error}
+              </CardContent>
+            </Card>
           ) : null}
 
           <ProfileForms
             profile={profile}
             addresses={addresses}
+            categories={categories}
+            selectedCategoryIds={selectedCategoryIds}
             fallbackEmail={user.email}
           />
         </div>
@@ -243,16 +281,17 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
       <section className='px-5 pb-12 sm:px-8 lg:px-12'>
         <div className='mx-auto grid max-w-7xl gap-8 lg:grid-cols-[1fr_360px]'>
           <div className='space-y-8'>
-            <section className='border border-black/10 p-6 sm:p-8'>
-              <div className='mb-6 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between'>
-                <div>
-                  <p className='text-xs font-semibold uppercase text-black/45'>
+            <Card className='rounded-none bg-white [--card-spacing:--spacing(6)] sm:[--card-spacing:--spacing(8)]'>
+              <CardHeader>
+                <div className='space-y-2'>
+                  <p className='text-xs font-semibold uppercase text-muted-foreground'>
                     Order history
                   </p>
-                  <h2 className='mt-2 font-heading text-3xl font-semibold'>
+                  <CardTitle className='text-3xl font-semibold'>
                     Recent orders
-                  </h2>
+                  </CardTitle>
                 </div>
+                <CardAction>
                 <Link
                   href='/track-order'
                   className='inline-flex w-fit items-center gap-2 text-sm font-semibold underline underline-offset-4'
@@ -260,114 +299,119 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
                   Track order
                   <ArrowRight className='size-4' strokeWidth={1.8} />
                 </Link>
-              </div>
+                </CardAction>
+              </CardHeader>
 
-              <div className='divide-y divide-black/10'>
+              <CardContent className='divide-y divide-black/10'>
                 {orders.map((order) => (
-                  <article
+                  <div
                     key={order.id}
                     className='grid gap-4 py-5 md:grid-cols-[140px_1fr_auto] md:items-center'
                   >
-                    <div>
+                    <div className='space-y-1'>
                       <p className='text-sm font-semibold'>{order.id}</p>
-                      <p className='mt-1 text-xs text-black/45'>{order.date}</p>
+                      <p className='text-xs text-muted-foreground'>{order.date}</p>
                     </div>
-                    <div>
-                      <p className='text-sm text-black/68'>{order.items}</p>
-                      <span className='mt-2 inline-flex bg-[#f3d77a] px-3 py-1 text-xs font-semibold text-black'>
+                    <div className='space-y-2'>
+                      <p className='text-sm text-muted-foreground'>{order.items}</p>
+                      <span className='inline-flex bg-gold/35 px-3 py-1 text-xs font-semibold text-black'>
                         {order.status}
                       </span>
                     </div>
                     <p className='text-sm font-semibold'>
                       {formatNaira(order.total)}
                     </p>
-                  </article>
+                  </div>
                 ))}
-              </div>
-            </section>
+              </CardContent>
+            </Card>
 
             <div className='grid gap-8 xl:grid-cols-2'>
-              <section className='border border-black/10 p-6 sm:p-8'>
-                <Star
-                  className='mb-5 size-5 text-[#b88a2b]'
-                  strokeWidth={1.7}
-                />
-                <p className='text-xs font-semibold uppercase text-black/45'>
-                  Product reviews
-                </p>
-                <h2 className='mt-2 font-heading text-3xl font-semibold'>
-                  Reviews
-                </h2>
-                <div className='mt-6 space-y-4'>
+              <Card className='rounded-none bg-white [--card-spacing:--spacing(6)] sm:[--card-spacing:--spacing(8)]'>
+                <CardHeader className='gap-5'>
+                  <Star className='size-5 text-gold' strokeWidth={1.7} />
+                  <div className='space-y-2'>
+                    <p className='text-xs font-semibold uppercase text-muted-foreground'>
+                      Product reviews
+                    </p>
+                    <CardTitle className='text-3xl font-semibold'>
+                      Reviews
+                    </CardTitle>
+                  </div>
+                </CardHeader>
+                <CardContent className='space-y-4'>
                   {reviewItems.map((item) => (
-                    <article key={item.title} className='border-t border-black/10 pt-4'>
+                    <div key={item.title} className='border-t border-black/10 pt-4'>
                       <div className='flex items-start justify-between gap-4'>
-                        <div>
+                        <div className='space-y-1'>
                           <h3 className='text-sm font-semibold'>{item.title}</h3>
-                          <p className='mt-1 text-sm leading-6 text-black/58'>
+                          <p className='text-sm leading-6 text-muted-foreground'>
                             {item.detail}
                           </p>
                         </div>
-                        <span className='shrink-0 text-xs font-semibold text-[#9b6b12]'>
+                        <span className='shrink-0 text-xs font-semibold text-gold'>
                           {item.status}
                         </span>
                       </div>
-                    </article>
+                    </div>
                   ))}
-                </div>
-              </section>
+                </CardContent>
+              </Card>
 
-              <section className='border border-black/10 p-6 sm:p-8'>
-                <ShoppingBag
-                  className='mb-5 size-5 text-[#b88a2b]'
-                  strokeWidth={1.7}
-                />
-                <p className='text-xs font-semibold uppercase text-black/45'>
-                  Personal shopper
-                </p>
-                <h2 className='mt-2 font-heading text-3xl font-semibold'>
-                  Requests
-                </h2>
-                <div className='mt-6 space-y-4'>
+              <Card className='rounded-none bg-white [--card-spacing:--spacing(6)] sm:[--card-spacing:--spacing(8)]'>
+                <CardHeader className='gap-5'>
+                  <ShoppingBag className='size-5 text-gold' strokeWidth={1.7} />
+                  <div className='space-y-2'>
+                    <p className='text-xs font-semibold uppercase text-muted-foreground'>
+                      Personal shopper
+                    </p>
+                    <CardTitle className='text-3xl font-semibold'>
+                      Requests
+                    </CardTitle>
+                  </div>
+                </CardHeader>
+                <CardContent className='space-y-4'>
                   {shopperRequests.map((request) => (
-                    <article
+                    <div
                       key={request.title}
-                      className='border-t border-black/10 pt-4'
+                      className='space-y-3 border-t border-black/10 pt-4'
                     >
                       <h3 className='text-sm font-semibold'>{request.title}</h3>
-                      <p className='mt-1 text-sm text-black/58'>
+                      <p className='text-sm text-muted-foreground'>
                         {request.destination}
                       </p>
-                      <p className='mt-3 text-xs font-semibold uppercase text-[#9b6b12]'>
+                      <p className='text-xs font-semibold uppercase text-gold'>
                         {request.status}
                       </p>
-                    </article>
+                    </div>
                   ))}
-                </div>
-              </section>
+                </CardContent>
+              </Card>
             </div>
 
-            <section className='border border-black/10 p-6 sm:p-8'>
-              <div className='mb-6 flex items-center justify-between gap-4'>
-                <div>
-                  <p className='text-xs font-semibold uppercase text-black/45'>
+            <Card className='rounded-none bg-white [--card-spacing:--spacing(6)] sm:[--card-spacing:--spacing(8)]'>
+              <CardHeader>
+                <div className='space-y-2'>
+                  <p className='text-xs font-semibold uppercase text-muted-foreground'>
                     Wishlist
                   </p>
-                  <h2 className='mt-2 font-heading text-3xl font-semibold'>
+                  <CardTitle className='text-3xl font-semibold'>
                     Saved items
-                  </h2>
+                  </CardTitle>
                 </div>
-                <Heart className='size-5 text-[#b88a2b]' strokeWidth={1.7} />
-              </div>
+                <CardAction>
+                  <Heart className='size-5 text-gold' strokeWidth={1.7} />
+                </CardAction>
+              </CardHeader>
 
-              <div className='grid gap-5 sm:grid-cols-2'>
+              <CardContent className='grid gap-5 sm:grid-cols-2'>
                 {savedItems.map((item) => (
                   <Link
                     key={item.id}
                     href={`/products/${item.id}`}
-                    className='grid grid-cols-[96px_1fr] gap-4 border border-black/10 p-3 transition-colors hover:border-black'
+                    className='grid grid-cols-[96px_1fr] gap-4 ring-1 ring-black/10 p-3 transition-colors hover:ring-black'
                   >
-                    <span className='relative aspect-square bg-[#f4f1ec]'>
+                    <span className='relative aspect-square bg-muted'>
                       <Image
                         src={item.imageSrc}
                         alt={item.imageAlt}
@@ -376,49 +420,48 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
                         className='object-cover'
                       />
                     </span>
-                    <span className='flex flex-col justify-center'>
+                    <span className='flex flex-col justify-center gap-2'>
                       <span className='font-heading text-xl font-semibold'>
                         {item.name}
                       </span>
-                      <span className='mt-2 text-sm font-semibold'>
+                      <span className='text-sm font-semibold'>
                         {formatNaira(item.price)}
                       </span>
                     </span>
                   </Link>
                 ))}
-              </div>
-            </section>
+              </CardContent>
+            </Card>
           </div>
 
           <aside className='space-y-6'>
-            <section className='border border-black/10 p-6'>
-              <History
-                className='mb-5 size-5 text-[#b88a2b]'
-                strokeWidth={1.7}
-              />
-              <p className='text-xs font-semibold uppercase text-black/45'>
-                Support shortcuts
-              </p>
-              <div className='mt-5 space-y-3'>
+            <Card className='rounded-none bg-white [--card-spacing:--spacing(6)]'>
+              <CardHeader className='gap-5'>
+                <History className='size-5 text-gold' strokeWidth={1.7} />
+                <p className='text-xs font-semibold uppercase text-muted-foreground'>
+                  Support shortcuts
+                </p>
+              </CardHeader>
+              <CardContent className='space-y-3'>
                 {supportLinks.map(({ href, title, description, Icon }) => (
                   <Link
                     key={title}
                     href={href}
                     className='grid grid-cols-[auto_1fr] gap-3 border-t border-black/10 pt-4 transition-opacity hover:opacity-65'
                   >
-                    <Icon className='mt-0.5 size-4' strokeWidth={1.7} />
-                    <span>
+                    <Icon className='size-4 translate-y-0.5' strokeWidth={1.7} />
+                    <span className='space-y-1'>
                       <span className='block text-sm font-semibold'>
                         {title}
                       </span>
-                      <span className='mt-1 block text-sm leading-5 text-black/55'>
+                      <span className='block text-sm leading-5 text-muted-foreground'>
                         {description}
                       </span>
                     </span>
                   </Link>
                 ))}
-              </div>
-            </section>
+              </CardContent>
+            </Card>
           </aside>
         </div>
       </section>

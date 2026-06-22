@@ -24,7 +24,7 @@ export function OurCompanies() {
       <div className='mx-auto w-full px-5 py-16 sm:px-8 lg:px-12 lg:py-20'>
         <div className='grid gap-8 border-t border-black/10 pt-12 lg:grid-cols-[0.8fr_1.2fr] lg:items-end'>
           <div>
-            <p className='mb-3 text-sm font-medium uppercase text-black/50'>
+            <p className='mb-3 text-sm font-medium uppercase text-muted-foreground'>
               Our companies
             </p>
             <h2 className='font-heading text-4xl font-bold leading-tight sm:text-5xl'>
@@ -33,7 +33,7 @@ export function OurCompanies() {
           </div>
 
           <div className='flex flex-col gap-6 lg:items-end'>
-            <p className='max-w-xl text-base leading-7 text-black/65 lg:text-right'>
+            <p className='max-w-xl text-base leading-7 text-muted-foreground lg:text-right'>
               Fashion and gold remain the focus here, with space for the other
               businesses connected to 0210 as they grow.
             </p>
@@ -55,10 +55,10 @@ export function OurCompanies() {
             >
               <div>
                 <div className='mb-8 flex items-center justify-between gap-4'>
-                  <p className='text-xs font-medium uppercase text-black/45'>
+                  <p className='text-xs font-medium uppercase text-muted-foreground'>
                     {company.category}
                   </p>
-                  <span className='shrink-0 border border-black/15 px-3 py-1 text-xs font-medium text-black/65'>
+                  <span className='shrink-0 border border-black/15 px-3 py-1 text-xs font-medium text-muted-foreground'>
                     {company.status}
                   </span>
                 </div>
@@ -66,7 +66,7 @@ export function OurCompanies() {
                 <h3 className='font-heading text-3xl font-semibold leading-tight'>
                   {company.name}
                 </h3>
-                <p className='mt-4 max-w-lg text-sm leading-6 text-black/65'>
+                <p className='mt-4 max-w-lg text-sm leading-6 text-muted-foreground'>
                   {company.description}
                 </p>
               </div>

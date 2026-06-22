@@ -36,7 +36,7 @@ export function PasswordInput({
         size='icon'
         aria-label={visible ? 'Hide password' : 'Show password'}
         onClick={() => setVisible((current) => !current)}
-        className='absolute right-2 top-1/2 size-8 -translate-y-1/2 rounded-none text-black/55 hover:bg-black/5 hover:text-black'
+        className='absolute right-2 top-1/2 size-8 -translate-y-1/2 rounded-none text-muted-foreground hover:bg-black/5 hover:text-black'
       >
         <Icon className='size-4' strokeWidth={1.7} />
       </Button>

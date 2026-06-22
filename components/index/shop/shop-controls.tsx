@@ -25,17 +25,17 @@ export function ShopControls({
       <div className='grid gap-4 lg:grid-cols-[1fr_auto] lg:items-center'>
         <label className='relative block'>
           <span className='sr-only'>Search products</span>
-          <Search className='pointer-events-none absolute left-4 top-1/2 size-4 -translate-y-1/2 stroke-[1.7] text-black/45' />
+          <Search className='pointer-events-none absolute left-4 top-1/2 size-4 -translate-y-1/2 stroke-[1.7] text-muted-foreground' />
           <input
             value={query}
             onChange={(event) => onQueryChange(event.target.value)}
             placeholder='Search fashion, gold, bags, shoes...'
-            className='h-12 w-full border border-black/10 bg-white pl-11 pr-4 text-sm text-black outline-none transition-colors placeholder:text-black/40 focus:border-black'
+            className='h-12 w-full border border-black/10 bg-white pl-11 pr-4 text-sm text-black outline-none transition-colors placeholder:text-muted-foreground focus:border-black'
           />
         </label>
 
         <label className='flex items-center gap-3'>
-          <span className='text-xs font-medium uppercase text-black/45'>
+          <span className='text-xs font-medium uppercase text-muted-foreground'>
             Sort
           </span>
           <select
@@ -60,7 +60,7 @@ export function ShopControls({
             className={
               activeCategory === category
                 ? 'shrink-0 bg-black px-4 py-2 text-xs font-medium uppercase text-white'
-                : 'shrink-0 border border-black/10 px-4 py-2 text-xs font-medium uppercase text-black/60 transition-colors hover:border-black hover:text-black'
+                : 'shrink-0 border border-black/10 px-4 py-2 text-xs font-medium uppercase text-muted-foreground transition-colors hover:border-black hover:text-black'
             }
           >
             {category}

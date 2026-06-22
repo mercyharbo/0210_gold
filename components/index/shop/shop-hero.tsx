@@ -3,10 +3,10 @@ import Link from 'next/link'
 
 export function ShopHero() {
   return (
-    <section className='bg-[#f7f5f0] text-black'>
+    <section className='bg-muted text-black'>
       <div className='mx-auto grid w-full gap-10 px-5 py-16 sm:px-8 lg:grid-cols-[0.9fr_1.1fr] lg:items-end lg:px-12 lg:py-24'>
         <div className='max-w-3xl'>
-          <p className='mb-4 text-sm font-medium uppercase text-black/55'>
+          <p className='mb-4 text-sm font-medium uppercase text-muted-foreground'>
             Shop
           </p>
           <h1 className='font-heading text-5xl font-bold leading-[0.95] sm:text-6xl lg:text-7xl'>
@@ -15,7 +15,7 @@ export function ShopHero() {
         </div>
 
         <div className='flex flex-col gap-6 lg:ml-auto'>
-          <p className='max-w-2xl text-base leading-7 text-black/68'>
+          <p className='max-w-2xl text-base leading-7 text-muted-foreground'>
             Browse the current edit across clothing, abaya, bags, shoes,
             jewellery, accessories, and modest sets.
           </p>

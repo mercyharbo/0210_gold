@@ -168,10 +168,10 @@ const shoppingNotes = [
 export default function CategoriesPage() {
   return (
     <div className='bg-white text-black'>
-      <section className='bg-[#f7f5f0]'>
+      <section className='bg-muted'>
         <div className='mx-auto grid w-full gap-10 px-5 py-16 sm:px-8 lg:grid-cols-[0.9fr_1.1fr] lg:items-end lg:px-12 lg:py-24'>
           <div className='max-w-3xl'>
-            <p className='mb-4 text-sm font-medium uppercase text-black/55'>
+            <p className='mb-4 text-sm font-medium uppercase text-muted-foreground'>
               Fashion categories
             </p>
             <h1 className='font-heading text-5xl font-bold leading-[0.95] sm:text-6xl lg:text-7xl'>
@@ -179,7 +179,7 @@ export default function CategoriesPage() {
             </h1>
           </div>
 
-          <p className='max-w-2xl text-base leading-7 text-black/68 lg:ml-auto'>
+          <p className='max-w-2xl text-base leading-7 text-muted-foreground lg:ml-auto'>
             Browse fashion-focused categories across clothing, modest wear,
             shoes, bags, jewellery, and accessories. This page is strictly for
             style, shopping, and outfit-building categories.
@@ -191,7 +191,7 @@ export default function CategoriesPage() {
         <div className='mx-auto w-full px-5 py-16 sm:px-8 lg:px-12 lg:py-20'>
           <div className='mb-10 flex flex-col gap-6 md:flex-row md:items-end md:justify-between'>
             <div className='max-w-2xl'>
-              <p className='mb-3 text-sm font-medium uppercase text-black/50'>
+              <p className='mb-3 text-sm font-medium uppercase text-muted-foreground'>
                 Featured
               </p>
               <h2 className='font-heading text-4xl font-bold leading-tight sm:text-5xl'>
@@ -215,7 +215,7 @@ export default function CategoriesPage() {
                 href='/shop'
                 className='group overflow-hidden border border-black/10 bg-white transition-colors hover:border-black/35'
               >
-                <div className='relative aspect-[4/5] overflow-hidden bg-[#f7f5f0]'>
+                <div className='relative aspect-[4/5] overflow-hidden bg-muted'>
                   <Image
                     src={category.imageSrc}
                     alt={category.imageAlt}
@@ -225,13 +225,13 @@ export default function CategoriesPage() {
                   />
                 </div>
                 <div className='p-5'>
-                  <p className='mb-3 text-xs font-medium uppercase text-black/45'>
+                  <p className='mb-3 text-xs font-medium uppercase text-muted-foreground'>
                     {category.meta}
                   </p>
                   <h3 className='font-heading text-3xl font-semibold leading-tight'>
                     {category.title}
                   </h3>
-                  <p className='mt-3 text-sm leading-6 text-black/65'>
+                  <p className='mt-3 text-sm leading-6 text-muted-foreground'>
                     {category.description}
                   </p>
                 </div>
@@ -244,7 +244,7 @@ export default function CategoriesPage() {
       <section className='bg-black text-white'>
         <div className='mx-auto w-full px-5 py-16 sm:px-8 lg:px-12 lg:py-20'>
           <div className='mb-10 max-w-3xl'>
-            <p className='mb-3 text-sm font-medium uppercase text-white/55'>
+            <p className='mb-3 text-sm font-medium uppercase text-muted-foreground'>
               Full category list
             </p>
             <h2 className='font-heading text-4xl font-bold leading-tight sm:text-5xl'>
@@ -263,7 +263,7 @@ export default function CategoriesPage() {
                     <Link
                       key={category}
                       href='/shop'
-                      className='border border-white/15 px-3 py-2 text-xs font-medium uppercase text-white/65 transition-colors hover:border-white hover:text-white'
+                      className='border border-white/15 px-3 py-2 text-xs font-medium uppercase text-muted-foreground transition-colors hover:border-white hover:text-white'
                     >
                       {category}
                     </Link>
@@ -282,7 +282,7 @@ export default function CategoriesPage() {
               <article key={title} className='border border-black/10 p-5'>
                 <Icon className='mb-6 size-5 stroke-[1.6]' />
                 <h3 className='font-heading text-xl font-semibold'>{title}</h3>
-                <p className='mt-3 text-sm leading-6 text-black/65'>
+                <p className='mt-3 text-sm leading-6 text-muted-foreground'>
                   {description}
                 </p>
               </article>

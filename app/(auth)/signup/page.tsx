@@ -25,7 +25,7 @@ export default async function SignupPage({ searchParams }: SignupPageProps) {
       title='Build your customer profile.'
       description='Create an account for faster checkout, order history, product reviews, saved fashion items, and personal shopper request tracking.'
       footer={
-        <div className='flex flex-col gap-3 text-sm text-black/62 sm:flex-row sm:items-center sm:justify-between'>
+        <div className='flex flex-col gap-3 text-sm text-muted-foreground sm:flex-row sm:items-center sm:justify-between'>
           <span>Already have an account?</span>
           <Link
             href='/login'
@@ -37,7 +37,7 @@ export default async function SignupPage({ searchParams }: SignupPageProps) {
       }
     >
       <div className='mb-8'>
-        <p className='text-xs font-semibold uppercase text-[#b88a2b]'>
+        <p className='text-xs font-semibold uppercase text-gold'>
           New customer
         </p>
         <h2 className='mt-2 font-heading text-4xl font-semibold'>

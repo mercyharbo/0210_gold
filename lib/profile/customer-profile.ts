@@ -147,7 +147,6 @@ export async function updateCustomerProfile(
     last_name: input.lastName,
     phone: cleanOptional(input.phone),
     email: user.email ?? null,
-    preferences: input.preferences ?? [],
   })
 
   if (error) {

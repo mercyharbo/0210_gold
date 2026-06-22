@@ -32,7 +32,7 @@ export function FeatureCard({
         className,
       )}
     >
-      <div className='relative aspect-[4/5] overflow-hidden bg-[#f7f5f0]'>
+      <div className='relative aspect-[4/5] overflow-hidden bg-muted'>
         <Image
           src={imageSrc}
           alt={imageAlt}
@@ -45,14 +45,14 @@ export function FeatureCard({
       <div className='flex flex-1 flex-col justify-between gap-8 p-5'>
         <div>
           {meta ? (
-            <p className='mb-3 text-xs font-medium uppercase text-black/45'>
+            <p className='mb-3 text-xs font-medium uppercase text-muted-foreground'>
               {meta}
             </p>
           ) : null}
           <h3 className='font-heading text-3xl font-semibold leading-tight'>
             {title}
           </h3>
-          <p className='mt-3 text-sm leading-6 text-black/65'>
+          <p className='mt-3 text-sm leading-6 text-muted-foreground'>
             {description}
           </p>
         </div>

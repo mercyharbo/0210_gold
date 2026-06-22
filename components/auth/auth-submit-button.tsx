@@ -22,7 +22,7 @@ export function AuthSubmitButton({
       type='submit'
       disabled={pending}
       aria-busy={pending}
-      className='h-12 w-full rounded-none bg-black px-6 text-sm font-semibold text-white hover:bg-[#b88a2b] disabled:cursor-not-allowed disabled:bg-black/60'
+      className='h-12 w-full rounded-none bg-black px-6 text-sm font-semibold text-white hover:bg-gold disabled:cursor-not-allowed disabled:bg-black/60'
     >
       {pending ? loadingLabel : idleLabel}
       {pending ? (

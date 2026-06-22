@@ -23,20 +23,20 @@ const contactMethods = [
 ]
 
 const inputClassName =
-  'h-12 w-full border border-black/10 bg-white px-4 text-sm text-black outline-none transition-colors placeholder:text-black/40 focus:border-black'
+  'h-12 w-full border border-black/10 bg-white px-4 text-sm text-black outline-none transition-colors placeholder:text-muted-foreground focus:border-black'
 
 const textareaClassName =
-  'min-h-36 w-full resize-none border border-black/10 bg-white px-4 py-3 text-sm text-black outline-none transition-colors placeholder:text-black/40 focus:border-black'
+  'min-h-36 w-full resize-none border border-black/10 bg-white px-4 py-3 text-sm text-black outline-none transition-colors placeholder:text-muted-foreground focus:border-black'
 
-const labelClassName = 'text-xs font-medium uppercase text-black/45'
+const labelClassName = 'text-xs font-medium uppercase text-muted-foreground'
 
 export default function ContactPage() {
   return (
     <div className='bg-white text-black'>
-      <section className='bg-[#f7f5f0]'>
+      <section className='bg-muted'>
         <div className='mx-auto grid w-full gap-10 px-5 py-16 sm:px-8 lg:grid-cols-[0.9fr_1.1fr] lg:items-end lg:px-12 lg:py-24'>
           <div className='max-w-3xl'>
-            <p className='mb-4 text-sm font-medium uppercase text-black/55'>
+            <p className='mb-4 text-sm font-medium uppercase text-muted-foreground'>
               Contact
             </p>
             <h1 className='font-heading text-5xl font-bold leading-[0.95] sm:text-6xl lg:text-7xl'>
@@ -44,7 +44,7 @@ export default function ContactPage() {
             </h1>
           </div>
 
-          <p className='max-w-2xl text-base leading-7 text-black/68 lg:ml-auto'>
+          <p className='max-w-2xl text-base leading-7 text-muted-foreground lg:ml-auto'>
             Send a message about products, personal shopping, UK sourcing,
             Nigerian delicacies, delivery, or any business under 0210.
           </p>
@@ -58,7 +58,7 @@ export default function ContactPage() {
               <article key={title} className='border border-black/10 p-5'>
                 <Icon className='mb-6 size-5 stroke-[1.6]' />
                 <h2 className='font-heading text-xl font-semibold'>{title}</h2>
-                <p className='mt-3 text-sm leading-6 text-black/65'>
+                <p className='mt-3 text-sm leading-6 text-muted-foreground'>
                   {description}
                 </p>
                 <p className='mt-4 text-sm font-medium text-black'>{detail}</p>
@@ -70,7 +70,7 @@ export default function ContactPage() {
               <h2 className='font-heading text-xl font-semibold'>
                 Shopping request
               </h2>
-              <p className='mt-3 text-sm leading-6 text-white/65'>
+              <p className='mt-3 text-sm leading-6 text-muted-foreground'>
                 For UK sourcing and waybill delivery to Nigeria, use the full
                 personal shopper request form.
               </p>
@@ -86,7 +86,7 @@ export default function ContactPage() {
 
           <form className='space-y-8 border border-black/10 p-5 sm:p-8'>
             <div>
-              <p className='mb-3 text-sm font-medium uppercase text-black/50'>
+              <p className='mb-3 text-sm font-medium uppercase text-muted-foreground'>
                 Send a message
               </p>
               <h2 className='font-heading text-4xl font-bold leading-tight'>
@@ -158,7 +158,7 @@ export default function ContactPage() {
             </div>
 
             <div className='flex flex-col gap-4 border-t border-black/10 pt-6 sm:flex-row sm:items-center sm:justify-between'>
-              <p className='max-w-md text-xs leading-5 text-black/55'>
+              <p className='max-w-md text-xs leading-5 text-muted-foreground'>
                 Include your order, product, or service details so the message
                 can be directed to the right place.
               </p>

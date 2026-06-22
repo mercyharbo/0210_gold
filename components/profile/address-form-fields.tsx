@@ -1,8 +1,8 @@
+import { LocationSelectFields } from '@/components/profile/location-select-fields'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Field, FieldGroup, FieldLabel } from '@/components/ui/field'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
-import { LocationSelectFields } from '@/components/profile/location-select-fields'
 import type { CustomerAddress } from '@/types/address'
 
 const fieldInputClassName = 'h-11'
@@ -42,13 +42,14 @@ export function AddressFormFields({ address }: AddressFormFieldsProps) {
         />
       </Field>
 
-      <Field>
+      <Field className='md:col-span-2'>
         <FieldLabel htmlFor={address ? `phone-${address.id}` : 'addressPhone'}>
           Phone
         </FieldLabel>
         <Input
           id={address ? `phone-${address.id}` : 'addressPhone'}
           name='phone'
+          type='tel'
           defaultValue={address?.phone ?? ''}
           className={fieldInputClassName}
           required
@@ -122,10 +123,10 @@ export function AddressFormFields({ address }: AddressFormFieldsProps) {
       </Field>
 
       <Field className='md:col-span-2'>
-        <FieldLabel className='flex items-center gap-3'>
+        <label className='flex items-center gap-3 text-sm font-medium leading-snug'>
           <Checkbox name='isDefault' defaultChecked={address?.is_default} />
           Use as default delivery address
-        </FieldLabel>
+        </label>
       </Field>
     </FieldGroup>
   )

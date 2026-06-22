@@ -83,7 +83,7 @@ export function FeaturedCollections() {
       <div className='mx-auto w-full px-5 py-16 sm:px-8 lg:px-12 lg:py-20'>
         <div className='mb-10 flex flex-col gap-6 md:flex-row md:items-end md:justify-between'>
           <div className='max-w-2xl'>
-            <p className='mb-3 text-sm font-medium uppercase text-black/50'>
+            <p className='mb-3 text-sm font-medium uppercase text-muted-foreground'>
               Featured collections
             </p>
             <h2 className='font-heading text-4xl font-bold leading-tight sm:text-5xl'>

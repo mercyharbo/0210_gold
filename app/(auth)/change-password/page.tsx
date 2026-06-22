@@ -37,7 +37,7 @@ export default async function ChangePasswordPage({
       title='Change your password securely.'
       description='Update the password connected to your profile, orders, reviews, saved products, and personal shopper requests.'
       footer={
-        <div className='flex flex-col gap-3 text-sm text-black/62 sm:flex-row sm:items-center sm:justify-between'>
+        <div className='flex flex-col gap-3 text-sm text-muted-foreground sm:flex-row sm:items-center sm:justify-between'>
           <span>Manage your customer details</span>
           <Link
             href='/profile'
@@ -49,7 +49,7 @@ export default async function ChangePasswordPage({
       }
     >
       <div className='mb-8'>
-        <p className='text-xs font-semibold uppercase text-[#b88a2b]'>
+        <p className='text-xs font-semibold uppercase text-gold'>
           Update password
         </p>
         <h2 className='mt-2 font-heading text-4xl font-semibold'>

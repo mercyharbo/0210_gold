@@ -1,18 +1,24 @@
 'use client'
 
-import { Star, Trash2 } from 'lucide-react'
+import { Star } from 'lucide-react'
 import { useFormStatus } from 'react-dom'
 
-import {
-  deleteAddress,
-  setDefaultAddress,
-  updateAddress,
-} from '@/app/(index)/profile/actions'
-import { AddressFormFields } from '@/components/profile/address-form-fields'
+import { setDefaultAddress } from '@/app/(index)/profile/actions'
+import { DeleteAddressDialog } from '@/components/profile/delete-address-dialog'
+import { EditAddressDialog } from '@/components/profile/edit-address-dialog'
 import { Button } from '@/components/ui/button'
+import {
+  Card,
+  CardAction,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card'
 import { Spinner } from '@/components/ui/spinner'
 import type { CustomerAddress } from '@/types/address'
 import type { CustomerProfile } from '@/types/profile'
+import { Separator } from '../ui/separator'
 
 type AddressCardProps = {
   address: CustomerAddress
@@ -23,21 +29,17 @@ function fullName(profile: CustomerProfile) {
   return [profile.first_name, profile.last_name].filter(Boolean).join(' ')
 }
 
-function SaveAddressButton() {
-  const { pending } = useFormStatus()
-
-  return (
-    <Button type='submit' variant='outline' disabled={pending}>
-      {pending ? (
-        <>
-          <Spinner className='size-4' />
-          Saving address
-        </>
-      ) : (
-        'Save address'
-      )}
-    </Button>
-  )
+function formatAddress(address: CustomerAddress) {
+  return [
+    address.address_line_1,
+    address.address_line_2,
+    address.city,
+    address.state,
+    address.country,
+    address.postal_code,
+  ]
+    .filter(Boolean)
+    .join(', ')
 }
 
 function SetDefaultButton() {
@@ -45,67 +47,61 @@ function SetDefaultButton() {
 
   return (
     <Button type='submit' variant='outline' size='sm' disabled={pending}>
-      {pending ? <Spinner className='size-3.5' /> : <Star className='size-3.5' />}
+      {pending ? (
+        <Spinner className='size-3.5' />
+      ) : (
+        <Star className='size-3.5' />
+      )}
       Set default
     </Button>
   )
 }
 
-function DeleteAddressButton() {
-  const { pending } = useFormStatus()
-
-  return (
-    <Button type='submit' variant='destructive' size='sm' disabled={pending}>
-      {pending ? (
-        <Spinner className='size-3.5' />
-      ) : (
-        <Trash2 className='size-3.5' />
-      )}
-      Delete
-    </Button>
-  )
-}
-
 export function AddressCard({ address, profile }: AddressCardProps) {
-  const updateAddressAction = updateAddress.bind(null, address.id)
-  const deleteAddressAction = deleteAddress.bind(null, address.id)
   const setDefaultAddressAction = setDefaultAddress.bind(null, address.id)
+  const recipient = address.recipient_name || fullName(profile)
 
   return (
-    <article className='border border-black/10 p-5'>
-      <div className='mb-5 flex flex-wrap items-start justify-between gap-4'>
-        <div>
-          <div className='flex flex-wrap items-center gap-2'>
-            <h3 className='font-heading text-2xl font-semibold'>
-              {address.label || address.city || 'Saved address'}
-            </h3>
-            {address.is_default ? (
-              <span className='bg-[#f3d77a] px-2.5 py-1 text-xs font-semibold uppercase text-black'>
-                Default
-              </span>
-            ) : null}
-          </div>
-          <p className='mt-1 text-sm text-black/58'>
-            {address.recipient_name || fullName(profile)}
-          </p>
-        </div>
-
-        <div className='flex flex-wrap gap-2'>
-          {!address.is_default ? (
-            <form action={setDefaultAddressAction}>
-              <SetDefaultButton />
-            </form>
+    <Card className=''>
+      <CardHeader>
+        <div className='flex flex-wrap items-center gap-2'>
+          <CardTitle className='text-lg font-semibold'>
+            {address.label || address.city || 'Saved address'}
+          </CardTitle>
+          {address.is_default ? (
+            <span className='bg-gold px-2.5 py-1 text-xs font-semibold text-white'>
+              Default
+            </span>
           ) : null}
-          <form action={deleteAddressAction}>
-            <DeleteAddressButton />
-          </form>
         </div>
-      </div>
 
-      <form action={updateAddressAction} className='space-y-5'>
-        <AddressFormFields address={address} />
-        <SaveAddressButton />
-      </form>
-    </article>
+        <CardAction className='flex shrink-0 items-center gap-2'>
+          <EditAddressDialog address={address} />
+          <DeleteAddressDialog address={address} />
+        </CardAction>
+      </CardHeader>
+
+      <CardContent className='flex flex-col gap-2'>
+        <div className='space-y-1'>
+          <p className='text-sm font-semibold'>{recipient}</p>
+          <p className='max-w-2xl text-sm leading-6 text-muted-foreground'>
+            {formatAddress(address)}
+          </p>
+          <p className='text-sm text-muted-foreground'>{address.phone}</p>
+        </div>
+        <Separator />
+        {address.delivery_notes && (
+          <p className='text-sm leading-6 '>{address.delivery_notes}</p>
+        )}
+      </CardContent>
+
+      {!address.is_default ? (
+        <CardFooter>
+          <form action={setDefaultAddressAction}>
+            <SetDefaultButton />
+          </form>
+        </CardFooter>
+      ) : null}
+    </Card>
   )
 }

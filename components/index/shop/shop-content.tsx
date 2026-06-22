@@ -42,14 +42,14 @@ export function ShopContent() {
       <div className='mx-auto w-full px-5 py-16 sm:px-8 lg:px-12 lg:py-20'>
         <div className='mb-8 flex flex-col gap-4 md:flex-row md:items-end md:justify-between'>
           <div>
-            <p className='mb-3 text-sm font-medium uppercase text-black/50'>
+            <p className='mb-3 text-sm font-medium uppercase text-muted-foreground'>
               Browse
             </p>
             <h2 className='font-heading text-4xl font-bold leading-tight sm:text-5xl'>
               Shop the edit
             </h2>
           </div>
-          <p className='text-sm text-black/55'>
+          <p className='text-sm text-muted-foreground'>
             {filteredProducts.length} item
             {filteredProducts.length === 1 ? '' : 's'}
           </p>

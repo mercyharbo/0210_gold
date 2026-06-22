@@ -108,10 +108,10 @@ const quickLinks = [
 export default function FaqPage() {
   return (
     <div className='bg-white text-black'>
-      <section className='bg-[#f7f5f0]'>
+      <section className='bg-muted'>
         <div className='mx-auto grid w-full gap-10 px-5 py-16 sm:px-8 lg:grid-cols-[0.9fr_1.1fr] lg:items-end lg:px-12 lg:py-24'>
           <div className='max-w-3xl'>
-            <p className='mb-4 text-sm font-medium uppercase text-black/55'>
+            <p className='mb-4 text-sm font-medium uppercase text-muted-foreground'>
               FAQs
             </p>
             <h1 className='font-heading text-5xl font-bold leading-[0.95] sm:text-6xl lg:text-7xl'>
@@ -119,7 +119,7 @@ export default function FaqPage() {
             </h1>
           </div>
 
-          <p className='max-w-2xl text-base leading-7 text-black/68 lg:ml-auto'>
+          <p className='max-w-2xl text-base leading-7 text-muted-foreground lg:ml-auto'>
             Find quick answers about the shop, UK personal shopping, Nigeria
             delivery, orders, and the businesses under 0210.
           </p>
@@ -137,7 +137,7 @@ export default function FaqPage() {
               >
                 <Icon className='mb-6 size-5 stroke-[1.6]' />
                 <h2 className='font-heading text-xl font-semibold'>{title}</h2>
-                <p className='mt-3 text-sm leading-6 text-black/65'>
+                <p className='mt-3 text-sm leading-6 text-muted-foreground'>
                   {description}
                 </p>
                 <span className='mt-5 inline-flex items-center gap-3 text-sm font-medium text-black'>
@@ -161,11 +161,11 @@ export default function FaqPage() {
                         <span className='font-heading text-2xl font-semibold leading-tight'>
                           {item.question}
                         </span>
-                        <span className='mt-1 text-2xl leading-none text-black/45 transition-transform group-open:rotate-45'>
+                        <span className='mt-1 text-2xl leading-none text-muted-foreground transition-transform group-open:rotate-45'>
                           +
                         </span>
                       </summary>
-                      <p className='mt-4 max-w-3xl text-sm leading-6 text-black/65'>
+                      <p className='mt-4 max-w-3xl text-sm leading-6 text-muted-foreground'>
                         {item.answer}
                       </p>
                     </details>

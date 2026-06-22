@@ -26,7 +26,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
       title='Access your 0210 Gold account.'
       description='Sign in to review orders, saved products, personal shopping requests, addresses, and customer support history.'
       footer={
-        <div className='flex flex-col gap-3 text-sm text-black/62 sm:flex-row sm:items-center sm:justify-between'>
+        <div className='flex flex-col gap-3 text-sm text-muted-foreground sm:flex-row sm:items-center sm:justify-between'>
           <span>New customer?</span>
           <Link
             href='/signup'
@@ -38,7 +38,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
       }
     >
       <div className='mb-8'>
-        <p className='text-xs font-semibold uppercase text-[#b88a2b]'>
+        <p className='text-xs font-semibold uppercase text-gold'>
           Welcome back
         </p>
         <h2 className='mt-2 font-heading text-4xl font-semibold'>
@@ -61,7 +61,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
       ) : null}
 
       {params?.message ? (
-        <p className='mb-5 border border-[#f3d77a] bg-[#fff8df] px-4 py-3 text-sm leading-6 text-black/70'>
+        <p className='mb-5 border border-gold/40 bg-gold/10 px-4 py-3 text-sm leading-6 text-muted-foreground'>
           {params.message}
         </p>
       ) : null}

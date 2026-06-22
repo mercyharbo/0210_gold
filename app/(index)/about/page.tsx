@@ -26,16 +26,16 @@ const values = [
 export default function AboutPage() {
   return (
     <div className='bg-white text-black'>
-      <section className='bg-[#f7f5f0]'>
+      <section className='bg-muted'>
         <div className='mx-auto grid min-h-[calc(100svh-5rem)] w-full gap-10 px-5 py-14 sm:px-8 lg:grid-cols-[0.9fr_1.1fr] lg:px-12 lg:py-0'>
           <div className='flex max-w-3xl flex-col justify-center gap-6'>
-            <p className='text-sm font-medium uppercase text-black/50'>
+            <p className='text-sm font-medium uppercase text-muted-foreground'>
               About 0210
             </p>
             <h1 className='font-heading text-5xl font-bold leading-[0.95] sm:text-6xl lg:text-7xl'>
               Fashion, gold, and shopping support between the UK and Nigeria
             </h1>
-            <p className='max-w-2xl text-base leading-7 text-black/70'>
+            <p className='max-w-2xl text-base leading-7 text-muted-foreground'>
               0210 started with a love for gold and style, and is growing into
               a home for fashion-led services and businesses. The focus is
               simple: help clients find beautiful pieces, shop with confidence,
@@ -75,7 +75,7 @@ export default function AboutPage() {
         <div className='mx-auto w-full px-5 py-16 sm:px-8 lg:px-12 lg:py-20'>
           <div className='grid gap-10 lg:grid-cols-[0.85fr_1.15fr]'>
             <div>
-              <p className='mb-3 text-sm font-medium uppercase text-black/50'>
+              <p className='mb-3 text-sm font-medium uppercase text-muted-foreground'>
                 What we do
               </p>
               <h2 className='font-heading text-4xl font-bold leading-tight sm:text-5xl'>
@@ -90,7 +90,7 @@ export default function AboutPage() {
                   <h3 className='font-heading text-xl font-semibold'>
                     {title}
                   </h3>
-                  <p className='mt-3 text-sm leading-6 text-black/65'>
+                  <p className='mt-3 text-sm leading-6 text-muted-foreground'>
                     {description}
                   </p>
                 </article>
@@ -103,13 +103,13 @@ export default function AboutPage() {
       <section className='bg-black text-white'>
         <div className='mx-auto grid w-full gap-10 px-5 py-16 sm:px-8 lg:grid-cols-[1fr_0.9fr] lg:items-center lg:px-12 lg:py-20'>
           <div>
-            <p className='mb-3 text-sm font-medium uppercase text-white/55'>
+            <p className='mb-3 text-sm font-medium uppercase text-muted-foreground'>
               Personal shopping
             </p>
             <h2 className='font-heading text-4xl font-bold leading-tight sm:text-5xl'>
               Based in the UK, shopping for clients in Nigeria
             </h2>
-            <p className='mt-5 max-w-2xl text-base leading-7 text-white/70'>
+            <p className='mt-5 max-w-2xl text-base leading-7 text-muted-foreground'>
               Clients can send requests for fashion, gold, accessories, shoes,
               bags, and special pieces. We help source the items in the UK,
               prepare the order, and arrange waybill delivery to Nigeria.
@@ -119,7 +119,7 @@ export default function AboutPage() {
           <div className='border border-white/15 p-6'>
             <div className='space-y-6'>
               <div>
-                <p className='text-xs font-medium uppercase text-white/45'>
+                <p className='text-xs font-medium uppercase text-muted-foreground'>
                   Step 01
                 </p>
                 <p className='mt-2 font-heading text-2xl font-semibold'>
@@ -127,7 +127,7 @@ export default function AboutPage() {
                 </p>
               </div>
               <div>
-                <p className='text-xs font-medium uppercase text-white/45'>
+                <p className='text-xs font-medium uppercase text-muted-foreground'>
                   Step 02
                 </p>
                 <p className='mt-2 font-heading text-2xl font-semibold'>
@@ -135,7 +135,7 @@ export default function AboutPage() {
                 </p>
               </div>
               <div>
-                <p className='text-xs font-medium uppercase text-white/45'>
+                <p className='text-xs font-medium uppercase text-muted-foreground'>
                   Step 03
                 </p>
                 <p className='mt-2 font-heading text-2xl font-semibold'>
@@ -150,13 +150,13 @@ export default function AboutPage() {
       <section>
         <div className='mx-auto grid w-full gap-8 px-5 py-16 sm:px-8 lg:grid-cols-[1fr_auto] lg:items-end lg:px-12 lg:py-20'>
           <div>
-            <p className='mb-3 text-sm font-medium uppercase text-black/50'>
+            <p className='mb-3 text-sm font-medium uppercase text-muted-foreground'>
               Growing with intention
             </p>
             <h2 className='max-w-3xl font-heading text-4xl font-bold leading-tight sm:text-5xl'>
               0210 is becoming a home for more than one business
             </h2>
-            <p className='mt-5 max-w-2xl text-base leading-7 text-black/65'>
+            <p className='mt-5 max-w-2xl text-base leading-7 text-muted-foreground'>
               Gold and fashion remain central, while new businesses such as
               Nigerian delicacies and future services will sit under the wider
               0210 direction as they are ready.

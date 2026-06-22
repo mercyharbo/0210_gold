@@ -90,7 +90,7 @@ export function IndexFooter() {
             <h2 className='font-heading text-xl font-semibold'>
               Join Our Newsletter
             </h2>
-            <p className='max-w-sm text-sm leading-6 text-white/75'>
+            <p className='max-w-sm text-sm leading-6 text-muted-foreground'>
               Be the first to know about new arrivals, exclusive offers and
               style inspiration.
             </p>
@@ -102,7 +102,7 @@ export function IndexFooter() {
                 id='newsletter-email'
                 type='email'
                 placeholder='Enter your email'
-                className='h-11 min-w-0 flex-1 bg-transparent text-sm text-white outline-none placeholder:text-white/45'
+                className='h-11 min-w-0 flex-1 bg-transparent text-sm text-white outline-none placeholder:text-muted-foreground'
               />
               <button
                 type='submit'
@@ -125,7 +125,7 @@ export function IndexFooter() {
                     <li key={label}>
                       <Link
                         href={href}
-                        className='text-xs text-white/70 transition-colors hover:text-white'
+                        className='text-xs text-muted-foreground transition-colors hover:text-white'
                       >
                         {label}
                       </Link>
@@ -142,7 +142,7 @@ export function IndexFooter() {
             <p className='font-heading text-[clamp(4rem,15vw,12rem)] font-bold leading-none text-white'>
               0210Gold
             </p>
-            <p className='text-xs text-white/65'>
+            <p className='text-xs text-muted-foreground'>
               &copy; 2026 0210 Gold. All Rights Reserved.
             </p>
           </div>

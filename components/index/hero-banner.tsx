@@ -4,7 +4,7 @@ import Link from 'next/link'
 
 export function HeroBanner() {
   return (
-    <section className='relative overflow-hidden bg-[#f7f5f0] text-black'>
+    <section className='relative overflow-hidden bg-muted text-black'>
       <div className='relative mx-auto grid min-h-[calc(100svh-5rem)] w-full grid-cols-1 items-center gap-8 px-5 py-10 sm:px-8 sm:py-14 lg:grid-cols-[0.9fr_1.1fr] lg:px-12 lg:py-0'>
         <div className='relative z-10 flex max-w-3xl flex-col gap-6 lg:pb-12'>
           <p className='text-sm font-medium text-black sm:text-base'>
@@ -15,7 +15,7 @@ export function HeroBanner() {
             Gold that defines you
           </h1>
 
-          <p className='max-w-md text-base leading-7 text-black/72'>
+          <p className='max-w-md text-base leading-7 text-muted-foreground'>
             Timeless gold jewellery crafted for every moment. Elegance. Quality.
             You.
           </p>

@@ -21,7 +21,7 @@ export function ProductDetailView({ product }: ProductDetailViewProps) {
         <div className='mx-auto w-full px-5 py-8 sm:px-8 lg:px-12 lg:py-12'>
           <Link
             href='/shop'
-            className='inline-flex items-center gap-2 text-sm font-medium text-black/65 transition-colors hover:text-black'
+            className='inline-flex items-center gap-2 text-sm font-medium text-muted-foreground transition-colors hover:text-black'
           >
             <ArrowLeft className='size-4 stroke-[1.8]' />
             Back to shop
@@ -34,7 +34,7 @@ export function ProductDetailView({ product }: ProductDetailViewProps) {
                   (imageSrc, index) => (
                     <div
                       key={`${imageSrc}-${index}`}
-                      className='relative aspect-square overflow-hidden bg-[#f4f4f2]'
+                      className='relative aspect-square overflow-hidden bg-muted'
                     >
                       <Image
                         src={imageSrc}
@@ -48,7 +48,7 @@ export function ProductDetailView({ product }: ProductDetailViewProps) {
                 )}
               </div>
 
-              <div className='relative aspect-[4/5] overflow-hidden bg-[#f4f4f2]'>
+              <div className='relative aspect-[4/5] overflow-hidden bg-muted'>
                 <Image
                   src={product.imageSrc}
                   alt={product.imageAlt}
@@ -63,11 +63,11 @@ export function ProductDetailView({ product }: ProductDetailViewProps) {
             <div className='lg:sticky lg:top-28'>
               <div className='border-b border-black/10 pb-8'>
                 {product.label ? (
-                  <p className='mb-4 text-xs font-medium uppercase text-black/45'>
+                  <p className='mb-4 text-xs font-medium uppercase text-muted-foreground'>
                     {product.label}
                   </p>
                 ) : null}
-                <p className='mb-3 text-sm font-medium uppercase text-black/50'>
+                <p className='mb-3 text-sm font-medium uppercase text-muted-foreground'>
                   {product.category}
                 </p>
                 <h1 className='font-heading text-5xl font-bold leading-[0.95] sm:text-6xl'>
@@ -76,14 +76,14 @@ export function ProductDetailView({ product }: ProductDetailViewProps) {
                 <p className='mt-5 font-heading text-3xl font-semibold'>
                   {formatNaira(product.price)}
                 </p>
-                <p className='mt-5 max-w-xl text-base leading-7 text-black/65'>
+                <p className='mt-5 max-w-xl text-base leading-7 text-muted-foreground'>
                   {product.description}
                 </p>
               </div>
 
               <div className='space-y-7 border-b border-black/10 py-8'>
                 <div>
-                  <p className='mb-3 text-xs font-medium uppercase text-black/45'>
+                  <p className='mb-3 text-xs font-medium uppercase text-muted-foreground'>
                     Size
                   </p>
                   <div className='flex flex-wrap gap-2'>
@@ -100,7 +100,7 @@ export function ProductDetailView({ product }: ProductDetailViewProps) {
                 </div>
 
                 <div>
-                  <p className='mb-3 text-xs font-medium uppercase text-black/45'>
+                  <p className='mb-3 text-xs font-medium uppercase text-muted-foreground'>
                     Color
                   </p>
                   <div className='flex flex-wrap gap-2'>
@@ -138,7 +138,7 @@ export function ProductDetailView({ product }: ProductDetailViewProps) {
                 <h2 className='font-heading text-2xl font-semibold'>
                   Product details
                 </h2>
-                <ul className='space-y-3 text-sm leading-6 text-black/65'>
+                <ul className='space-y-3 text-sm leading-6 text-muted-foreground'>
                   {product.details.map((detail) => (
                     <li key={detail} className='border-b border-black/10 pb-3'>
                       {detail}
@@ -156,7 +156,7 @@ export function ProductDetailView({ product }: ProductDetailViewProps) {
           <div className='mx-auto w-full px-5 py-16 sm:px-8 lg:px-12 lg:py-20'>
             <div className='mb-8 flex items-end justify-between gap-6'>
               <div>
-                <p className='mb-3 text-sm font-medium uppercase text-black/50'>
+                <p className='mb-3 text-sm font-medium uppercase text-muted-foreground'>
                   Related
                 </p>
                 <h2 className='font-heading text-4xl font-bold leading-tight'>

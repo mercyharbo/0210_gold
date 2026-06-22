@@ -60,7 +60,7 @@ export default function CartPage() {
       <section className='border-b border-black/10 px-5 py-14 sm:px-8 lg:px-12 lg:py-16'>
         <div className='mx-auto flex max-w-7xl flex-col gap-5 sm:flex-row sm:items-end sm:justify-between'>
           <div>
-            <p className='mb-4 text-xs font-semibold uppercase text-[#b88a2b]'>
+            <p className='mb-4 text-xs font-semibold uppercase text-gold'>
               Shopping cart
             </p>
             <h1 className='font-heading text-5xl font-semibold leading-none sm:text-6xl'>
@@ -80,7 +80,7 @@ export default function CartPage() {
       <section className='px-5 py-12 sm:px-8 lg:px-12'>
         <div className='mx-auto grid max-w-7xl gap-10 lg:grid-cols-[1fr_390px]'>
           <div>
-            <div className='hidden border-b border-black/10 pb-3 text-xs font-semibold uppercase text-black/45 md:grid md:grid-cols-[1fr_120px_120px]'>
+            <div className='hidden border-b border-black/10 pb-3 text-xs font-semibold uppercase text-muted-foreground md:grid md:grid-cols-[1fr_120px_120px]'>
               <span>Product</span>
               <span className='text-center'>Quantity</span>
               <span className='text-right'>Total</span>
@@ -95,7 +95,7 @@ export default function CartPage() {
                   <div className='grid grid-cols-[108px_1fr] gap-5 sm:grid-cols-[132px_1fr]'>
                     <Link
                       href={`/products/${item.id}`}
-                      className='relative aspect-square overflow-hidden bg-[#f4f1ec]'
+                      className='relative aspect-square overflow-hidden bg-muted'
                     >
                       <Image
                         src={item.imageSrc}
@@ -108,7 +108,7 @@ export default function CartPage() {
 
                     <div className='flex min-w-0 flex-col justify-between gap-5'>
                       <div>
-                        <p className='text-xs font-semibold uppercase text-[#b88a2b]'>
+                        <p className='text-xs font-semibold uppercase text-gold'>
                           {item.category}
                         </p>
                         <Link
@@ -117,7 +117,7 @@ export default function CartPage() {
                         >
                           {item.name}
                         </Link>
-                        <p className='mt-2 text-sm text-black/55'>
+                        <p className='mt-2 text-sm text-muted-foreground'>
                           {item.color} / {item.size}
                         </p>
                         <p className='mt-3 text-sm font-semibold md:hidden'>
@@ -127,7 +127,7 @@ export default function CartPage() {
 
                       <button
                         type='button'
-                        className='inline-flex w-fit items-center gap-2 text-xs font-semibold text-black/45 transition-colors hover:text-black'
+                        className='inline-flex w-fit items-center gap-2 text-xs font-semibold text-muted-foreground transition-colors hover:text-black'
                       >
                         <Trash2 className='size-4' strokeWidth={1.7} />
                         Remove
@@ -166,23 +166,23 @@ export default function CartPage() {
           <aside className='h-fit border border-black/10 p-6 sm:p-8'>
             <div className='mb-7 flex items-center justify-between gap-4'>
               <div>
-                <p className='text-xs font-semibold uppercase text-black/45'>
+                <p className='text-xs font-semibold uppercase text-muted-foreground'>
                   Summary
                 </p>
                 <h2 className='mt-2 font-heading text-3xl font-semibold'>
                   Order total
                 </h2>
               </div>
-              <ShoppingBag className='size-6 text-[#b88a2b]' strokeWidth={1.7} />
+              <ShoppingBag className='size-6 text-gold' strokeWidth={1.7} />
             </div>
 
             <div className='space-y-4 border-b border-black/10 pb-6 text-sm'>
               <div className='flex items-center justify-between gap-4'>
-                <span className='text-black/55'>Subtotal</span>
+                <span className='text-muted-foreground'>Subtotal</span>
                 <span className='font-semibold'>{formatNaira(subtotal)}</span>
               </div>
               <div className='flex items-center justify-between gap-4'>
-                <span className='text-black/55'>Delivery</span>
+                <span className='text-muted-foreground'>Delivery</span>
                 <span className='font-semibold'>{formatNaira(delivery)}</span>
               </div>
             </div>
@@ -194,7 +194,7 @@ export default function CartPage() {
 
             <Link
               href='/checkout'
-              className='inline-flex h-12 w-full items-center justify-center gap-2 bg-black px-6 text-sm font-semibold text-white transition-colors hover:bg-[#b88a2b]'
+              className='inline-flex h-12 w-full items-center justify-center gap-2 bg-black px-6 text-sm font-semibold text-white transition-colors hover:bg-gold'
             >
               Proceed to checkout
               <ArrowRight className='size-4' strokeWidth={1.8} />
@@ -203,10 +203,10 @@ export default function CartPage() {
             <div className='mt-6 grid gap-3 border-t border-black/10 pt-6'>
               <div className='flex gap-3'>
                 <ShieldCheck
-                  className='mt-0.5 size-5 text-[#b88a2b]'
+                  className='mt-0.5 size-5 text-gold'
                   strokeWidth={1.7}
                 />
-                <p className='text-sm leading-6 text-black/62'>
+                <p className='text-sm leading-6 text-muted-foreground'>
                   Checkout is prepared for secure payment, delivery details,
                   and order confirmation.
                 </p>

@@ -4,7 +4,7 @@ export const profileUpdateSchema = z.object({
   firstName: z.string().trim().min(1, 'Enter your first name.'),
   lastName: z.string().trim().min(1, 'Enter your last name.'),
   phone: z.string().trim().optional(),
-  preferences: z.array(z.string().trim().min(1)).default([]),
+  preferenceCategoryIds: z.array(z.uuid()).default([]),
 })
 
 export const addressSchema = z.object({
@@ -20,17 +20,6 @@ export const addressSchema = z.object({
   deliveryNotes: z.string().trim().optional(),
   isDefault: z.boolean().default(false),
 })
-
-export function parsePreferences(value: FormDataEntryValue | null) {
-  if (typeof value !== 'string') {
-    return []
-  }
-
-  return value
-    .split(',')
-    .map((preference) => preference.trim())
-    .filter(Boolean)
-}
 
 export function getCheckboxValue(value: FormDataEntryValue | null) {
   return value === 'on' || value === 'true'

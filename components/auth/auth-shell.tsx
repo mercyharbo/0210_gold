@@ -18,35 +18,35 @@ export function AuthShell({
   footer,
 }: AuthShellProps) {
   return (
-    <main className='min-h-dvh bg-[#f7f5f0] text-black'>
+    <main className='min-h-dvh bg-muted text-black'>
       <div className='grid min-h-dvh lg:grid-cols-[0.82fr_1.18fr]'>
         <section className='flex flex-col justify-between bg-black px-5 py-8 text-white sm:px-8 lg:px-12'>
           <Link
             href='/'
-            className='inline-flex w-fit items-center gap-3 text-sm font-medium text-white/75 transition-colors hover:text-white'
+            className='inline-flex w-fit items-center gap-3 text-sm font-medium text-muted-foreground transition-colors hover:text-white'
           >
             <ArrowLeft className='size-4' strokeWidth={1.7} />
             Back to home
           </Link>
 
           <div className='py-16 lg:py-24'>
-            <p className='mb-5 text-xs font-semibold uppercase text-[#f3d77a]'>
+            <p className='mb-5 text-xs font-semibold uppercase text-gold'>
               {eyebrow}
             </p>
             <h1 className='max-w-xl font-heading text-5xl font-semibold leading-[0.95] sm:text-6xl'>
               {title}
             </h1>
-            <p className='mt-6 max-w-lg text-sm leading-6 text-white/68'>
+            <p className='mt-6 max-w-lg text-sm leading-6 text-muted-foreground'>
               {description}
             </p>
           </div>
 
           <div className='flex max-w-md gap-3 border-t border-white/15 pt-6'>
             <ShieldCheck
-              className='mt-0.5 size-5 shrink-0 text-[#f3d77a]'
+              className='mt-0.5 size-5 shrink-0 text-gold'
               strokeWidth={1.7}
             />
-            <p className='text-xs leading-5 text-white/58'>
+            <p className='text-xs leading-5 text-muted-foreground'>
               Your account keeps shopping activity, order support, saved items,
               and security settings connected in one place.
             </p>
@@ -65,6 +65,6 @@ export function AuthShell({
 }
 
 export const authInputClassName =
-  'h-12 w-full border border-black/15 bg-white px-4 text-sm text-black outline-none transition-colors placeholder:text-black/35 focus:border-black'
+  'h-12 w-full border border-black/15 bg-white px-4 text-sm text-black outline-none transition-colors placeholder:text-muted-foreground focus:border-black'
 
-export const authLabelClassName = 'text-xs font-semibold uppercase text-black/45'
+export const authLabelClassName = 'text-xs font-semibold uppercase text-muted-foreground'

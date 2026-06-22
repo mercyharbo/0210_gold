@@ -13,5 +13,5 @@ export type ProfileUpdateInput = {
   firstName: string
   lastName: string
   phone?: string
-  preferences?: string[]
+  preferenceCategoryIds?: string[]
 }

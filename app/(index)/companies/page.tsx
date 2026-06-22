@@ -55,10 +55,10 @@ const principles = [
 export default function CompaniesPage() {
   return (
     <div className='bg-white text-black'>
-      <section className='bg-[#f7f5f0]'>
+      <section className='bg-muted'>
         <div className='mx-auto grid w-full gap-10 px-5 py-16 sm:px-8 lg:grid-cols-[0.95fr_1.05fr] lg:px-12 lg:py-24'>
           <div className='flex max-w-3xl flex-col justify-center'>
-            <p className='mb-4 text-sm font-medium uppercase text-black/55'>
+            <p className='mb-4 text-sm font-medium uppercase text-muted-foreground'>
               Companies
             </p>
             <h1 className='font-heading text-5xl font-bold leading-[0.95] text-black sm:text-6xl lg:text-7xl'>
@@ -67,7 +67,7 @@ export default function CompaniesPage() {
           </div>
 
           <div className='flex flex-col justify-end gap-6 lg:pb-2'>
-            <p className='max-w-2xl text-base leading-7 text-black/68'>
+            <p className='max-w-2xl text-base leading-7 text-muted-foreground'>
               0210 brings together a focused group of businesses shaped around
               style, service, and everyday client needs. Gold and fashion sit
               alongside homemade Nigerian delicacies, giving each offer a clear
@@ -76,19 +76,19 @@ export default function CompaniesPage() {
             <div className='grid gap-4 sm:grid-cols-3'>
               <div className='border border-black/10 bg-white p-4'>
                 <p className='font-heading text-3xl font-semibold'>02</p>
-                <p className='mt-2 text-xs font-medium uppercase text-black/45'>
+                <p className='mt-2 text-xs font-medium uppercase text-muted-foreground'>
                   Businesses
                 </p>
               </div>
               <div className='border border-black/10 bg-white p-4'>
                 <p className='font-heading text-3xl font-semibold'>02</p>
-                <p className='mt-2 text-xs font-medium uppercase text-black/45'>
+                <p className='mt-2 text-xs font-medium uppercase text-muted-foreground'>
                   Active offers
                 </p>
               </div>
               <div className='border border-black/10 bg-white p-4'>
                 <p className='font-heading text-3xl font-semibold'>UK</p>
-                <p className='mt-2 text-xs font-medium uppercase text-black/45'>
+                <p className='mt-2 text-xs font-medium uppercase text-muted-foreground'>
                   Based service
                 </p>
               </div>
@@ -100,7 +100,7 @@ export default function CompaniesPage() {
       <section>
         <div className='mx-auto w-full px-5 py-16 sm:px-8 lg:px-12 lg:py-20'>
           <div className='mb-10 max-w-3xl'>
-            <p className='mb-3 text-sm font-medium uppercase text-black/50'>
+            <p className='mb-3 text-sm font-medium uppercase text-muted-foreground'>
               Our businesses
             </p>
             <h2 className='font-heading text-4xl font-bold leading-tight sm:text-5xl'>
@@ -133,10 +133,10 @@ export default function CompaniesPage() {
                 <div className='flex flex-col justify-between gap-10 p-6 sm:p-8 lg:p-10'>
                   <div>
                     <div className='mb-8 flex flex-wrap items-center justify-between gap-4'>
-                      <p className='text-xs font-medium uppercase text-black/45'>
+                      <p className='text-xs font-medium uppercase text-muted-foreground'>
                         {company.category}
                       </p>
-                      <span className='border border-black/15 px-3 py-1 text-xs font-medium text-black/65'>
+                      <span className='border border-black/15 px-3 py-1 text-xs font-medium text-muted-foreground'>
                         {company.status}
                       </span>
                     </div>
@@ -144,7 +144,7 @@ export default function CompaniesPage() {
                     <h3 className='font-heading text-4xl font-semibold leading-tight sm:text-5xl'>
                       {company.name}
                     </h3>
-                    <p className='mt-5 max-w-xl text-base leading-7 text-black/65'>
+                    <p className='mt-5 max-w-xl text-base leading-7 text-muted-foreground'>
                       {company.description}
                     </p>
 
@@ -152,7 +152,7 @@ export default function CompaniesPage() {
                       {company.highlights.map((highlight) => (
                         <span
                           key={highlight}
-                          className='border border-black/10 px-3 py-2 text-xs font-medium uppercase text-black/55'
+                          className='border border-black/10 px-3 py-2 text-xs font-medium uppercase text-muted-foreground'
                         >
                           {highlight}
                         </span>
@@ -161,7 +161,7 @@ export default function CompaniesPage() {
                   </div>
 
                   <div className='flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between'>
-                    <p className='text-xs font-medium uppercase text-black/45'>
+                    <p className='text-xs font-medium uppercase text-muted-foreground'>
                       /companies/{company.slug}
                     </p>
                     <Link
@@ -183,7 +183,7 @@ export default function CompaniesPage() {
         <div className='mx-auto w-full px-5 py-16 sm:px-8 lg:px-12 lg:py-20'>
           <div className='grid gap-10 lg:grid-cols-[0.75fr_1.25fr]'>
             <div>
-              <p className='mb-3 text-sm font-medium uppercase text-white/55'>
+              <p className='mb-3 text-sm font-medium uppercase text-muted-foreground'>
                 How we work
               </p>
               <h2 className='font-heading text-4xl font-bold leading-tight sm:text-5xl'>
@@ -198,7 +198,7 @@ export default function CompaniesPage() {
                   <h3 className='font-heading text-xl font-semibold'>
                     {title}
                   </h3>
-                  <p className='mt-3 text-sm leading-6 text-white/65'>
+                  <p className='mt-3 text-sm leading-6 text-muted-foreground'>
                     {description}
                   </p>
                 </article>
@@ -211,13 +211,13 @@ export default function CompaniesPage() {
       <section>
         <div className='mx-auto grid w-full gap-8 px-5 py-16 sm:px-8 lg:grid-cols-[1fr_auto] lg:items-end lg:px-12 lg:py-20'>
           <div>
-            <p className='mb-3 text-sm font-medium uppercase text-black/50'>
+            <p className='mb-3 text-sm font-medium uppercase text-muted-foreground'>
               Work with us
             </p>
             <h2 className='max-w-3xl font-heading text-4xl font-bold leading-tight sm:text-5xl'>
               Explore the right business for what you need
             </h2>
-            <p className='mt-5 max-w-2xl text-base leading-7 text-black/65'>
+            <p className='mt-5 max-w-2xl text-base leading-7 text-muted-foreground'>
               Shop gold and fashion-led pieces through 0210 Gold, request UK
               personal shopping support, or enquire about Nigerian delicacies
               for private cooking orders.

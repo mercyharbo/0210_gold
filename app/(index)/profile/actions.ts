@@ -4,6 +4,7 @@ import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 
 import { requireUser } from '@/lib/auth/session'
+import { updateProfileCategoryPreferences } from '@/lib/profile/categories'
 import {
   createCustomerAddress,
   deleteCustomerAddress,
@@ -14,7 +15,6 @@ import {
 import {
   addressSchema,
   getCheckboxValue,
-  parsePreferences,
   profileUpdateSchema,
 } from '@/lib/validations/profile'
 
@@ -38,7 +38,9 @@ export async function updateProfileDetails(formData: FormData) {
     firstName: formData.get('firstName'),
     lastName: formData.get('lastName'),
     phone: formData.get('phone'),
-    preferences: parsePreferences(formData.get('preferences')),
+    preferenceCategoryIds: formData
+      .getAll('preferenceCategoryIds')
+      .filter((value): value is string => typeof value === 'string'),
   })
 
   if (!parsed.success) {
@@ -46,6 +48,10 @@ export async function updateProfileDetails(formData: FormData) {
   }
 
   await updateCustomerProfile(user, parsed.data)
+  await updateProfileCategoryPreferences(
+    user.id,
+    parsed.data.preferenceCategoryIds,
+  )
   revalidatePath('/profile')
   redirectWithMessage('Profile updated successfully.')
 }

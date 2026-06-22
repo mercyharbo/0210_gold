@@ -8,11 +8,11 @@ type ProductCardProps = {
 
 function getLabelClassName(label: string) {
   if (label === 'New in') {
-    return 'bg-[#b91c1c] text-white'
+    return 'bg-destructive text-white'
   }
 
   if (label === 'Best seller') {
-    return 'bg-[#d7a83f] text-black'
+    return 'bg-gold text-black'
   }
 
   return 'bg-black text-white'
@@ -21,7 +21,7 @@ function getLabelClassName(label: string) {
 export function ProductCard({ product }: ProductCardProps) {
   return (
     <Link href={`/products/${product.id}`} className='group block text-black'>
-      <div className='relative aspect-square overflow-hidden bg-[#f4f4f2]'>
+      <div className='relative aspect-square overflow-hidden bg-muted'>
         {product.label ? (
           <span
             className={`absolute left-3 top-3 z-10 px-3 py-1 text-[11px] font-medium uppercase ${getLabelClassName(product.label)}`}

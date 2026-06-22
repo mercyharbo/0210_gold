@@ -27,7 +27,7 @@ const trackingSteps = [
 ]
 
 const inputClassName =
-  'h-12 w-full border border-black/15 bg-white px-4 text-sm text-black outline-none transition-colors placeholder:text-black/35 focus:border-black'
+  'h-12 w-full border border-black/15 bg-white px-4 text-sm text-black outline-none transition-colors placeholder:text-muted-foreground focus:border-black'
 
 export default function TrackOrderPage() {
   return (
@@ -35,7 +35,7 @@ export default function TrackOrderPage() {
       <section className='border-b border-black/10 px-5 py-16 sm:px-8 lg:px-12 lg:py-20'>
         <div className='mx-auto grid max-w-7xl gap-12 lg:grid-cols-[0.95fr_1.05fr] lg:items-end'>
           <div>
-            <p className='mb-4 text-xs font-semibold uppercase text-[#b88a2b]'>
+            <p className='mb-4 text-xs font-semibold uppercase text-gold'>
               Order tracking
             </p>
             <h1 className='max-w-3xl font-heading text-5xl font-semibold leading-[0.95] sm:text-6xl lg:text-7xl'>
@@ -43,7 +43,7 @@ export default function TrackOrderPage() {
             </h1>
           </div>
 
-          <p className='max-w-2xl text-base leading-7 text-black/65 lg:justify-self-end'>
+          <p className='max-w-2xl text-base leading-7 text-muted-foreground lg:justify-self-end'>
             Use your order number, email, phone number, or waybill reference to
             check the progress of fashion orders, jewellery purchases, and UK to
             Nigeria deliveries.
@@ -56,14 +56,14 @@ export default function TrackOrderPage() {
           <div className='border border-black/10 p-6 sm:p-8'>
             <div className='mb-8 flex items-center justify-between gap-4'>
               <div>
-                <p className='text-xs font-semibold uppercase text-black/45'>
+                <p className='text-xs font-semibold uppercase text-muted-foreground'>
                   Find order
                 </p>
                 <h2 className='mt-2 font-heading text-3xl font-semibold'>
                   Enter your details
                 </h2>
               </div>
-              <Search className='size-6 text-[#b88a2b]' strokeWidth={1.7} />
+              <Search className='size-6 text-gold' strokeWidth={1.7} />
             </div>
 
             <form className='space-y-5'>
@@ -99,7 +99,7 @@ export default function TrackOrderPage() {
 
               <button
                 type='submit'
-                className='inline-flex h-12 w-full items-center justify-center gap-2 bg-black px-6 text-sm font-semibold text-white transition-colors hover:bg-[#b88a2b]'
+                className='inline-flex h-12 w-full items-center justify-center gap-2 bg-black px-6 text-sm font-semibold text-white transition-colors hover:bg-gold'
               >
                 Track order
                 <ArrowRight className='size-4' strokeWidth={1.8} />
@@ -114,10 +114,10 @@ export default function TrackOrderPage() {
                 className='grid gap-5 border border-black/10 p-6 sm:grid-cols-[auto_1fr] sm:items-start'
               >
                 <div className='flex items-center gap-4'>
-                  <span className='grid size-11 place-items-center bg-[#f3d77a] text-black'>
+                  <span className='grid size-11 place-items-center bg-gold/35 text-black'>
                     <Icon className='size-5' strokeWidth={1.7} />
                   </span>
-                  <span className='text-sm font-semibold text-black/35'>
+                  <span className='text-sm font-semibold text-muted-foreground'>
                     0{index + 1}
                   </span>
                 </div>
@@ -125,7 +125,7 @@ export default function TrackOrderPage() {
                   <h3 className='font-heading text-2xl font-semibold'>
                     {title}
                   </h3>
-                  <p className='mt-2 max-w-xl text-sm leading-6 text-black/62'>
+                  <p className='mt-2 max-w-xl text-sm leading-6 text-muted-foreground'>
                     {description}
                   </p>
                 </div>
@@ -134,20 +134,20 @@ export default function TrackOrderPage() {
 
             <div className='border border-black bg-black p-6 text-white sm:p-8'>
               <HelpCircle
-                className='mb-5 size-6 text-[#f3d77a]'
+                className='mb-5 size-6 text-gold'
                 strokeWidth={1.7}
               />
               <h3 className='font-heading text-3xl font-semibold'>
                 Need help with an order?
               </h3>
-              <p className='mt-3 max-w-2xl text-sm leading-6 text-white/70'>
+              <p className='mt-3 max-w-2xl text-sm leading-6 text-muted-foreground'>
                 Send your order details and delivery name so support can check
                 the latest status and confirm the next update.
               </p>
               <div className='mt-6 flex flex-wrap gap-3'>
                 <Link
                   href='/contact'
-                  className='inline-flex h-11 items-center justify-center bg-white px-5 text-sm font-semibold text-black transition-colors hover:bg-[#f3d77a]'
+                  className='inline-flex h-11 items-center justify-center bg-white px-5 text-sm font-semibold text-black transition-colors hover:bg-gold/35'
                 >
                   Contact support
                 </Link>
