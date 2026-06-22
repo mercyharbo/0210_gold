@@ -121,13 +121,6 @@ const supportLinks = [
   },
 ]
 
-type ProfilePageProps = {
-  searchParams?: Promise<{
-    error?: string
-    message?: string
-  }>
-}
-
 function ProfileSetupRequired() {
   return (
     <div className='bg-white text-black'>
@@ -157,9 +150,8 @@ function ProfileSetupRequired() {
   )
 }
 
-export default async function ProfilePage({ searchParams }: ProfilePageProps) {
+export default async function ProfilePage() {
   const user = await requireUser('/login?error=Sign in to access your profile.')
-  const params = await searchParams
   let profile
   let addresses
   let categories
@@ -253,21 +245,6 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
 
       <section className='px-5 py-12 sm:px-8 lg:px-12'>
         <div className='mx-auto max-w-7xl space-y-6'>
-          {params?.message ? (
-            <Card className='rounded-none bg-gold/10 ring-gold/40' size='sm'>
-              <CardContent className='text-sm font-semibold text-black'>
-                {params.message}
-              </CardContent>
-            </Card>
-          ) : null}
-          {params?.error ? (
-            <Card className='rounded-none bg-red-50 ring-red-200' size='sm'>
-              <CardContent className='text-sm font-semibold text-red-700'>
-                {params.error}
-              </CardContent>
-            </Card>
-          ) : null}
-
           <ProfileForms
             profile={profile}
             addresses={addresses}

@@ -1,12 +1,9 @@
 import { ProductDetailView } from '@/components/index/product-details'
-import { getProductById, products } from '@/components/index/shop/shop-data'
+import {
+  getRelatedStorefrontProducts,
+  getStorefrontProductBySlug,
+} from '@/lib/products/storefront-products'
 import { notFound } from 'next/navigation'
-
-export function generateStaticParams() {
-  return products.map((product) => ({
-    slug: product.id,
-  }))
-}
 
 export default async function ProductDetailsPage({
   params,
@@ -14,11 +11,15 @@ export default async function ProductDetailsPage({
   params: Promise<{ slug: string }>
 }) {
   const { slug } = await params
-  const product = getProductById(slug)
+  const product = await getStorefrontProductBySlug(slug)
 
   if (!product) {
     notFound()
   }
 
-  return <ProductDetailView product={product} />
+  const relatedProducts = await getRelatedStorefrontProducts(product)
+
+  return (
+    <ProductDetailView product={product} relatedProducts={relatedProducts} />
+  )
 }

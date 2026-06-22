@@ -1,10 +1,9 @@
 import { Search } from 'lucide-react'
-import type { ProductCategory } from './shop-data'
 
 type ShopControlsProps = {
-  activeCategory: 'All' | ProductCategory
-  categories: Array<'All' | ProductCategory>
-  onCategoryChange: (category: 'All' | ProductCategory) => void
+  activeCategory: string
+  categories: string[]
+  onCategoryChange: (category: string) => void
   onQueryChange: (query: string) => void
   onSortChange: (sort: string) => void
   query: string

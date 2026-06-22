@@ -1,7 +1,9 @@
 import type { Metadata, Viewport } from "next";
 import { Bodoni_Moda, Geist_Mono, Inter } from "next/font/google";
+import { Suspense } from "react";
 import "./globals.css";
 import { cn } from "@/lib/utils";
+import { QueryParamToast } from "@/components/query-param-toast";
 import { TooltipProvider } from "@/components/ui/tooltip";
 
 const inter = Inter({
@@ -113,7 +115,12 @@ export default function RootLayout({
       )}
     >
       <body className="min-h-full flex flex-col">
-        <TooltipProvider>{children}</TooltipProvider>
+        <TooltipProvider>
+          {children}
+          <Suspense fallback={null}>
+            <QueryParamToast />
+          </Suspense>
+        </TooltipProvider>
       </body>
     </html>
   );

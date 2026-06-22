@@ -2,7 +2,7 @@ import { NextResponse, type NextRequest } from 'next/server'
 
 import { createSupabaseProxyClient } from '@/lib/supabase/proxy'
 
-const authRequiredRoutes = ['/profile', '/checkout']
+const authRequiredRoutes = ['/profile', '/checkout', '/admin']
 const guestOnlyRoutes = ['/login', '/signup', '/register', '/forgot-password']
 const changePasswordRoute = '/change-password'
 
@@ -58,6 +58,7 @@ export const config = {
   matcher: [
     '/profile/:path*',
     '/checkout/:path*',
+    '/admin/:path*',
     '/login',
     '/signup',
     '/register',

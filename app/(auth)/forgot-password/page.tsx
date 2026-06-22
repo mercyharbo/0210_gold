@@ -1,63 +1,24 @@
 import Link from 'next/link'
 
 import {
-  AuthShell,
   authInputClassName,
   authLabelClassName,
-} from '@/components/auth/auth-shell'
+} from '@/components/auth/auth-form-styles'
 import { AuthSubmitButton } from '@/components/auth/auth-submit-button'
 
 import { forgotPassword } from '../actions'
 
-type ForgotPasswordPageProps = {
-  searchParams?: Promise<{
-    error?: string
-    message?: string
-  }>
-}
-
-export default async function ForgotPasswordPage({
-  searchParams,
-}: ForgotPasswordPageProps) {
-  const params = await searchParams
-
+export default function ForgotPasswordPage() {
   return (
-    <AuthShell
-      eyebrow='Password reset'
-      title='Recover access to your account.'
-      description='Use the email connected to your customer profile to start the password reset process.'
-      footer={
-        <div className='flex flex-col gap-3 text-sm text-muted-foreground sm:flex-row sm:items-center sm:justify-between'>
-          <span>Remember your password?</span>
-          <Link
-            href='/login'
-            className='font-semibold text-black underline underline-offset-4'
-          >
-            Back to login
-          </Link>
-        </div>
-      }
-    >
+    <>
       <div className='mb-8'>
         <p className='text-xs font-semibold uppercase text-gold'>
           Reset password
         </p>
-        <h2 className='mt-2 font-heading text-4xl font-semibold'>
+        <h2 className='mt-2 font-sans text-4xl font-semibold'>
           Email verification
         </h2>
       </div>
-
-      {params?.error ? (
-        <p className='mb-5 border border-red-200 bg-red-50 px-4 py-3 text-sm leading-6 text-red-700'>
-          {params.error}
-        </p>
-      ) : null}
-
-      {params?.message ? (
-        <p className='mb-5 border border-gold/40 bg-gold/10 px-4 py-3 text-sm leading-6 text-muted-foreground'>
-          {params.message}
-        </p>
-      ) : null}
 
       <form action={forgotPassword} className='space-y-5'>
         <label className='block space-y-2'>
@@ -77,6 +38,16 @@ export default async function ForgotPasswordPage({
           loadingLabel='Sending reset link'
         />
       </form>
-    </AuthShell>
+
+      <div className='mt-7 flex flex-col gap-3 border-t border-black/10 pt-6 text-sm text-muted-foreground sm:flex-row sm:items-center sm:justify-between'>
+        <span>Remember your password?</span>
+        <Link
+          href='/login'
+          className='font-semibold text-black underline underline-offset-4'
+        >
+          Back to login
+        </Link>
+      </div>
+    </>
   )
 }

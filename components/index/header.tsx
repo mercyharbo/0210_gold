@@ -12,6 +12,7 @@ import {
 import {
   Sheet,
   SheetContent,
+  SheetDescription,
   SheetHeader,
   SheetTitle,
 } from '@/components/ui/sheet'
@@ -27,7 +28,10 @@ import {
   X,
 } from 'lucide-react'
 import Link from 'next/link'
-import { useLayoutEffect, useRef, useState } from 'react'
+import { usePathname, useRouter } from 'next/navigation'
+import { type FormEvent, useLayoutEffect, useRef, useState } from 'react'
+
+import { cn } from '@/lib/utils'
 
 const navItems = [
   { href: '/about', label: 'About' },
@@ -62,8 +66,35 @@ function BrandMark() {
 
 export function IndexHeader() {
   const [menuOpen, setMenuOpen] = useState(false)
+  const [searchOpen, setSearchOpen] = useState(false)
+  const [searchQuery, setSearchQuery] = useState('')
+  const pathname = usePathname()
+  const router = useRouter()
   const desktopNavItemsRef = useRef<HTMLAnchorElement[]>([])
   const mobileNavScopeRef = useRef<HTMLDivElement>(null)
+
+  function isActiveNavItem(href: string) {
+    return (
+      pathname === href ||
+      pathname.startsWith(`${href}/`) ||
+      (href === '/shop' && pathname.startsWith('/products/'))
+    )
+  }
+
+  function submitSearch(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault()
+
+    const normalizedQuery = searchQuery.trim()
+
+    setSearchOpen(false)
+    setMenuOpen(false)
+
+    router.push(
+      normalizedQuery
+        ? `/shop?q=${encodeURIComponent(normalizedQuery)}`
+        : '/shop',
+    )
+  }
 
   useLayoutEffect(() => {
     const desktopItems = desktopNavItemsRef.current.filter(Boolean)
@@ -142,7 +173,10 @@ export function IndexHeader() {
                     desktopNavItemsRef.current[navItems.indexOf(item)] = node
                 }}
                 href={item.href}
-                className='invisible text-sm font-medium text-black transition-opacity hover:opacity-60'
+                className={cn(
+                  'invisible text-sm font-medium transition-opacity hover:opacity-60',
+                  isActiveNavItem(item.href) ? 'text-gold' : 'text-black',
+                )}
               >
                 {item.label}
               </Link>
@@ -164,7 +198,10 @@ export function IndexHeader() {
                     desktopNavItemsRef.current[navItems.indexOf(item)] = node
                 }}
                 href={item.href}
-                className='invisible text-sm font-medium text-black transition-opacity hover:opacity-60'
+                className={cn(
+                  'invisible text-sm font-medium transition-opacity hover:opacity-60',
+                  isActiveNavItem(item.href) ? 'text-gold' : 'text-black',
+                )}
               >
                 {item.label}
               </Link>
@@ -172,9 +209,16 @@ export function IndexHeader() {
           </nav>
 
           <div className='flex items-center gap-4'>
-            <Link aria-label='Search' href='/shop' className='text-black'>
+            <button
+              type='button'
+              aria-label='Search'
+              onClick={() => setSearchOpen(true)}
+              className={cn(
+                isActiveNavItem('/shop') ? 'text-gold' : 'text-black',
+              )}
+            >
               <Search className='size-5 stroke-[1.6]' />
-            </Link>
+            </button>
             <DropdownMenu>
               <DropdownMenuTrigger
                 aria-label='Account menu'
@@ -217,7 +261,10 @@ export function IndexHeader() {
             <Link
               aria-label='Cart'
               href='/cart'
-              className='relative text-black'
+              className={cn(
+                'relative',
+                isActiveNavItem('/cart') ? 'text-gold' : 'text-black',
+              )}
             >
               <ShoppingBag className='size-5 stroke-[1.6]' />
               <span className='absolute -right-2 -top-2 grid size-4 place-items-center rounded-full bg-black text-[10px] font-medium text-white'>
@@ -269,25 +316,97 @@ export function IndexHeader() {
                     data-mobile-nav-item
                     href={item.href}
                     onClick={() => setMenuOpen(false)}
-                    className='invisible font-heading text-2xl font-semibold text-black transition-opacity hover:opacity-60'
+                    className={cn(
+                      'invisible font-heading text-2xl font-semibold transition-opacity hover:opacity-60',
+                      isActiveNavItem(item.href) ? 'text-gold' : 'text-black',
+                    )}
                   >
                     {item.label}
                   </Link>
                 ))}
                 <span className='my-2 h-px bg-black/10' />
-                {utilityNavItems.map((item) => (
-                  <Link
-                    key={item.href}
-                    data-mobile-nav-item
-                    href={item.href}
-                    onClick={() => setMenuOpen(false)}
-                    className='invisible text-base font-medium text-black transition-opacity hover:opacity-60'
-                  >
-                    {item.label}
-                  </Link>
-                ))}
+                {utilityNavItems.map((item) =>
+                  item.label === 'Search' ? (
+                    <button
+                      key={item.href}
+                      data-mobile-nav-item
+                      type='button'
+                      onClick={() => {
+                        setMenuOpen(false)
+                        setSearchOpen(true)
+                      }}
+                      className={cn(
+                        'invisible text-left text-base font-medium transition-opacity hover:opacity-60',
+                        isActiveNavItem(item.href) ? 'text-gold' : 'text-black',
+                      )}
+                    >
+                      {item.label}
+                    </button>
+                  ) : (
+                    <Link
+                      key={item.href}
+                      data-mobile-nav-item
+                      href={item.href}
+                      onClick={() => setMenuOpen(false)}
+                      className={cn(
+                        'invisible text-base font-medium transition-opacity hover:opacity-60',
+                        isActiveNavItem(item.href)
+                          ? 'text-gold'
+                          : 'text-black',
+                      )}
+                    >
+                      {item.label}
+                    </Link>
+                  ),
+                )}
               </nav>
             </div>
+          </div>
+        </SheetContent>
+      </Sheet>
+
+      <Sheet open={searchOpen} onOpenChange={setSearchOpen}>
+        <SheetContent
+          side='top'
+          className='border-b border-black/10 bg-white p-0 text-black [&>button]:hidden'
+        >
+          <div className='mx-auto flex w-full max-w-5xl flex-col gap-6 px-5 py-6 sm:px-8'>
+            <SheetHeader className='gap-2 text-left'>
+              <SheetTitle className='font-heading text-2xl font-semibold'>
+                Search 0210 Gold
+              </SheetTitle>
+              <SheetDescription>
+                Find jewellery, bags, shoes, clothing, and curated edits.
+              </SheetDescription>
+            </SheetHeader>
+
+            <form onSubmit={submitSearch} className='flex gap-3'>
+              <label className='relative flex-1'>
+                <span className='sr-only'>Search products</span>
+                <Search className='pointer-events-none absolute left-4 top-1/2 size-4 -translate-y-1/2 stroke-[1.7] text-muted-foreground' />
+                <input
+                  value={searchQuery}
+                  onChange={(event) => setSearchQuery(event.target.value)}
+                  autoFocus
+                  placeholder='Search products...'
+                  className='h-12 w-full border border-black/10 bg-white pl-11 pr-4 text-sm text-black outline-none transition-colors placeholder:text-muted-foreground focus:border-black'
+                />
+              </label>
+              <button
+                type='submit'
+                className='h-12 bg-black px-6 text-sm font-medium text-white transition-opacity hover:opacity-80'
+              >
+                Search
+              </button>
+              <button
+                type='button'
+                aria-label='Close search'
+                onClick={() => setSearchOpen(false)}
+                className='grid h-12 w-12 place-items-center border border-black/10 text-black transition-colors hover:border-black'
+              >
+                <X className='size-5 stroke-[1.6]' />
+              </button>
+            </form>
           </div>
         </SheetContent>
       </Sheet>

@@ -1,22 +1,7 @@
 import { ArrowLeft, ShieldCheck } from 'lucide-react'
 import Link from 'next/link'
-import type { ReactNode } from 'react'
 
-type AuthShellProps = {
-  eyebrow: string
-  title: string
-  description: string
-  children: ReactNode
-  footer: ReactNode
-}
-
-export function AuthShell({
-  eyebrow,
-  title,
-  description,
-  children,
-  footer,
-}: AuthShellProps) {
+export default function AuthLayout({ children }: { children: React.ReactNode }) {
   return (
     <main className='min-h-dvh bg-muted text-black'>
       <div className='grid min-h-dvh lg:grid-cols-[0.82fr_1.18fr]'>
@@ -29,15 +14,16 @@ export function AuthShell({
             Back to home
           </Link>
 
-          <div className='py-16 lg:py-24'>
-            <p className='mb-5 text-xs font-semibold uppercase text-gold'>
-              {eyebrow}
+          <div className='flex flex-col gap-6 py-16 lg:py-24'>
+            <p className='text-xs font-semibold uppercase text-gold'>
+              0210 Gold account
             </p>
-            <h1 className='max-w-xl font-heading text-5xl font-semibold leading-[0.95] sm:text-6xl'>
-              {title}
+            <h1 className='max-w-xl font-sans text-5xl font-semibold leading-[0.95] sm:text-6xl'>
+              Manage your shopping profile securely.
             </h1>
-            <p className='mt-6 max-w-lg text-sm leading-6 text-muted-foreground'>
-              {description}
+            <p className='max-w-lg text-sm leading-6 text-muted-foreground'>
+              Sign in or create an account to keep orders, product requests,
+              saved items, addresses, and account security in one place.
             </p>
           </div>
 
@@ -56,15 +42,9 @@ export function AuthShell({
         <section className='flex items-center justify-center px-5 py-12 sm:px-8 lg:px-12'>
           <div className='w-full max-w-xl border border-black/10 bg-white p-6 sm:p-8'>
             {children}
-            <div className='mt-7 border-t border-black/10 pt-6'>{footer}</div>
           </div>
         </section>
       </div>
     </main>
   )
 }
-
-export const authInputClassName =
-  'h-12 w-full border border-black/15 bg-white px-4 text-sm text-black outline-none transition-colors placeholder:text-muted-foreground focus:border-black'
-
-export const authLabelClassName = 'text-xs font-semibold uppercase text-muted-foreground'

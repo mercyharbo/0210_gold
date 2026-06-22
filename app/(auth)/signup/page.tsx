@@ -1,46 +1,22 @@
 import Link from 'next/link'
 
 import {
-  AuthShell,
   authInputClassName,
   authLabelClassName,
-} from '@/components/auth/auth-shell'
+} from '@/components/auth/auth-form-styles'
 import { AuthSubmitButton } from '@/components/auth/auth-submit-button'
 import { PasswordInput } from '@/components/auth/password-input'
 
 import { signup } from '../actions'
 
-type SignupPageProps = {
-  searchParams?: Promise<{
-    error?: string
-  }>
-}
-
-export default async function SignupPage({ searchParams }: SignupPageProps) {
-  const params = await searchParams
-
+export default function SignupPage() {
   return (
-    <AuthShell
-      eyebrow='Create account'
-      title='Build your customer profile.'
-      description='Create an account for faster checkout, order history, product reviews, saved fashion items, and personal shopper request tracking.'
-      footer={
-        <div className='flex flex-col gap-3 text-sm text-muted-foreground sm:flex-row sm:items-center sm:justify-between'>
-          <span>Already have an account?</span>
-          <Link
-            href='/login'
-            className='font-semibold text-black underline underline-offset-4'
-          >
-            Sign in
-          </Link>
-        </div>
-      }
-    >
+    <>
       <div className='mb-8'>
         <p className='text-xs font-semibold uppercase text-gold'>
           New customer
         </p>
-        <h2 className='mt-2 font-heading text-4xl font-semibold'>
+        <h2 className='mt-2 font-sans text-4xl font-semibold'>
           Signup details
         </h2>
       </div>
@@ -49,15 +25,9 @@ export default async function SignupPage({ searchParams }: SignupPageProps) {
         type='button'
         className='mb-6 inline-flex h-12 w-full items-center justify-center gap-3 border border-black px-5 text-sm font-semibold transition-colors hover:bg-black hover:text-white'
       >
-        <span className='font-heading text-lg'>G</span>
+        <span className='text-lg font-semibold'>G</span>
         Continue with Google
       </button>
-
-      {params?.error ? (
-        <p className='mb-5 border border-red-200 bg-red-50 px-4 py-3 text-sm leading-6 text-red-700'>
-          {params.error}
-        </p>
-      ) : null}
 
       <form action={signup} className='space-y-5'>
         <div className='grid gap-5 sm:grid-cols-2'>
@@ -126,6 +96,16 @@ export default async function SignupPage({ searchParams }: SignupPageProps) {
           loadingLabel='Creating account'
         />
       </form>
-    </AuthShell>
+
+      <div className='mt-7 flex flex-col gap-3 border-t border-black/10 pt-6 text-sm text-muted-foreground sm:flex-row sm:items-center sm:justify-between'>
+        <span>Already have an account?</span>
+        <Link
+          href='/login'
+          className='font-semibold text-black underline underline-offset-4'
+        >
+          Sign in
+        </Link>
+      </div>
+    </>
   )
 }
