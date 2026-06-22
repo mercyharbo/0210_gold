@@ -1,5 +1,6 @@
-import { ok } from './response'
+import { fail, ok } from './response'
 import type { ApiHandler, ApiMethod } from './types'
+import { getCities, getCountries, getStates } from '@/lib/locations/location-data'
 
 type HandlerMap = Partial<Record<ApiMethod, Record<string, ApiHandler>>>
 
@@ -13,6 +14,33 @@ const handlers: HandlerMap = {
         },
         { message: 'API is healthy' },
       ),
+    countries: async () => {
+      try {
+        return ok(await getCountries())
+      } catch {
+        return fail('Unable to load countries', 502)
+      }
+    },
+    states: async ({ request }) => {
+      const { searchParams } = new URL(request.url)
+
+      try {
+        return ok(await getStates(searchParams.get('country')))
+      } catch {
+        return fail('Unable to load states', 502)
+      }
+    },
+    cities: async ({ request }) => {
+      const { searchParams } = new URL(request.url)
+
+      try {
+        return ok(
+          await getCities(searchParams.get('country'), searchParams.get('state')),
+        )
+      } catch {
+        return fail('Unable to load cities', 502)
+      }
+    },
   },
   POST: {
     contact: ({ body }) =>

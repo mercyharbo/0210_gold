@@ -1,12 +1,11 @@
 import {
   ArrowRight,
+  Database,
   Heart,
   History,
   LockKeyhole,
-  MapPin,
   MessageCircle,
   PackageCheck,
-  PenLine,
   ShoppingBag,
   Star,
   User,
@@ -15,14 +14,13 @@ import Image from 'next/image'
 import Link from 'next/link'
 
 import { formatNaira } from '@/components/index/shop/shop-data'
+import { ProfileForms } from '@/components/profile/profile-forms'
 import { requireUser } from '@/lib/auth/session'
-
-const stats = [
-  { label: 'Orders', value: '6' },
-  { label: 'Reviews', value: '3' },
-  { label: 'Saved items', value: '8' },
-  { label: 'Requests', value: '2' },
-]
+import {
+  CustomerProfileSetupError,
+  ensureCustomerProfile,
+  getCustomerAddresses,
+} from '@/lib/profile/customer-profile'
 
 const orders = [
   {
@@ -112,13 +110,67 @@ const supportLinks = [
   },
 ]
 
-export default async function ProfilePage() {
+type ProfilePageProps = {
+  searchParams?: Promise<{
+    error?: string
+    message?: string
+  }>
+}
+
+function ProfileSetupRequired() {
+  return (
+    <div className='bg-white text-black'>
+      <section className='px-5 py-16 sm:px-8 lg:px-12'>
+        <div className='mx-auto max-w-3xl border border-[#d6b04d] bg-[#fff7d8] p-6 sm:p-8'>
+          <Database className='mb-5 size-6 text-[#9b6b12]' strokeWidth={1.7} />
+          <p className='text-xs font-semibold uppercase text-[#9b6b12]'>
+            Supabase setup required
+          </p>
+          <h1 className='mt-3 font-heading text-4xl font-semibold sm:text-5xl'>
+            Customer profiles are ready in the app, but the database tables are
+            not available yet.
+          </h1>
+          <p className='mt-5 text-sm leading-6 text-black/65'>
+            Open your Supabase project SQL editor and run the setup script at
+            <span className='font-semibold'> supabase/profiles-and-addresses.sql</span>.
+            After it runs, refresh this page. If you already ran it, refresh
+            Supabase schema cache or restart the dev server.
+          </p>
+        </div>
+      </section>
+    </div>
+  )
+}
+
+export default async function ProfilePage({ searchParams }: ProfilePageProps) {
   const user = await requireUser('/login?error=Sign in to access your profile.')
+  const params = await searchParams
+  let profile
+  let addresses
+
+  try {
+    profile = await ensureCustomerProfile(user)
+    addresses = await getCustomerAddresses(user.id)
+  } catch (error) {
+    if (error instanceof CustomerProfileSetupError) {
+      return <ProfileSetupRequired />
+    }
+
+    throw error
+  }
 
   const fullName =
-    typeof user?.user_metadata.full_name === 'string'
+    [profile.first_name, profile.last_name].filter(Boolean).join(' ') ||
+    (typeof user?.user_metadata.full_name === 'string'
       ? user.user_metadata.full_name
-      : 'Customer'
+      : 'Customer')
+
+  const stats = [
+    { label: 'Orders', value: String(orders.length) },
+    { label: 'Reviews', value: String(reviewItems.length) },
+    { label: 'Addresses', value: String(addresses.length) },
+    { label: 'Requests', value: String(shopperRequests.length) },
+  ]
 
   return (
     <div className='bg-white text-black'>
@@ -146,7 +198,9 @@ export default async function ProfilePage() {
                 <h2 className='font-heading text-2xl font-semibold'>
                   {fullName}
                 </h2>
-                <p className='text-sm text-black/55'>{user?.email}</p>
+                <p className='text-sm text-black/55'>
+                  {profile.email ?? user?.email}
+                </p>
               </div>
             </div>
             <div className='mt-6 grid grid-cols-2 gap-3'>
@@ -166,6 +220,27 @@ export default async function ProfilePage() {
       </section>
 
       <section className='px-5 py-12 sm:px-8 lg:px-12'>
+        <div className='mx-auto max-w-7xl'>
+          {params?.message ? (
+            <div className='mb-6 border border-[#d6b04d] bg-[#fff7d8] p-4 text-sm font-semibold text-black'>
+              {params.message}
+            </div>
+          ) : null}
+          {params?.error ? (
+            <div className='mb-6 border border-red-200 bg-red-50 p-4 text-sm font-semibold text-red-700'>
+              {params.error}
+            </div>
+          ) : null}
+
+          <ProfileForms
+            profile={profile}
+            addresses={addresses}
+            fallbackEmail={user.email}
+          />
+        </div>
+      </section>
+
+      <section className='px-5 pb-12 sm:px-8 lg:px-12'>
         <div className='mx-auto grid max-w-7xl gap-8 lg:grid-cols-[1fr_360px]'>
           <div className='space-y-8'>
             <section className='border border-black/10 p-6 sm:p-8'>
@@ -316,48 +391,6 @@ export default async function ProfilePage() {
           </div>
 
           <aside className='space-y-6'>
-            <section className='border border-black/10 p-6'>
-              <MapPin
-                className='mb-5 size-5 text-[#b88a2b]'
-                strokeWidth={1.7}
-              />
-              <p className='text-xs font-semibold uppercase text-black/45'>
-                Delivery address
-              </p>
-              <h2 className='mt-2 font-heading text-3xl font-semibold'>
-                Lagos default
-              </h2>
-              <p className='mt-4 text-sm leading-6 text-black/62'>
-                Lekki Phase 1, Lagos, Nigeria. Preferred delivery notes and
-                WhatsApp contact stay connected to checkout and waybill updates.
-              </p>
-            </section>
-
-            <section className='border border-black/10 p-6'>
-              <PenLine
-                className='mb-5 size-5 text-[#b88a2b]'
-                strokeWidth={1.7}
-              />
-              <p className='text-xs font-semibold uppercase text-black/45'>
-                Preferences
-              </p>
-              <h2 className='mt-2 font-heading text-3xl font-semibold'>
-                Style profile
-              </h2>
-              <div className='mt-5 flex flex-wrap gap-2'>
-                {['Gold jewellery', 'Abaya', 'Bags', 'UK sourcing'].map(
-                  (preference) => (
-                    <span
-                      key={preference}
-                      className='bg-[#f3d77a] px-3 py-1 text-xs font-semibold'
-                    >
-                      {preference}
-                    </span>
-                  ),
-                )}
-              </div>
-            </section>
-
             <section className='border border-black/10 p-6'>
               <History
                 className='mb-5 size-5 text-[#b88a2b]'
