@@ -8,41 +8,40 @@ import {
 import { AuthSubmitButton } from '@/components/auth/auth-submit-button'
 import { PasswordInput } from '@/components/auth/password-input'
 
-import { login } from '../actions'
+import { signup } from '../actions'
 
-type LoginPageProps = {
+type SignupPageProps = {
   searchParams?: Promise<{
     error?: string
-    message?: string
   }>
 }
 
-export default async function LoginPage({ searchParams }: LoginPageProps) {
+export default async function SignupPage({ searchParams }: SignupPageProps) {
   const params = await searchParams
 
   return (
     <AuthShell
-      eyebrow='Customer login'
-      title='Access your 0210 Gold account.'
-      description='Sign in to review orders, saved products, personal shopping requests, addresses, and customer support history.'
+      eyebrow='Create account'
+      title='Build your customer profile.'
+      description='Create an account for faster checkout, order history, product reviews, saved fashion items, and personal shopper request tracking.'
       footer={
         <div className='flex flex-col gap-3 text-sm text-black/62 sm:flex-row sm:items-center sm:justify-between'>
-          <span>New customer?</span>
+          <span>Already have an account?</span>
           <Link
-            href='/signup'
+            href='/login'
             className='font-semibold text-black underline underline-offset-4'
           >
-            Create an account
+            Sign in
           </Link>
         </div>
       }
     >
       <div className='mb-8'>
         <p className='text-xs font-semibold uppercase text-[#b88a2b]'>
-          Welcome back
+          New customer
         </p>
         <h2 className='mt-2 font-heading text-4xl font-semibold'>
-          Login details
+          Signup details
         </h2>
       </div>
 
@@ -60,13 +59,33 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
         </p>
       ) : null}
 
-      {params?.message ? (
-        <p className='mb-5 border border-[#f3d77a] bg-[#fff8df] px-4 py-3 text-sm leading-6 text-black/70'>
-          {params.message}
-        </p>
-      ) : null}
+      <form action={signup} className='space-y-5'>
+        <div className='grid gap-5 sm:grid-cols-2'>
+          <label className='block space-y-2'>
+            <span className={authLabelClassName}>First name</span>
+            <input
+              autoComplete='given-name'
+              className={authInputClassName}
+              name='firstName'
+              placeholder='First name'
+              required
+              type='text'
+            />
+          </label>
 
-      <form action={login} className='space-y-5'>
+          <label className='block space-y-2'>
+            <span className={authLabelClassName}>Last name</span>
+            <input
+              autoComplete='family-name'
+              className={authInputClassName}
+              name='lastName'
+              placeholder='Last name'
+              required
+              type='text'
+            />
+          </label>
+        </div>
+
         <label className='block space-y-2'>
           <span className={authLabelClassName}>Email address</span>
           <input
@@ -80,28 +99,31 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
         </label>
 
         <label className='block space-y-2'>
+          <span className={authLabelClassName}>Phone or WhatsApp</span>
+          <input
+            autoComplete='tel'
+            className={authInputClassName}
+            name='phone'
+            placeholder='+234...'
+            type='tel'
+          />
+        </label>
+
+        <label className='block space-y-2'>
           <span className={authLabelClassName}>Password</span>
           <PasswordInput
-            autoComplete='current-password'
+            autoComplete='new-password'
             className={authInputClassName}
+            minLength={8}
             name='password'
-            placeholder='Enter your password'
+            placeholder='Create a password'
             required
           />
         </label>
 
-        <div className='flex justify-end'>
-          <Link
-            href='/forgot-password'
-            className='text-sm font-semibold underline underline-offset-4'
-          >
-            Forgot password?
-          </Link>
-        </div>
-
         <AuthSubmitButton
-          idleLabel='Sign in'
-          loadingLabel='Signing in'
+          idleLabel='Create account'
+          loadingLabel='Creating account'
         />
       </form>
     </AuthShell>

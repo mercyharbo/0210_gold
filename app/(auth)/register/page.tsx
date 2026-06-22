@@ -1,3 +1,6 @@
-export default function page() {
-  return <div>register page</div>
+import { redirect } from 'next/navigation'
+
+export default function RegisterPage() {
+  redirect('/signup')
 }
+

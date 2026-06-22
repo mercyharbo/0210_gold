@@ -1,5 +1,14 @@
 'use client'
 
+import { logout } from '@/app/(auth)/actions'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
 import {
   Sheet,
   SheetContent,
@@ -7,7 +16,16 @@ import {
   SheetTitle,
 } from '@/components/ui/sheet'
 import gsap from 'gsap'
-import { Menu, Search, ShoppingBag, User, X } from 'lucide-react'
+import {
+  LockKeyhole,
+  LogOut,
+  Menu,
+  PackageCheck,
+  Search,
+  ShoppingBag,
+  User,
+  X,
+} from 'lucide-react'
 import Link from 'next/link'
 import { useLayoutEffect, useRef, useState } from 'react'
 
@@ -22,7 +40,7 @@ const navItems = [
 
 const utilityNavItems = [
   { href: '/shop', label: 'Search' },
-  { href: '/track-order', label: 'Account' },
+  { href: '/profile', label: 'Account' },
   { href: '/cart', label: 'Cart' },
 ]
 
@@ -157,13 +175,45 @@ export function IndexHeader() {
             <Link aria-label='Search' href='/shop' className='text-black'>
               <Search className='size-5 stroke-[1.6]' />
             </Link>
-            <Link
-              aria-label='Account'
-              href='/track-order'
-              className='hidden text-black sm:block'
-            >
-              <User className='size-5 stroke-[1.6]' />
-            </Link>
+            <DropdownMenu>
+              <DropdownMenuTrigger
+                aria-label='Account menu'
+                className='hidden text-black outline-none transition-opacity hover:opacity-60 focus-visible:ring-2 focus-visible:ring-black/25 sm:grid sm:size-8 sm:place-items-center'
+              >
+                <User className='size-5 stroke-[1.6]' />
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align='end' className='rounded-none'>
+                <DropdownMenuLabel>Account</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem asChild>
+                  <Link href='/profile'>
+                    <User className='size-4' strokeWidth={1.7} />
+                    Profile
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link href='/track-order'>
+                    <PackageCheck className='size-4' strokeWidth={1.7} />
+                    Track order
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link href='/change-password'>
+                    <LockKeyhole className='size-4' strokeWidth={1.7} />
+                    Change password
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <form action={logout}>
+                  <DropdownMenuItem asChild variant='destructive'>
+                    <button type='submit' className='w-full'>
+                      <LogOut className='size-4' strokeWidth={1.7} />
+                      Logout
+                    </button>
+                  </DropdownMenuItem>
+                </form>
+              </DropdownMenuContent>
+            </DropdownMenu>
             <Link
               aria-label='Cart'
               href='/cart'

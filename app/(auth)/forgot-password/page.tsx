@@ -6,53 +6,46 @@ import {
   authLabelClassName,
 } from '@/components/auth/auth-shell'
 import { AuthSubmitButton } from '@/components/auth/auth-submit-button'
-import { PasswordInput } from '@/components/auth/password-input'
 
-import { login } from '../actions'
+import { forgotPassword } from '../actions'
 
-type LoginPageProps = {
+type ForgotPasswordPageProps = {
   searchParams?: Promise<{
     error?: string
     message?: string
   }>
 }
 
-export default async function LoginPage({ searchParams }: LoginPageProps) {
+export default async function ForgotPasswordPage({
+  searchParams,
+}: ForgotPasswordPageProps) {
   const params = await searchParams
 
   return (
     <AuthShell
-      eyebrow='Customer login'
-      title='Access your 0210 Gold account.'
-      description='Sign in to review orders, saved products, personal shopping requests, addresses, and customer support history.'
+      eyebrow='Password reset'
+      title='Recover access to your account.'
+      description='Use the email connected to your customer profile to start the password reset process.'
       footer={
         <div className='flex flex-col gap-3 text-sm text-black/62 sm:flex-row sm:items-center sm:justify-between'>
-          <span>New customer?</span>
+          <span>Remember your password?</span>
           <Link
-            href='/signup'
+            href='/login'
             className='font-semibold text-black underline underline-offset-4'
           >
-            Create an account
+            Back to login
           </Link>
         </div>
       }
     >
       <div className='mb-8'>
         <p className='text-xs font-semibold uppercase text-[#b88a2b]'>
-          Welcome back
+          Reset password
         </p>
         <h2 className='mt-2 font-heading text-4xl font-semibold'>
-          Login details
+          Email verification
         </h2>
       </div>
-
-      <button
-        type='button'
-        className='mb-6 inline-flex h-12 w-full items-center justify-center gap-3 border border-black px-5 text-sm font-semibold transition-colors hover:bg-black hover:text-white'
-      >
-        <span className='font-heading text-lg'>G</span>
-        Continue with Google
-      </button>
 
       {params?.error ? (
         <p className='mb-5 border border-red-200 bg-red-50 px-4 py-3 text-sm leading-6 text-red-700'>
@@ -66,7 +59,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
         </p>
       ) : null}
 
-      <form action={login} className='space-y-5'>
+      <form action={forgotPassword} className='space-y-5'>
         <label className='block space-y-2'>
           <span className={authLabelClassName}>Email address</span>
           <input
@@ -79,29 +72,9 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
           />
         </label>
 
-        <label className='block space-y-2'>
-          <span className={authLabelClassName}>Password</span>
-          <PasswordInput
-            autoComplete='current-password'
-            className={authInputClassName}
-            name='password'
-            placeholder='Enter your password'
-            required
-          />
-        </label>
-
-        <div className='flex justify-end'>
-          <Link
-            href='/forgot-password'
-            className='text-sm font-semibold underline underline-offset-4'
-          >
-            Forgot password?
-          </Link>
-        </div>
-
         <AuthSubmitButton
-          idleLabel='Sign in'
-          loadingLabel='Signing in'
+          idleLabel='Send reset link'
+          loadingLabel='Sending reset link'
         />
       </form>
     </AuthShell>

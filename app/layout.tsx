@@ -22,7 +22,7 @@ const geistMono = Geist_Mono({
 });
 
 const siteUrl =
-  process.env.NEXT_PUBLIC_SITE_URL ?? "https://0210-gold.vercel.app";
+  process.env.SITE_URL ?? "https://0210-gold.vercel.app";
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
