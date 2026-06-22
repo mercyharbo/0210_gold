@@ -139,4 +139,13 @@
   button {
     @apply font-medium;
   }
+
+  /* Prevent auto-zooming on focus in mobile viewports */
+  @media screen and (max-width: 767px) {
+    input,
+    select,
+    textarea {
+      font-size: 16px !important;
+    }
+  }
 }
