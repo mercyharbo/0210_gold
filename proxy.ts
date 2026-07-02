@@ -28,6 +28,7 @@ function redirectTo(
 
 export async function proxy(request: NextRequest) {
   const pathname = request.nextUrl.pathname
+
   const { supabase, getResponse } = createSupabaseProxyClient(request)
   const {
     data: { user },

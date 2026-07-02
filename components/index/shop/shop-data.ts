@@ -19,6 +19,7 @@ export type Product = {
   price: number | null
   pricingType: ProductPricingType
   sizes: string[]
+  stock?: number
 }
 
 const priceFormatter = new Intl.NumberFormat('en-NG', {

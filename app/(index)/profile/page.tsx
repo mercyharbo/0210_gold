@@ -35,21 +35,21 @@ import {
 
 const orders = [
   {
-    id: '0210-5482',
+    id: 'FML-5482',
     date: '18 Jun 2026',
     status: 'Delivered',
     items: 'Flowing Occasion Abaya, Gold Styling Set',
     total: 305000,
   },
   {
-    id: '0210-5416',
+    id: 'FML-5416',
     date: '04 Jun 2026',
     status: 'In transit',
     items: 'Structured Day Bag',
     total: 78000,
   },
   {
-    id: '0210-5331',
+    id: 'FML-5331',
     date: '22 May 2026',
     status: 'Processing',
     items: 'Polished Shoe Pair',
@@ -70,7 +70,7 @@ const reviewItems = [
   },
 ]
 
-const shopperRequests = [
+const shoppingRequests = [
   {
     title: 'UK occasion outfit sourcing',
     status: 'Quote sent',
@@ -187,7 +187,7 @@ export default async function ProfilePage() {
     { label: 'Orders', value: String(orders.length) },
     { label: 'Reviews', value: String(reviewItems.length) },
     { label: 'Addresses', value: String(addresses.length) },
-    { label: 'Requests', value: String(shopperRequests.length) },
+    { label: 'Requests', value: String(shoppingRequests.length) },
   ]
 
   return (
@@ -205,7 +205,7 @@ export default async function ProfilePage() {
             </div>
             <p className='max-w-2xl text-base leading-7 text-muted-foreground'>
               Manage orders, reviews, saved items, delivery addresses, and UK to
-              Nigeria personal shopping requests from one customer profile.
+              Nigeria shopping requests from one customer profile.
             </p>
           </div>
 
@@ -340,7 +340,7 @@ export default async function ProfilePage() {
                   <ShoppingBag className='size-5 text-gold' strokeWidth={1.7} />
                   <div className='space-y-2'>
                     <p className='text-xs font-semibold uppercase text-muted-foreground'>
-                      Personal shopper
+                      Make a request
                     </p>
                     <CardTitle className='text-3xl font-semibold'>
                       Requests
@@ -348,7 +348,7 @@ export default async function ProfilePage() {
                   </div>
                 </CardHeader>
                 <CardContent className='space-y-4'>
-                  {shopperRequests.map((request) => (
+                  {shoppingRequests.map((request) => (
                     <div
                       key={request.title}
                       className='space-y-3 border-t border-black/10 pt-4'

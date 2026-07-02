@@ -1,144 +1,189 @@
-import * as React from "react"
-import Link from "next/link"
-import { Plus, Eye, Trash2 } from "lucide-react"
+import { Plus } from 'lucide-react'
+import Image from 'next/image'
+import Link from 'next/link'
 
-import { Button } from "@/components/ui/button"
-import { AdminPageHeader } from "@/components/admin/admin-page-header"
-import { AdminPlaceholderCard } from "@/components/admin/admin-placeholder-card"
+import { AdminPageHeader } from '@/components/admin/admin-page-header'
+import { Button } from '@/components/ui/button'
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card'
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table'
+import { requireAdmin } from '@/lib/auth/session'
+import { getAdminCategories } from '@/lib/categories/admin-categories'
+import { cn } from '@/lib/utils'
 
-export default function AdminCategoriesPage() {
-  const mockCategories = [
-    {
-      id: "cat-1",
-      name: "Jewelry",
-      slug: "jewelry",
-      productCount: 45,
-      status: "Active",
-    },
-    {
-      id: "cat-2",
-      name: "Luxury Bags",
-      slug: "luxury-bags",
-      productCount: 24,
-      status: "Active",
-    },
-    {
-      id: "cat-3",
-      name: "Watches",
-      slug: "watches",
-      productCount: 12,
-      status: "Active",
-    },
-    {
-      id: "cat-4",
-      name: "Shoes",
-      slug: "shoes",
-      productCount: 35,
-      status: "Inactive",
-    },
-  ]
-
-  const actions = (
-    <Button asChild size="sm" className="bg-gold text-white hover:bg-gold/80">
-      <Link href="/admin/categories/new" className="flex items-center gap-2">
-        <Plus className="size-4" />
-        Add Category
-      </Link>
-    </Button>
+function CategoryStatCard({ title, value }: { title: string; value: number }) {
+  return (
+    <Card>
+      <CardHeader className='gap-3'>
+        <CardTitle className='font-sans text-base font-medium text-muted-foreground'>
+          {title}
+        </CardTitle>
+        <span className='font-sans text-3xl font-bold text-foreground'>
+          {value}
+        </span>
+      </CardHeader>
+    </Card>
   )
+}
+
+function StatusPill({
+  active,
+  label,
+}: {
+  active: boolean
+  label: string
+}) {
+  return (
+    <span
+      className={cn(
+        'inline-flex items-center rounded-full border px-2 py-0.5 text-xs font-semibold',
+        active
+          ? 'border-green-200 bg-green-50 text-green-700'
+          : 'border-gray-200 bg-gray-50 text-gray-600',
+      )}
+    >
+      {label}
+    </span>
+  )
+}
+
+export default async function AdminCategoriesPage() {
+  await requireAdmin()
+
+  const categories = await getAdminCategories()
+  const activeCount = categories.filter((category) => category.is_active).length
+  const featuredCount = categories.filter(
+    (category) => category.is_featured,
+  ).length
 
   return (
-    <div className="flex flex-col gap-6">
-      <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
+    <div className='flex flex-col gap-6'>
+      <div className='flex flex-col gap-3 md:flex-row md:items-start md:justify-between'>
         <AdminPageHeader
-      title="Categories"
-      description="Organize catalog items into collections and filter tags."
-     />
-        <div className="flex shrink-0 items-center gap-3">{actions}</div>
+          title='Categories'
+          description='Manage product categorization and storefront collection cards.'
+        />
+        <Button asChild className='bg-gold text-white hover:bg-gold/80'>
+          <Link href='/admin/categories/new' className='flex items-center gap-2'>
+            <Plus className='size-4' />
+            Add Category
+          </Link>
+        </Button>
       </div>
-      <div className="flex flex-col gap-6">
-<div className="grid gap-6">
-        <div className="flex gap-4">
-          <AdminPlaceholderCard
-            title="Total Categories"
-            value="4"
-            className="flex-1"
-          />
-          <AdminPlaceholderCard
-            title="Active Collections"
-            value="3"
-            className="flex-1"
-          />
-          <AdminPlaceholderCard
-            title="Empty Categories"
-            value="0"
-            className="flex-1"
-          />
-        </div>
 
-        <AdminPlaceholderCard
-          title="Categories Catalog"
-          description="Listing of all currently defined product categories"
-        >
-          <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse text-sm">
-              <thead>
-                <tr className="border-b border-border text-muted-foreground font-semibold">
-                  <th className="py-3 px-4">Name</th>
-                  <th className="py-3 px-4">Slug</th>
-                  <th className="py-3 px-4 text-center">Products Count</th>
-                  <th className="py-3 px-4 text-center">Status</th>
-                  <th className="py-3 px-4 text-right">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-border">
-                {mockCategories.map((category) => (
-                  <tr key={category.id} className="hover:bg-muted/40 transition-colors">
-                    <td className="py-3.5 px-4 font-medium text-foreground">
+      <div className='grid gap-4 md:grid-cols-3'>
+        <CategoryStatCard title='Total Categories' value={categories.length} />
+        <CategoryStatCard title='Active Categories' value={activeCount} />
+        <CategoryStatCard title='Featured Cards' value={featuredCount} />
+      </div>
+
+      <Card>
+        <CardHeader>
+          <CardTitle className='font-sans text-base font-semibold'>
+            Category Catalog
+          </CardTitle>
+          <CardDescription className='text-sm'>
+            Listing of product categories and storefront card settings.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Image</TableHead>
+                <TableHead>Title</TableHead>
+                <TableHead>Slug</TableHead>
+                <TableHead>Type</TableHead>
+                <TableHead className='text-center'>Featured</TableHead>
+                <TableHead className='text-center'>Active</TableHead>
+                <TableHead className='text-center'>Products</TableHead>
+                <TableHead className='text-right'>Actions</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {categories.length === 0 ? (
+                <TableRow>
+                  <TableCell
+                    colSpan={8}
+                    className='py-10 text-center text-muted-foreground'
+                  >
+                    No categories have been created yet.
+                  </TableCell>
+                </TableRow>
+              ) : (
+                categories.map((category) => (
+                  <TableRow key={category.id}>
+                    <TableCell>
+                      {category.image_src ? (
+                        <div className='h-14 w-14 overflow-hidden rounded-md border border-border bg-muted'>
+                          <Image
+                            src={category.image_src}
+                            alt={category.image_alt ?? category.name}
+                            width={56}
+                            height={56}
+                            unoptimized={category.image_src.startsWith('http')}
+                            className='h-full w-full object-cover'
+                          />
+                        </div>
+                      ) : (
+                        <div className='grid h-14 w-14 place-items-center rounded-md border border-dashed border-border bg-muted text-xs text-muted-foreground'>
+                          None
+                        </div>
+                      )}
+                    </TableCell>
+                    <TableCell className='font-medium text-foreground'>
                       <Link
                         href={`/admin/categories/${category.id}`}
-                        className="hover:underline hover:text-gold"
+                        className='hover:text-gold hover:underline'
                       >
                         {category.name}
                       </Link>
-                    </td>
-                    <td className="py-3.5 px-4 text-muted-foreground">
+                    </TableCell>
+                    <TableCell className='text-muted-foreground'>
                       /{category.slug}
-                    </td>
-                    <td className="py-3.5 px-4 text-center text-foreground">
-                      {category.productCount}
-                    </td>
-                    <td className="py-3.5 px-4 text-center">
-                      <span
-                        className={`inline-flex items-center rounded-full px-2 py-0.5 text-3xs font-semibold uppercase tracking-wider ${
-                          category.status === "Active"
-                            ? "bg-green-500/10 text-green-600"
-                            : "bg-destructive/10 text-destructive"
-                        }`}
-                      >
-                        {category.status}
-                      </span>
-                    </td>
-                    <td className="py-3.5 px-4 text-right">
-                      <div className="flex justify-end items-center gap-2">
-                        <Button variant="ghost" size="icon-sm" asChild>
-                          <Link href={`/admin/categories/${category.id}`}>
-                            <Eye className="size-3.5" />
-                          </Link>
-                        </Button>
-                        <Button variant="ghost" size="icon-sm" className="text-destructive hover:text-destructive/80">
-                          <Trash2 className="size-3.5" />
-                        </Button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </AdminPlaceholderCard>
-      </div>
-    </div>
+                    </TableCell>
+                    <TableCell>{category.category_type}</TableCell>
+                    <TableCell className='text-center'>
+                      <StatusPill
+                        active={category.is_featured}
+                        label={category.is_featured ? 'Featured' : 'Standard'}
+                      />
+                    </TableCell>
+                    <TableCell className='text-center'>
+                      <StatusPill
+                        active={category.is_active}
+                        label={category.is_active ? 'Active' : 'Inactive'}
+                      />
+                    </TableCell>
+                    <TableCell className='text-center text-muted-foreground'>
+                      {category.product_count}
+                    </TableCell>
+                    <TableCell className='text-right'>
+                      <Button variant='outline' size='sm' asChild>
+                        <Link href={`/admin/categories/${category.id}`}>
+                          Edit
+                        </Link>
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))
+              )}
+            </TableBody>
+          </Table>
+        </CardContent>
+      </Card>
     </div>
   )
 }

@@ -83,7 +83,7 @@ values
   ('Wedding Guest', 'wedding-guest', 'Looks and accessories for wedding guest styling.', null, null, 610),
   ('Workwear', 'workwear', 'Fashion pieces for work and polished weekday styling.', null, null, 620),
   ('Gift Ideas', 'gift-ideas', 'Gift-friendly fashion, gold, and accessories.', null, null, 630),
-  ('Personal Shopper Picks', 'personal-shopper-picks', 'Curated request-based shopping preferences.', null, null, 640)
+  ('Request-Based Picks', 'request-based-picks', 'Curated shopping request preferences.', null, null, 640)
 on conflict (slug) do update set
   name = excluded.name,
   description = excluded.description,

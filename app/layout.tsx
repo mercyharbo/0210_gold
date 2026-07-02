@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
-import { Bodoni_Moda, Geist_Mono, Inter } from "next/font/google";
+import { Geist_Mono, Inter } from "next/font/google";
+import localFont from "next/font/local";
 import { Suspense } from "react";
 import "./globals.css";
 import { cn } from "@/lib/utils";
@@ -12,10 +13,32 @@ const inter = Inter({
   weight: ["400", "500"],
 });
 
-const bodoniModa = Bodoni_Moda({
-  variable: "--font-bodoni",
-  subsets: ["latin"],
-  weight: ["600", "700"],
+const melodrama = localFont({
+  src: [
+    {
+      path: "./fonts/Melodrama-Regular.woff2",
+      weight: "400",
+      style: "normal",
+    },
+    {
+      path: "./fonts/Melodrama-Medium.woff2",
+      weight: "500",
+      style: "normal",
+    },
+    {
+      path: "./fonts/Melodrama-Semibold.woff2",
+      weight: "600",
+      style: "normal",
+    },
+    {
+      path: "./fonts/Melodrama-Bold.woff2",
+      weight: "700",
+      style: "normal",
+    },
+  ],
+  variable: "--font-melodrama",
+  display: "swap",
+  fallback: ["Georgia", "Times New Roman", "serif"],
 });
 
 const geistMono = Geist_Mono({
@@ -24,7 +47,7 @@ const geistMono = Geist_Mono({
 });
 
 const siteUrl =
-  process.env.SITE_URL ?? "https://0210-gold.vercel.app";
+  process.env.SITE_URL ?? "https://fm-luxe.vercel.app";
 
 export const viewport: Viewport = {
   width: "device-width",
@@ -36,21 +59,22 @@ export const viewport: Viewport = {
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
-    default: "0210 Gold | Premium Gold Jewellery and Personal Shopping",
-    template: "%s | 0210 Gold",
+    default: "FM LUXE | Premium Gold Jewellery and Custom Requests",
+    template: "%s | FM LUXE",
   },
   description:
-    "Shop premium gold jewellery, luxury fashion accessories, and request-based personal shopping pieces from 0210 Gold.",
-  applicationName: "0210 Gold",
-  authors: [{ name: "0210 Gold" }],
-  creator: "0210 Gold",
-  publisher: "0210 Gold",
+    "Shop premium gold jewellery, luxury fashion accessories, and request-based pieces from FM LUXE.",
+  applicationName: "FM LUXE",
+  authors: [{ name: "FM LUXE" }],
+  creator: "FM LUXE",
+  publisher: "FM LUXE",
   keywords: [
-    "0210 Gold",
+    "FM LUXE",
     "gold jewellery",
     "premium jewellery",
     "luxury accessories",
-    "personal shopper",
+    "custom requests",
+    "shopping requests",
     "gold necklaces",
     "gold rings",
     "gold earrings",
@@ -64,24 +88,24 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     url: "/",
-    siteName: "0210 Gold",
-    title: "0210 Gold | Premium Gold Jewellery and Personal Shopping",
+    siteName: "FM LUXE",
+    title: "FM LUXE | Premium Gold Jewellery and Custom Requests",
     description:
-      "Premium gold jewellery, luxury fashion accessories, and personal shopping requests for timeless styling.",
+      "Premium gold jewellery, luxury fashion accessories, and custom shopping requests for timeless styling.",
     images: [
       {
         url: "/og-image.png",
         width: 1200,
         height: 630,
-        alt: "0210 Gold premium jewellery and personal shopping",
+        alt: "FM LUXE premium jewellery and custom requests",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "0210 Gold | Premium Gold Jewellery and Personal Shopping",
+    title: "FM LUXE | Premium Gold Jewellery and Custom Requests",
     description:
-      "Premium gold jewellery, luxury fashion accessories, and personal shopping requests for timeless styling.",
+      "Premium gold jewellery, luxury fashion accessories, and custom shopping requests for timeless styling.",
     images: ["/og-image.png"],
   },
   robots: {
@@ -109,7 +133,7 @@ export default function RootLayout({
         "h-full",
         "antialiased",
         inter.variable,
-        bodoniModa.variable,
+        melodrama.variable,
         geistMono.variable,
         "font-sans"
       )}

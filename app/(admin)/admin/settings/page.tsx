@@ -97,7 +97,7 @@ export default function AdminSettingsPage() {
             <div className="flex justify-between border-b border-border pb-2.5">
               <span>Super administrator</span>
               <span className="font-semibold text-foreground">
-                admin@0210gold.com
+                admin@fmluxe.com
               </span>
             </div>
             <div className="flex justify-between border-b border-border pb-2.5">

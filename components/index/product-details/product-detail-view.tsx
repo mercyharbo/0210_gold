@@ -6,6 +6,8 @@ import {
   ChevronRight,
   Expand,
   Heart,
+  Minus,
+  Plus,
   ShoppingBag,
 } from 'lucide-react'
 import Image from 'next/image'
@@ -54,10 +56,22 @@ export function ProductDetailView({
   const [activeImageIndex, setActiveImageIndex] = useState(0)
   const [galleryOpen, setGalleryOpen] = useState(false)
   const [descriptionOpen, setDescriptionOpen] = useState(false)
+  const [quantity, setQuantity] = useState(1)
   const activeImage = productImages[activeImageIndex] ?? productImages[0]
   const visibleDescriptionParagraphs = descriptionOpen
     ? descriptionParagraphs
     : collapsedParagraphs
+  const maxQuantity =
+    typeof product.stock === 'number'
+      ? Math.max(1, product.stock)
+      : Number.POSITIVE_INFINITY
+
+  const formattedLabel = product.label
+    ? product.label
+        .split(' ')
+        .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+        .join(' ')
+    : null
 
   function showPreviousImage() {
     setActiveImageIndex((currentIndex) =>
@@ -76,6 +90,16 @@ export function ProductDetailView({
     setGalleryOpen(true)
   }
 
+  function decreaseQuantity() {
+    setQuantity((currentQuantity) => Math.max(1, currentQuantity - 1))
+  }
+
+  function increaseQuantity() {
+    setQuantity((currentQuantity) =>
+      Math.min(maxQuantity, currentQuantity + 1),
+    )
+  }
+
   return (
     <div className='bg-white text-black'>
       <section>
@@ -88,7 +112,7 @@ export function ProductDetailView({
             Back to shop
           </Link>
 
-          <div className='mt-8 grid gap-10 lg:grid-cols-[minmax(0,0.74fr)_minmax(0,1fr)] lg:items-start xl:grid-cols-[minmax(0,0.66fr)_minmax(0,1fr)]'>
+          <div className='grid gap-10 pt-6 lg:grid-cols-[minmax(0,0.74fr)_minmax(0,1fr)] lg:items-start xl:grid-cols-[minmax(0,0.66fr)_minmax(0,1fr)]'>
             <div className='grid max-w-2xl gap-4 md:grid-cols-[4.25rem_1fr]'>
               <div className='hidden gap-3 md:flex md:flex-col'>
                 {productImages.map((imageSrc, index) => (
@@ -118,13 +142,13 @@ export function ProductDetailView({
               <button
                 type='button'
                 onClick={() => openGallery(activeImageIndex)}
-                className='group relative aspect-[5/4] max-h-[36rem] overflow-hidden bg-muted text-left'
+                className='group relative aspect-[4/5] max-h-[44rem] overflow-hidden bg-muted text-left sm:aspect-[3/4]'
               >
                 <Image
                   src={activeImage}
                   alt={product.imageAlt}
                   fill
-                  priority
+                  loading='eager'
                   sizes='(min-width: 1280px) 32vw, (min-width: 1024px) 40vw, 100vw'
                   unoptimized
                   className='object-cover object-center transition-transform duration-500 group-hover:scale-[1.02]'
@@ -164,24 +188,28 @@ export function ProductDetailView({
             </div>
 
             <div className='lg:sticky lg:top-28'>
-              <div className='border-b border-black/10 pb-8'>
-                {product.label ? (
+              <div className='flex flex-col gap-5 border-b border-black/10 pb-8'>
+                {formattedLabel ? (
                   <span
-                    className={`mb-4 inline-flex px-3 py-1 text-[11px] font-medium uppercase ${getProductLabelClassName(product.label)}`}
+                    className={`inline-flex w-fit px-3 py-1 text-xs font-medium ${getProductLabelClassName(product.label ?? '')}`}
                   >
-                    {product.label}
+                    {formattedLabel}
                   </span>
                 ) : null}
-                <p className='mb-3 text-sm font-medium uppercase text-muted-foreground'>
-                  {product.category}
-                </p>
-                <h1 className='font-heading text-3xl font-bold leading-tight sm:text-4xl'>
-                  {product.name}
-                </h1>
-                <p className='mt-4 font-heading text-xl font-semibold sm:text-2xl'>
-                  {formatProductPrice(product)}
-                </p>
-                <div className='mt-4 flex max-w-xl flex-col gap-3 text-sm leading-6 text-muted-foreground'>
+                <div className='flex flex-col gap-3'>
+                  <p className='text-sm font-medium text-muted-foreground'>
+                    {product.category}
+                  </p>
+                  <div className='flex flex-col gap-2'>
+                    <h1 className='font-heading text-4xl font-bold leading-tight sm:text-5xl'>
+                      {product.name}
+                    </h1>
+                    <p className='font-heading text-2xl font-semibold sm:text-3xl'>
+                      {formatProductPrice(product)}
+                    </p>
+                  </div>
+                </div>
+                <div className='flex max-w-xl flex-col gap-3 text-sm leading-6 text-muted-foreground'>
                   {visibleDescriptionParagraphs.map((paragraph) => (
                     <p key={paragraph} className='whitespace-pre-line'>
                       {paragraph}
@@ -193,15 +221,15 @@ export function ProductDetailView({
                       onClick={() => setDescriptionOpen((open) => !open)}
                       className='w-fit border-b border-black text-sm font-medium text-black transition-opacity hover:opacity-65'
                     >
-                      {descriptionOpen ? 'Show Less' : 'Read More'}
+                      {descriptionOpen ? 'Show less' : 'Read more'}
                     </button>
                   ) : null}
                 </div>
               </div>
 
-              <div className='space-y-5 border-b border-black/10 py-6'>
-                <div>
-                  <p className='mb-3 text-xs font-medium uppercase text-muted-foreground'>
+              <div className='flex flex-col gap-6 border-b border-black/10 py-6'>
+                <div className='flex flex-col gap-3'>
+                  <p className='text-xs font-medium text-muted-foreground'>
                     Size
                   </p>
                   <div className='flex flex-wrap gap-2'>
@@ -217,8 +245,8 @@ export function ProductDetailView({
                   </div>
                 </div>
 
-                <div>
-                  <p className='mb-3 text-xs font-medium uppercase text-muted-foreground'>
+                <div className='flex flex-col gap-3'>
+                  <p className='text-xs font-medium text-muted-foreground'>
                     Color
                   </p>
                   <div className='flex flex-wrap gap-2'>
@@ -235,24 +263,55 @@ export function ProductDetailView({
                 </div>
               </div>
 
-              <div className='grid gap-3 border-b border-black/10 py-6 sm:grid-cols-[1fr_auto]'>
-                <button
-                  type='button'
-                  className='inline-flex h-12 items-center justify-center gap-3 bg-black px-7 text-sm font-medium text-white transition-opacity hover:opacity-80'
-                >
-                  Add to cart
-                  <ShoppingBag className='size-4 stroke-[1.8]' />
-                </button>
-                <button
-                  type='button'
-                  aria-label='Add to wishlist'
-                  className='grid h-12 w-full place-items-center border border-black/15 text-black transition-colors hover:border-black sm:w-12'
-                >
-                  <Heart className='size-4 stroke-[1.8]' />
-                </button>
+              <div className='flex flex-col gap-4 border-b border-black/10 py-6'>
+                <div className='flex flex-col gap-3'>
+                  <p className='text-xs font-medium text-muted-foreground'>
+                    Quantity
+                  </p>
+                  <div className='flex w-fit items-center border border-black/15'>
+                    <button
+                      type='button'
+                      aria-label='Decrease quantity'
+                      disabled={quantity === 1}
+                      onClick={decreaseQuantity}
+                      className='grid size-11 place-items-center transition-colors hover:bg-black hover:text-white disabled:cursor-not-allowed disabled:opacity-35 disabled:hover:bg-transparent disabled:hover:text-black'
+                    >
+                      <Minus className='size-4 stroke-[1.8]' />
+                    </button>
+                    <span className='grid h-11 min-w-12 place-items-center border-x border-black/15 text-sm font-semibold'>
+                      {quantity}
+                    </span>
+                    <button
+                      type='button'
+                      aria-label='Increase quantity'
+                      disabled={quantity >= maxQuantity}
+                      onClick={increaseQuantity}
+                      className='grid size-11 place-items-center transition-colors hover:bg-black hover:text-white disabled:cursor-not-allowed disabled:opacity-35 disabled:hover:bg-transparent disabled:hover:text-black'
+                    >
+                      <Plus className='size-4 stroke-[1.8]' />
+                    </button>
+                  </div>
+                </div>
+
+                <div className='grid gap-3 sm:grid-cols-[1fr_auto]'>
+                  <button
+                    type='button'
+                    className='inline-flex h-12 items-center justify-center gap-3 bg-black px-7 text-sm font-medium text-white transition-opacity hover:opacity-80'
+                  >
+                    Add to cart
+                    <ShoppingBag className='size-4 stroke-[1.8]' />
+                  </button>
+                  <button
+                    type='button'
+                    aria-label='Add to wishlist'
+                    className='grid h-12 w-full place-items-center border border-black/15 text-black transition-colors hover:border-black sm:w-12'
+                  >
+                    <Heart className='size-4 stroke-[1.8]' />
+                  </button>
+                </div>
               </div>
 
-              <div className='space-y-4 py-6'>
+              <div className='flex flex-col gap-4 py-6'>
                 <h2 className='font-heading text-xl font-semibold'>
                   Product details
                 </h2>
@@ -271,10 +330,10 @@ export function ProductDetailView({
 
       {relatedProducts.length ? (
         <section className='border-t border-black/10'>
-          <div className='mx-auto w-full px-5 py-16 sm:px-8 lg:px-12 lg:py-20'>
-            <div className='mb-8 flex items-end justify-between gap-6'>
-              <div>
-                <p className='mb-3 text-sm font-medium uppercase text-muted-foreground'>
+          <div className='mx-auto flex w-full flex-col gap-8 px-5 py-16 sm:px-8 lg:px-12 lg:py-20'>
+            <div className='flex items-end justify-between gap-6'>
+              <div className='flex flex-col gap-2'>
+                <p className='text-sm font-medium text-muted-foreground'>
                   Related
                 </p>
                 <h2 className='font-heading text-4xl font-bold leading-tight'>

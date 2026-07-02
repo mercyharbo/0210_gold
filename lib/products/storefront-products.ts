@@ -25,6 +25,7 @@ function mapStorefrontProduct(product: AdminProductListItem): StorefrontProduct 
     price: product.price,
     pricingType: product.pricing_type,
     sizes: product.sizes,
+    stock: product.stock,
   }
 }
 

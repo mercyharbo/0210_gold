@@ -81,9 +81,10 @@ export function QueryParamToast() {
     >
       <div
         className={cn(
-          'pointer-events-auto flex items-start gap-3 rounded-lg border bg-card px-4 py-3 text-sm text-card-foreground shadow-lg',
-          isError &&
-            'border-destructive/30 bg-destructive/10 text-destructive',
+          'pointer-events-auto flex items-start gap-3 rounded-lg border px-4 py-3 text-sm shadow-lg',
+          isError
+            ? 'border-red-300 bg-red-50 text-red-900'
+            : 'border-green-300 bg-green-50 text-green-900',
         )}
       >
         <p className="min-w-0 flex-1 leading-6">{toast.text}</p>
@@ -93,7 +94,9 @@ export function QueryParamToast() {
           size="icon-xs"
           className={cn(
             'shrink-0',
-            isError && 'text-destructive hover:text-destructive',
+            isError
+              ? 'text-red-800 hover:bg-red-100 hover:text-red-950'
+              : 'text-green-800 hover:bg-green-100 hover:text-green-950',
           )}
           onClick={() => setToast(null)}
         >

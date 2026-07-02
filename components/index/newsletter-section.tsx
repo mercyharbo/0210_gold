@@ -5,7 +5,7 @@ export function NewsletterSection() {
     <section className='bg-black text-white'>
       <div className='mx-auto grid w-full gap-8 px-5 py-14 sm:px-8 lg:grid-cols-[1fr_1.1fr] lg:items-end lg:px-12 lg:py-16'>
         <div>
-          <p className='mb-3 text-sm font-medium uppercase text-muted-foreground'>
+          <p className='text-sm font-medium uppercase text-muted-foreground'>
             Newsletter
           </p>
           <h2 className='font-heading text-4xl font-bold leading-tight sm:text-5xl'>

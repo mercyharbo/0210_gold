@@ -28,17 +28,35 @@ import {
   X,
 } from 'lucide-react'
 import Link from 'next/link'
-import { usePathname, useRouter } from 'next/navigation'
+import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { type FormEvent, useLayoutEffect, useRef, useState } from 'react'
 
 import { cn } from '@/lib/utils'
 
-const navItems = [
+type NavItem = {
+  href: string
+  label: string
+  match?: 'exact' | 'shop' | 'new-arrivals'
+}
+
+const desktopLeftNavItems: NavItem[] = [
   { href: '/about', label: 'About' },
-  { href: '/companies', label: 'Companies' },
+  { href: '/shop', label: 'Shop', match: 'shop' },
+  { href: '/shop?sort=newest', label: 'New Arrivals', match: 'new-arrivals' },
+]
+
+const desktopRightNavItems: NavItem[] = [
   { href: '/categories', label: 'Collections' },
-  { href: '/shop', label: 'Shop' },
-  { href: '/personal-shopper-request', label: 'Personal Shopper' },
+  { href: '/make-a-request', label: 'Make a Request' },
+]
+
+const menuNavItems: NavItem[] = [
+  { href: '/', label: 'Home', match: 'exact' },
+  { href: '/shop', label: 'Shop', match: 'shop' },
+  { href: '/shop?sort=newest', label: 'New Arrivals', match: 'new-arrivals' },
+  { href: '/categories', label: 'Collections' },
+  { href: '/make-a-request', label: 'Make a Request' },
+  { href: '/about', label: 'About' },
   { href: '/contact', label: 'Contact' },
 ]
 
@@ -48,17 +66,25 @@ const utilityNavItems = [
   { href: '/cart', label: 'Cart' },
 ]
 
+const desktopNavItems = [...desktopLeftNavItems, ...desktopRightNavItems]
+
+const navLinkClassName =
+  'relative inline-flex text-sm font-medium after:absolute after:-bottom-1 after:left-0 after:h-px after:w-full after:origin-left after:scale-x-0 after:bg-current after:transition-transform hover:after:scale-x-100 focus-visible:outline-none focus-visible:after:scale-x-100'
+
+const menuLinkClassName =
+  'relative inline-flex w-fit max-w-full font-heading text-4xl font-semibold leading-none after:absolute after:-bottom-2 after:left-0 after:h-px after:w-full after:origin-left after:scale-x-0 after:bg-current after:transition-transform hover:after:scale-x-100 focus-visible:outline-none focus-visible:after:scale-x-100 sm:text-5xl lg:text-7xl'
+
 function BrandMark() {
   return (
-    <Link href='/' aria-label='0210 Gold home' className='inline-block shrink-0'>
+    <Link href='/' aria-label='FM LUXE home' className='inline-block shrink-0'>
       <span className='block font-heading text-4xl font-semibold leading-none text-black'>
-        0210
+        FM
       </span>
-      <span className='flex w-full justify-between text-[10px] text-black'>
-        <span>G</span>
-        <span>O</span>
+      <span className='flex w-full justify-between text-xs text-black'>
         <span>L</span>
-        <span>D</span>
+        <span>U</span>
+        <span>X</span>
+        <span>E</span>
       </span>
     </Link>
   )
@@ -70,15 +96,29 @@ export function IndexHeader() {
   const [searchQuery, setSearchQuery] = useState('')
   const pathname = usePathname()
   const router = useRouter()
+  const searchParams = useSearchParams()
   const desktopNavItemsRef = useRef<HTMLAnchorElement[]>([])
-  const mobileNavScopeRef = useRef<HTMLDivElement>(null)
+  const menuNavScopeRef = useRef<HTMLDivElement>(null)
 
-  function isActiveNavItem(href: string) {
-    return (
-      pathname === href ||
-      pathname.startsWith(`${href}/`) ||
-      (href === '/shop' && pathname.startsWith('/products/'))
-    )
+  function isActiveNavItem(item: NavItem) {
+    const currentSort = searchParams.get('sort')
+
+    if (item.match === 'exact') {
+      return pathname === item.href
+    }
+
+    if (item.match === 'new-arrivals') {
+      return pathname === '/shop' && currentSort === 'newest'
+    }
+
+    if (item.match === 'shop') {
+      return (
+        (pathname === '/shop' && currentSort !== 'newest') ||
+        pathname.startsWith('/products/')
+      )
+    }
+
+    return pathname === item.href || pathname.startsWith(`${item.href}/`)
   }
 
   function submitSearch(event: FormEvent<HTMLFormElement>) {
@@ -124,12 +164,12 @@ export function IndexHeader() {
     const animateWhenMounted = () => {
       if (!active) return
 
-      const mobileItems = gsap.utils.toArray<HTMLElement>(
-        '[data-mobile-nav-item]',
-        mobileNavScopeRef.current,
+      const menuItems = gsap.utils.toArray<HTMLElement>(
+        '[data-menu-nav-item]',
+        menuNavScopeRef.current,
       )
 
-      if (!mobileItems.length) {
+      if (!menuItems.length) {
         attempts += 1
 
         if (attempts < 10) {
@@ -140,14 +180,14 @@ export function IndexHeader() {
       }
 
       gsap.fromTo(
-        mobileItems,
-        { autoAlpha: 0, x: 18 },
+        menuItems,
+        { autoAlpha: 0, y: 18 },
         {
           autoAlpha: 1,
-          x: 0,
-          duration: 0.45,
+          y: 0,
+          duration: 0.5,
           ease: 'power2.out',
-          stagger: 0.07,
+          stagger: 0.06,
         },
       )
     }
@@ -165,17 +205,22 @@ export function IndexHeader() {
       <div className='mx-auto grid h-20 w-full grid-cols-[1fr_auto] items-center gap-6 px-5 sm:px-8 lg:px-12 xl:grid-cols-[auto_1fr_auto]'>
         <div className='order-2 hidden items-center gap-8 xl:order-1 xl:flex'>
           <nav className='hidden items-center gap-10 xl:flex'>
-            {navItems.slice(0, 2).map((item) => (
+            {desktopLeftNavItems.map((item) => (
               <Link
                 key={item.href}
                 ref={(node) => {
                   if (node)
-                    desktopNavItemsRef.current[navItems.indexOf(item)] = node
+                    desktopNavItemsRef.current[
+                      desktopNavItems.indexOf(item)
+                    ] = node
                 }}
                 href={item.href}
                 className={cn(
-                  'invisible text-sm font-medium transition-opacity hover:opacity-60',
-                  isActiveNavItem(item.href) ? 'text-gold' : 'text-black',
+                  'invisible',
+                  navLinkClassName,
+                  isActiveNavItem(item)
+                    ? 'text-gold after:scale-x-100'
+                    : 'text-black',
                 )}
               >
                 {item.label}
@@ -190,17 +235,22 @@ export function IndexHeader() {
 
         <div className='order-2 flex items-center justify-end gap-8 xl:order-3'>
           <nav className='hidden items-center gap-10 xl:flex'>
-            {navItems.slice(2).map((item) => (
+            {desktopRightNavItems.map((item) => (
               <Link
                 key={item.href}
                 ref={(node) => {
                   if (node)
-                    desktopNavItemsRef.current[navItems.indexOf(item)] = node
+                    desktopNavItemsRef.current[
+                      desktopNavItems.indexOf(item)
+                    ] = node
                 }}
                 href={item.href}
                 className={cn(
-                  'invisible text-sm font-medium transition-opacity hover:opacity-60',
-                  isActiveNavItem(item.href) ? 'text-gold' : 'text-black',
+                  'invisible',
+                  navLinkClassName,
+                  isActiveNavItem(item)
+                    ? 'text-gold after:scale-x-100'
+                    : 'text-black',
                 )}
               >
                 {item.label}
@@ -214,7 +264,8 @@ export function IndexHeader() {
               aria-label='Search'
               onClick={() => setSearchOpen(true)}
               className={cn(
-                isActiveNavItem('/shop') ? 'text-gold' : 'text-black',
+                'transition-colors hover:text-gold',
+                pathname === '/shop' ? 'text-gold' : 'text-black',
               )}
             >
               <Search className='size-5 stroke-[1.6]' />
@@ -222,7 +273,7 @@ export function IndexHeader() {
             <DropdownMenu>
               <DropdownMenuTrigger
                 aria-label='Account menu'
-                className='hidden text-black outline-none transition-opacity hover:opacity-60 focus-visible:ring-2 focus-visible:ring-black/25 sm:grid sm:size-8 sm:place-items-center'
+                className='hidden text-black outline-none transition-colors hover:text-gold focus-visible:ring-2 focus-visible:ring-black/25 sm:grid sm:size-8 sm:place-items-center'
               >
                 <User className='size-5 stroke-[1.6]' />
               </DropdownMenuTrigger>
@@ -262,12 +313,12 @@ export function IndexHeader() {
               aria-label='Cart'
               href='/cart'
               className={cn(
-                'relative',
-                isActiveNavItem('/cart') ? 'text-gold' : 'text-black',
+                'relative transition-colors hover:text-gold',
+                pathname === '/cart' ? 'text-gold' : 'text-black',
               )}
             >
               <ShoppingBag className='size-5 stroke-[1.6]' />
-              <span className='absolute -right-2 -top-2 grid size-4 place-items-center rounded-full bg-black text-[10px] font-medium text-white'>
+              <span className='absolute -right-2 -top-2 grid size-4 place-items-center rounded-full bg-black text-xs font-medium text-white'>
                 0
               </span>
             </Link>
@@ -275,7 +326,7 @@ export function IndexHeader() {
               type='button'
               aria-label='Open menu'
               onClick={() => setMenuOpen(true)}
-              className='text-black xl:hidden'
+              className='text-black transition-colors hover:text-gold'
             >
               <Menu className='size-6 stroke-[1.6]' />
             </button>
@@ -286,80 +337,101 @@ export function IndexHeader() {
       <Sheet open={menuOpen} onOpenChange={setMenuOpen}>
         <SheetContent
           side='left'
-          className='w-full border-l border-black/10 bg-white p-0 text-black sm:max-w-md [&>button]:hidden'
+          className='!w-full !max-w-none border-r border-black/10 bg-white p-0 text-black sm:!max-w-none [&>button]:hidden'
         >
           <SheetHeader className='sr-only'>
             <SheetTitle>Navigation menu</SheetTitle>
+            <SheetDescription>
+              Browse FM LUXE navigation links and account shortcuts.
+            </SheetDescription>
           </SheetHeader>
 
           <div
-            ref={mobileNavScopeRef}
+            ref={menuNavScopeRef}
             className='flex h-dvh flex-col overflow-y-auto'
           >
-            <div className='space-y-5'>
-              <div className='flex h-20 items-center justify-between border-b border-black/10 px-5 sm:px-8'>
-                <BrandMark />
-                <button
-                  type='button'
-                  aria-label='Close menu'
-                  onClick={() => setMenuOpen(false)}
-                  className='text-black'
-                >
-                  <X className='size-6 stroke-[1.6]' />
-                </button>
-              </div>
+            <div className='flex h-20 shrink-0 items-center justify-between border-b border-black/10 px-5 sm:px-8 lg:px-12'>
+              <BrandMark />
+              <button
+                type='button'
+                aria-label='Close menu'
+                onClick={() => setMenuOpen(false)}
+                className='text-black transition-colors hover:text-gold'
+              >
+                <X className='size-6 stroke-[1.6]' />
+              </button>
+            </div>
 
-              <nav className='flex flex-col justify-center gap-4 px-5 sm:px-8'>
-                {navItems.map((item) => (
+            <div className='grid flex-1 gap-10 px-5 py-10 sm:px-8 md:grid-cols-[1fr_0.85fr] md:items-center lg:px-12 lg:py-16'>
+              <nav className='flex flex-col gap-5 sm:gap-6'>
+                {menuNavItems.map((item) => (
                   <Link
                     key={item.href}
-                    data-mobile-nav-item
+                    data-menu-nav-item
                     href={item.href}
                     onClick={() => setMenuOpen(false)}
                     className={cn(
-                      'invisible font-heading text-2xl font-semibold transition-opacity hover:opacity-60',
-                      isActiveNavItem(item.href) ? 'text-gold' : 'text-black',
+                      'invisible',
+                      menuLinkClassName,
+                      isActiveNavItem(item)
+                        ? 'text-gold after:scale-x-100'
+                        : 'text-black',
                     )}
                   >
                     {item.label}
                   </Link>
                 ))}
-                <span className='my-2 h-px bg-black/10' />
-                {utilityNavItems.map((item) =>
-                  item.label === 'Search' ? (
-                    <button
-                      key={item.href}
-                      data-mobile-nav-item
-                      type='button'
-                      onClick={() => {
-                        setMenuOpen(false)
-                        setSearchOpen(true)
-                      }}
-                      className={cn(
-                        'invisible text-left text-base font-medium transition-opacity hover:opacity-60',
-                        isActiveNavItem(item.href) ? 'text-gold' : 'text-black',
-                      )}
-                    >
-                      {item.label}
-                    </button>
-                  ) : (
-                    <Link
-                      key={item.href}
-                      data-mobile-nav-item
-                      href={item.href}
-                      onClick={() => setMenuOpen(false)}
-                      className={cn(
-                        'invisible text-base font-medium transition-opacity hover:opacity-60',
-                        isActiveNavItem(item.href)
-                          ? 'text-gold'
-                          : 'text-black',
-                      )}
-                    >
-                      {item.label}
-                    </Link>
-                  ),
-                )}
               </nav>
+
+              <div className='flex flex-col gap-8'>
+                <div
+                  data-menu-nav-item
+                  className='invisible flex flex-col gap-4'
+                >
+                  <p className='text-sm font-medium text-gold'>Style desk</p>
+                  <p className='max-w-md text-xl leading-8 text-black sm:text-2xl'>
+                    Curated fashion, gold, bags, shoes, and request support for
+                    polished everyday and occasion looks.
+                  </p>
+                </div>
+
+                <div
+                  data-menu-nav-item
+                  className='invisible flex flex-wrap gap-5'
+                >
+                  {utilityNavItems.map((item) =>
+                    item.label === 'Search' ? (
+                      <button
+                        key={item.href}
+                        type='button'
+                        onClick={() => {
+                          setMenuOpen(false)
+                          setSearchOpen(true)
+                        }}
+                        className={cn(
+                          navLinkClassName,
+                          'text-left',
+                          pathname === '/shop' ? 'text-gold' : 'text-black',
+                        )}
+                      >
+                        {item.label}
+                      </button>
+                    ) : (
+                      <Link
+                        key={item.href}
+                        href={item.href}
+                        onClick={() => setMenuOpen(false)}
+                        className={cn(
+                          navLinkClassName,
+                          pathname === item.href ? 'text-gold' : 'text-black',
+                        )}
+                      >
+                        {item.label}
+                      </Link>
+                    ),
+                  )}
+                </div>
+              </div>
             </div>
           </div>
         </SheetContent>
@@ -373,7 +445,7 @@ export function IndexHeader() {
           <div className='mx-auto flex w-full max-w-5xl flex-col gap-6 px-5 py-6 sm:px-8'>
             <SheetHeader className='gap-2 text-left'>
               <SheetTitle className='font-heading text-2xl font-semibold'>
-                Search 0210 Gold
+                Search FM LUXE
               </SheetTitle>
               <SheetDescription>
                 Find jewellery, bags, shoes, clothing, and curated edits.

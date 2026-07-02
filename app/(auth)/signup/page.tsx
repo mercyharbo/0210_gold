@@ -11,93 +11,95 @@ import { signup } from '../actions'
 
 export default function SignupPage() {
   return (
-    <>
-      <div className='mb-8'>
+    <div className='flex flex-col gap-8'>
+      <div className='space-y-2'>
         <p className='text-xs font-semibold uppercase text-gold'>
           New customer
         </p>
-        <h2 className='mt-2 font-sans text-4xl font-semibold'>
+        <h2 className='font-sans text-4xl font-semibold'>
           Signup details
         </h2>
       </div>
 
-      <button
-        type='button'
-        className='mb-6 inline-flex h-12 w-full items-center justify-center gap-3 border border-black px-5 text-sm font-semibold transition-colors hover:bg-black hover:text-white'
-      >
-        <span className='text-lg font-semibold'>G</span>
-        Continue with Google
-      </button>
+      <div className='flex flex-col gap-6'>
+        <button
+          type='button'
+          className='inline-flex h-12 w-full items-center justify-center gap-3 border border-black px-5 text-sm font-semibold transition-colors hover:bg-black hover:text-white'
+        >
+          <span className='text-lg font-semibold'>G</span>
+          Continue with Google
+        </button>
 
-      <form action={signup} className='space-y-5'>
-        <div className='grid gap-5 sm:grid-cols-2'>
+        <form action={signup} className='space-y-5'>
+          <div className='grid gap-5 sm:grid-cols-2'>
+            <label className='block space-y-2'>
+              <span className={authLabelClassName}>First name</span>
+              <input
+                autoComplete='given-name'
+                className={authInputClassName}
+                name='firstName'
+                placeholder='First name'
+                required
+                type='text'
+              />
+            </label>
+
+            <label className='block space-y-2'>
+              <span className={authLabelClassName}>Last name</span>
+              <input
+                autoComplete='family-name'
+                className={authInputClassName}
+                name='lastName'
+                placeholder='Last name'
+                required
+                type='text'
+              />
+            </label>
+          </div>
+
           <label className='block space-y-2'>
-            <span className={authLabelClassName}>First name</span>
+            <span className={authLabelClassName}>Email address</span>
             <input
-              autoComplete='given-name'
+              autoComplete='email'
               className={authInputClassName}
-              name='firstName'
-              placeholder='First name'
+              name='email'
+              placeholder='you@example.com'
               required
-              type='text'
+              type='email'
             />
           </label>
 
           <label className='block space-y-2'>
-            <span className={authLabelClassName}>Last name</span>
+            <span className={authLabelClassName}>Phone or WhatsApp</span>
             <input
-              autoComplete='family-name'
+              autoComplete='tel'
               className={authInputClassName}
-              name='lastName'
-              placeholder='Last name'
-              required
-              type='text'
+              name='phone'
+              placeholder='+234...'
+              type='tel'
             />
           </label>
-        </div>
 
-        <label className='block space-y-2'>
-          <span className={authLabelClassName}>Email address</span>
-          <input
-            autoComplete='email'
-            className={authInputClassName}
-            name='email'
-            placeholder='you@example.com'
-            required
-            type='email'
+          <label className='block space-y-2'>
+            <span className={authLabelClassName}>Password</span>
+            <PasswordInput
+              autoComplete='new-password'
+              className={authInputClassName}
+              minLength={8}
+              name='password'
+              placeholder='Create a password'
+              required
+            />
+          </label>
+
+          <AuthSubmitButton
+            idleLabel='Create account'
+            loadingLabel='Creating account'
           />
-        </label>
+        </form>
+      </div>
 
-        <label className='block space-y-2'>
-          <span className={authLabelClassName}>Phone or WhatsApp</span>
-          <input
-            autoComplete='tel'
-            className={authInputClassName}
-            name='phone'
-            placeholder='+234...'
-            type='tel'
-          />
-        </label>
-
-        <label className='block space-y-2'>
-          <span className={authLabelClassName}>Password</span>
-          <PasswordInput
-            autoComplete='new-password'
-            className={authInputClassName}
-            minLength={8}
-            name='password'
-            placeholder='Create a password'
-            required
-          />
-        </label>
-
-        <AuthSubmitButton
-          idleLabel='Create account'
-          loadingLabel='Creating account'
-        />
-      </form>
-
-      <div className='mt-7 flex flex-col gap-3 border-t border-black/10 pt-6 text-sm text-muted-foreground sm:flex-row sm:items-center sm:justify-between'>
+      <div className='flex flex-col gap-3 border-t border-black/10 pt-6 text-sm text-muted-foreground sm:flex-row sm:items-center sm:justify-between'>
         <span>Already have an account?</span>
         <Link
           href='/login'
@@ -106,6 +108,6 @@ export default function SignupPage() {
           Sign in
         </Link>
       </div>
-    </>
+    </div>
   )
 }

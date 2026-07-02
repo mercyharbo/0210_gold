@@ -6,7 +6,7 @@ const faqGroups = [
     title: 'Shopping',
     questions: [
       {
-        question: 'What can I shop on 0210 Gold?',
+        question: 'What can I shop on FM LUXE?',
         answer:
           'You can browse fashion, gold jewellery, accessories, abaya, modest sets, bags, shoes, and clothing categories.',
       },
@@ -18,15 +18,15 @@ const faqGroups = [
       {
         question: 'Can I request something that is not listed?',
         answer:
-          'Yes. Use the personal shopper request page to send item links, screenshots, sizes, colors, budget, and any preferred UK store.',
+          'Yes. Use the make a request page to send item links, screenshots, sizes, colors, budget, and any preferred UK store.',
       },
     ],
   },
   {
-    title: 'Personal Shopper',
+    title: 'Make a Request',
     questions: [
       {
-        question: 'How does the UK personal shopping service work?',
+        question: 'How does the UK request service work?',
         answer:
           'You send your request, we review the details, source the item in the UK, confirm the order information, and prepare it for delivery to Nigeria.',
       },
@@ -48,7 +48,7 @@ const faqGroups = [
       {
         question: 'Do you deliver to Nigeria?',
         answer:
-          'Yes. The personal shopping service is UK-based and supports waybill delivery to Nigeria.',
+          'Yes. The request service is UK-based and supports waybill delivery to Nigeria.',
       },
       {
         question: 'Can I track my order?',
@@ -66,9 +66,9 @@ const faqGroups = [
     title: 'Businesses',
     questions: [
       {
-        question: 'Is 0210 only for gold jewellery?',
+        question: 'Is FM LUXE only for gold jewellery?',
         answer:
-          'No. 0210 Gold is fashion and jewellery focused, while the wider 0210 group also includes personal shopping and Nigerian delicacies.',
+          'No. FM LUXE is fashion and jewellery focused, while the wider FM LUXE group also includes custom requests and Nigerian delicacies.',
       },
       {
         question: 'How do I ask about Nigerian delicacies?',
@@ -78,7 +78,7 @@ const faqGroups = [
       {
         question: 'Where can I see all businesses?',
         answer:
-          'Visit the companies page to see the current businesses under 0210.',
+          'Visit the companies page to see the current businesses under FM LUXE.',
       },
     ],
   },
@@ -92,9 +92,9 @@ const quickLinks = [
     Icon: ShoppingBag,
   },
   {
-    title: 'Request shopper',
+    title: 'Make a request',
     description: 'Send a UK shopping request for Nigeria delivery.',
-    href: '/personal-shopper-request',
+    href: '/make-a-request',
     Icon: PackageCheck,
   },
   {
@@ -111,7 +111,7 @@ export default function FaqPage() {
       <section className='bg-muted'>
         <div className='mx-auto grid w-full gap-10 px-5 py-16 sm:px-8 lg:grid-cols-[0.9fr_1.1fr] lg:items-end lg:px-12 lg:py-24'>
           <div className='max-w-3xl'>
-            <p className='mb-4 text-sm font-medium uppercase text-muted-foreground'>
+            <p className='text-sm font-medium uppercase text-muted-foreground'>
               FAQs
             </p>
             <h1 className='font-heading text-5xl font-bold leading-[0.95] sm:text-6xl lg:text-7xl'>
@@ -120,8 +120,8 @@ export default function FaqPage() {
           </div>
 
           <p className='max-w-2xl text-base leading-7 text-muted-foreground lg:ml-auto'>
-            Find quick answers about the shop, UK personal shopping, Nigeria
-            delivery, orders, and the businesses under 0210.
+            Find quick answers about the shop, UK requests, Nigeria
+            delivery, orders, and the businesses under FM LUXE.
           </p>
         </div>
       </section>
@@ -135,12 +135,12 @@ export default function FaqPage() {
                 href={href}
                 className='group block border border-black/10 p-5 transition-colors hover:border-black/35'
               >
-                <Icon className='mb-6 size-5 stroke-[1.6]' />
+                <Icon className='size-5 stroke-[1.6]' />
                 <h2 className='font-heading text-xl font-semibold'>{title}</h2>
-                <p className='mt-3 text-sm leading-6 text-muted-foreground'>
+                <p className='text-sm leading-6 text-muted-foreground'>
                   {description}
                 </p>
-                <span className='mt-5 inline-flex items-center gap-3 text-sm font-medium text-black'>
+                <span className='inline-flex items-center gap-3 text-sm font-medium text-black'>
                   Open
                   <ArrowRight className='size-4 stroke-[1.8] transition-transform group-hover:translate-x-1' />
                 </span>
@@ -151,7 +151,7 @@ export default function FaqPage() {
           <div className='space-y-10'>
             {faqGroups.map((group) => (
               <section key={group.title}>
-                <h2 className='mb-5 font-heading text-3xl font-semibold'>
+                <h2 className='font-heading text-3xl font-semibold'>
                   {group.title}
                 </h2>
                 <div className='divide-y divide-black/10 border-y border-black/10'>
@@ -161,11 +161,11 @@ export default function FaqPage() {
                         <span className='font-heading text-2xl font-semibold leading-tight'>
                           {item.question}
                         </span>
-                        <span className='mt-1 text-2xl leading-none text-muted-foreground transition-transform group-open:rotate-45'>
+                        <span className='text-2xl leading-none text-muted-foreground transition-transform group-open:rotate-45'>
                           +
                         </span>
                       </summary>
-                      <p className='mt-4 max-w-3xl text-sm leading-6 text-muted-foreground'>
+                      <p className='max-w-3xl text-sm leading-6 text-muted-foreground'>
                         {item.answer}
                       </p>
                     </details>

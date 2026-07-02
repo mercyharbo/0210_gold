@@ -5,7 +5,7 @@ import Link from 'next/link'
 export function HeroBanner() {
   return (
     <section className='relative overflow-hidden bg-muted text-black'>
-      <div className='relative mx-auto grid min-h-[calc(100svh-5rem)] w-full grid-cols-1 items-center gap-8 px-5 py-10 sm:px-8 sm:py-14 lg:grid-cols-[0.9fr_1.1fr] lg:px-12 lg:py-0'>
+      <div className='relative mx-auto grid min-h-[calc(100svh-5rem)] w-full grid-cols-1 items-center gap-8 px-5 py-10 sm:pl-8 lg:px-0 sm:py-14 lg:grid-cols-[0.9fr_1.1fr] lg:pl-12 lg:py-0'>
         <div className='relative z-10 flex max-w-3xl flex-col gap-6 lg:pb-12'>
           <p className='text-sm font-medium text-black sm:text-base'>
             New arrival
@@ -30,10 +30,10 @@ export function HeroBanner() {
             </Link>
 
             <Link
-              href='/personal-shopper-request'
+              href='/make-a-request'
               className='inline-flex h-12 items-center justify-center gap-4 border-b border-black px-1 text-sm font-medium text-black transition-opacity hover:opacity-65'
             >
-              Shop now
+              Make a request
               <ArrowRight className='size-4 stroke-[1.8]' />
             </Link>
           </div>
@@ -43,7 +43,7 @@ export function HeroBanner() {
           <div className='relative aspect-square w-full '>
             <Image
               src='/images/hero-editorial-jewellery.png'
-              alt='Model wearing 0210 Gold jewellery'
+              alt='Model wearing FM LUXE jewellery'
               fill
               priority
               // sizes='(min-width: 1024px) 58vw, 100vw'

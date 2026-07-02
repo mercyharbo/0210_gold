@@ -24,7 +24,7 @@ export default function AdminDashboardPage() {
       icon: ShoppingCart,
     },
     {
-      title: 'Personal Shopper Requests',
+      title: 'Requests',
       value: '8',
       description: '5 new requests today',
       icon: Sparkles,
@@ -48,7 +48,7 @@ export default function AdminDashboardPage() {
     {
       id: 2,
       user: 'Amara Kalu',
-      action: "requested personal shopping for 'Hermès Birkin 25'",
+      action: "made a request for 'Hermès Birkin 25'",
       time: '4 hours ago',
       status: 'New',
     },
@@ -71,7 +71,7 @@ export default function AdminDashboardPage() {
     <div className='flex flex-col gap-6'>
       <AdminPageHeader
         title='Dashboard'
-        description='Welcome to your 0210 Gold store management dashboard.'
+        description='Welcome to your FM LUXE store management dashboard.'
       />
       <div className='flex flex-col gap-6'>
         <div className='grid gap-6 sm:grid-cols-2 lg:grid-cols-4'>

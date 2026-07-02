@@ -47,3 +47,5 @@ export type CreateProductInput = {
   colors: string[]
   details: string[]
 }
+
+export type UpdateProductInput = CreateProductInput

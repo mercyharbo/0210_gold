@@ -58,8 +58,8 @@ const navItems = [
     icon: MessageSquare,
   },
   {
-    title: 'Personal Shopper',
-    href: '/admin/personal-shopper-requests',
+    title: 'Requests',
+    href: '/admin/requests',
     icon: Sparkles,
   },
   {
@@ -79,7 +79,7 @@ export function AdminSidebar() {
           href='/admin'
           className='flex items-center gap-2.5 text-lg font-bold tracking-tight text-white group-data-[collapsible=icon]:hidden'
         >
-          <span>0210</span> Gold Admin
+          <span>FM</span> LUXE Admin
         </Link>
         <div className='hidden h-8 w-8 items-center justify-center rounded-lg bg-white text-gold group-data-[collapsible=icon]:flex font-bold'>
           G
@@ -88,7 +88,7 @@ export function AdminSidebar() {
 
       <SidebarContent className='bg-gold py-4 text-white'>
         <SidebarGroup>
-          <SidebarGroupContent className='mt-2'>
+          <SidebarGroupContent className=''>
             <SidebarMenu className='gap-1 px-2'>
               {navItems.map((item) => {
                 const isActive =

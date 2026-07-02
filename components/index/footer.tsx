@@ -35,7 +35,7 @@ const footerGroups = [
     links: [
       { href: '/contact', label: 'Email Us' },
       { href: '/contact', label: 'Store Locations' },
-      { href: '/personal-shopper-request', label: 'Client Services' },
+      { href: '/make-a-request', label: 'Make a Request' },
       { href: '/contact', label: 'Social Media' },
     ],
   },
@@ -140,10 +140,10 @@ export function IndexFooter() {
         <div className='grid gap-8 pt-8 lg:grid-cols-[1fr_auto] lg:items-end'>
           <div className='flex flex-col gap-4'>
             <p className='font-heading text-[clamp(4rem,15vw,12rem)] font-bold leading-none text-white'>
-              0210Gold
+              FM LUXE
             </p>
             <p className='text-xs text-muted-foreground'>
-              &copy; 2026 0210 Gold. All Rights Reserved.
+              &copy; 2026 FM LUXE. All Rights Reserved.
             </p>
           </div>
 

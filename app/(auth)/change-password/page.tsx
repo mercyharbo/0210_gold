@@ -22,12 +22,12 @@ export default async function ChangePasswordPage() {
   }
 
   return (
-    <>
-      <div className='mb-8'>
+    <div className='flex flex-col gap-8'>
+      <div className='space-y-2'>
         <p className='text-xs font-semibold uppercase text-gold'>
           Update password
         </p>
-        <h2 className='mt-2 font-sans text-4xl font-semibold'>
+        <h2 className='font-sans text-4xl font-semibold'>
           New password
         </h2>
       </div>
@@ -63,7 +63,7 @@ export default async function ChangePasswordPage() {
         />
       </form>
 
-      <div className='mt-7 flex flex-col gap-3 border-t border-black/10 pt-6 text-sm text-muted-foreground sm:flex-row sm:items-center sm:justify-between'>
+      <div className='flex flex-col gap-3 border-t border-black/10 pt-6 text-sm text-muted-foreground sm:flex-row sm:items-center sm:justify-between'>
         <span>Manage your customer details</span>
         <Link
           href='/profile'
@@ -72,6 +72,6 @@ export default async function ChangePasswordPage() {
           Open profile
         </Link>
       </div>
-    </>
+    </div>
   )
 }

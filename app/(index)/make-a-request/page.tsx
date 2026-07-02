@@ -27,16 +27,16 @@ const inputClassName =
 const textareaClassName =
   'min-h-32 w-full resize-none border border-black/10 bg-white px-4 py-3 text-sm text-black outline-none transition-colors placeholder:text-muted-foreground focus:border-black'
 
-const labelClassName = 'text-xs font-medium uppercase text-muted-foreground'
+const labelClassName = 'text-xs font-medium text-muted-foreground'
 
-export default function PersonalShopperRequestPage() {
+export default function MakeARequestPage() {
   return (
     <div className='bg-white text-black'>
       <section className='bg-muted'>
         <div className='mx-auto grid w-full gap-10 px-5 py-16 sm:px-8 lg:grid-cols-[0.9fr_1.1fr] lg:items-end lg:px-12 lg:py-24'>
-          <div className='max-w-3xl'>
-            <p className='mb-4 text-sm font-medium uppercase text-muted-foreground'>
-              Personal shopper request
+          <div className='flex max-w-3xl flex-col gap-4'>
+            <p className='text-sm font-medium text-muted-foreground'>
+              Make a request
             </p>
             <h1 className='font-heading text-5xl font-bold leading-[0.95] sm:text-6xl lg:text-7xl'>
               Shop from the UK, delivered to Nigeria
@@ -55,10 +55,10 @@ export default function PersonalShopperRequestPage() {
         <div className='mx-auto grid w-full gap-10 px-5 py-16 sm:px-8 lg:grid-cols-[0.75fr_1.25fr] lg:px-12 lg:py-20'>
           <aside className='space-y-4'>
             {serviceSteps.map(({ title, description, Icon }) => (
-              <article key={title} className='border border-black/10 p-5'>
-                <Icon className='mb-6 size-5 stroke-[1.6]' />
+              <article key={title} className='flex flex-col gap-5 border border-black/10 p-5'>
+                <Icon className='size-5 stroke-[1.6]' />
                 <h2 className='font-heading text-xl font-semibold'>{title}</h2>
-                <p className='mt-3 text-sm leading-6 text-muted-foreground'>
+                <p className='text-sm leading-6 text-muted-foreground'>
                   {description}
                 </p>
               </article>
@@ -66,8 +66,8 @@ export default function PersonalShopperRequestPage() {
           </aside>
 
           <form className='space-y-8 border border-black/10 p-5 sm:p-8'>
-            <div>
-              <p className='mb-3 text-sm font-medium uppercase text-muted-foreground'>
+            <div className='flex flex-col gap-3'>
+              <p className='text-sm font-medium text-muted-foreground'>
                 Request details
               </p>
               <h2 className='font-heading text-4xl font-bold leading-tight'>

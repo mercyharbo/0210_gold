@@ -35,7 +35,7 @@ export default function TrackOrderPage() {
       <section className='border-b border-black/10 px-5 py-16 sm:px-8 lg:px-12 lg:py-20'>
         <div className='mx-auto grid max-w-7xl gap-12 lg:grid-cols-[0.95fr_1.05fr] lg:items-end'>
           <div>
-            <p className='mb-4 text-xs font-semibold uppercase text-gold'>
+            <p className='text-xs font-semibold uppercase text-gold'>
               Order tracking
             </p>
             <h1 className='max-w-3xl font-heading text-5xl font-semibold leading-[0.95] sm:text-6xl lg:text-7xl'>
@@ -54,12 +54,12 @@ export default function TrackOrderPage() {
       <section className='px-5 py-14 sm:px-8 lg:px-12'>
         <div className='mx-auto grid max-w-7xl gap-10 lg:grid-cols-[0.9fr_1.1fr]'>
           <div className='border border-black/10 p-6 sm:p-8'>
-            <div className='mb-8 flex items-center justify-between gap-4'>
+            <div className='flex items-center justify-between gap-4'>
               <div>
                 <p className='text-xs font-semibold uppercase text-muted-foreground'>
                   Find order
                 </p>
-                <h2 className='mt-2 font-heading text-3xl font-semibold'>
+                <h2 className='font-heading text-3xl font-semibold'>
                   Enter your details
                 </h2>
               </div>
@@ -70,14 +70,14 @@ export default function TrackOrderPage() {
               <div>
                 <label
                   htmlFor='order-reference'
-                  className='mb-2 block text-sm font-medium'
+                  className='block text-sm font-medium'
                 >
                   Order or waybill number
                 </label>
                 <input
                   id='order-reference'
                   type='text'
-                  placeholder='Example: 0210-5482'
+                  placeholder='Example: FML-5482'
                   className={inputClassName}
                 />
               </div>
@@ -85,7 +85,7 @@ export default function TrackOrderPage() {
               <div>
                 <label
                   htmlFor='customer-contact'
-                  className='mb-2 block text-sm font-medium'
+                  className='block text-sm font-medium'
                 >
                   Email or phone number
                 </label>
@@ -125,7 +125,7 @@ export default function TrackOrderPage() {
                   <h3 className='font-heading text-2xl font-semibold'>
                     {title}
                   </h3>
-                  <p className='mt-2 max-w-xl text-sm leading-6 text-muted-foreground'>
+                  <p className='max-w-xl text-sm leading-6 text-muted-foreground'>
                     {description}
                   </p>
                 </div>
@@ -134,17 +134,17 @@ export default function TrackOrderPage() {
 
             <div className='border border-black bg-black p-6 text-white sm:p-8'>
               <HelpCircle
-                className='mb-5 size-6 text-gold'
+                className='size-6 text-gold'
                 strokeWidth={1.7}
               />
               <h3 className='font-heading text-3xl font-semibold'>
                 Need help with an order?
               </h3>
-              <p className='mt-3 max-w-2xl text-sm leading-6 text-muted-foreground'>
+              <p className='max-w-2xl text-sm leading-6 text-muted-foreground'>
                 Send your order details and delivery name so support can check
                 the latest status and confirm the next update.
               </p>
-              <div className='mt-6 flex flex-wrap gap-3'>
+              <div className='flex flex-wrap gap-3'>
                 <Link
                   href='/contact'
                   className='inline-flex h-11 items-center justify-center bg-white px-5 text-sm font-semibold text-black transition-colors hover:bg-gold/35'

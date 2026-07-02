@@ -30,13 +30,13 @@ export default function AboutPage() {
         <div className='mx-auto grid min-h-[calc(100svh-5rem)] w-full gap-10 px-5 py-14 sm:px-8 lg:grid-cols-[0.9fr_1.1fr] lg:px-12 lg:py-0'>
           <div className='flex max-w-3xl flex-col justify-center gap-6'>
             <p className='text-sm font-medium uppercase text-muted-foreground'>
-              About 0210
+              About FM LUXE
             </p>
             <h1 className='font-heading text-5xl font-bold leading-[0.95] sm:text-6xl lg:text-7xl'>
               Fashion, gold, and shopping support between the UK and Nigeria
             </h1>
             <p className='max-w-2xl text-base leading-7 text-muted-foreground'>
-              0210 started with a love for gold and style, and is growing into
+              FM LUXE started with a love for gold and style, and is growing into
               a home for fashion-led services and businesses. The focus is
               simple: help clients find beautiful pieces, shop with confidence,
               and receive them with care.
@@ -50,7 +50,7 @@ export default function AboutPage() {
                 <ArrowRight className='size-4 stroke-[1.8]' />
               </Link>
               <Link
-                href='/personal-shopper-request'
+                href='/make-a-request'
                 className='inline-flex h-12 items-center justify-center border-b border-black px-1 text-sm font-medium text-black transition-opacity hover:opacity-65'
               >
                 Request shopping help
@@ -61,7 +61,7 @@ export default function AboutPage() {
           <div className='relative min-h-[420px] self-end overflow-hidden bg-white lg:min-h-[calc(100svh-5rem)]'>
             <Image
               src='/images/hero-editorial-jewellery.png'
-              alt='Editorial 0210 Gold jewellery styling'
+              alt='Editorial FM LUXE jewellery styling'
               fill
               priority
               sizes='(min-width: 1024px) 55vw, 100vw'
@@ -75,7 +75,7 @@ export default function AboutPage() {
         <div className='mx-auto w-full px-5 py-16 sm:px-8 lg:px-12 lg:py-20'>
           <div className='grid gap-10 lg:grid-cols-[0.85fr_1.15fr]'>
             <div>
-              <p className='mb-3 text-sm font-medium uppercase text-muted-foreground'>
+              <p className='text-sm font-medium uppercase text-muted-foreground'>
                 What we do
               </p>
               <h2 className='font-heading text-4xl font-bold leading-tight sm:text-5xl'>
@@ -86,11 +86,11 @@ export default function AboutPage() {
             <div className='grid gap-4 md:grid-cols-3'>
               {values.map(({ title, description, Icon }) => (
                 <article key={title} className='border border-black/10 p-5'>
-                  <Icon className='mb-6 size-5 stroke-[1.6]' />
+                  <Icon className='size-5 stroke-[1.6]' />
                   <h3 className='font-heading text-xl font-semibold'>
                     {title}
                   </h3>
-                  <p className='mt-3 text-sm leading-6 text-muted-foreground'>
+                  <p className='text-sm leading-6 text-muted-foreground'>
                     {description}
                   </p>
                 </article>
@@ -103,13 +103,13 @@ export default function AboutPage() {
       <section className='bg-black text-white'>
         <div className='mx-auto grid w-full gap-10 px-5 py-16 sm:px-8 lg:grid-cols-[1fr_0.9fr] lg:items-center lg:px-12 lg:py-20'>
           <div>
-            <p className='mb-3 text-sm font-medium uppercase text-muted-foreground'>
-              Personal shopping
+            <p className='text-sm font-medium uppercase text-muted-foreground'>
+              Make a request
             </p>
             <h2 className='font-heading text-4xl font-bold leading-tight sm:text-5xl'>
               Based in the UK, shopping for clients in Nigeria
             </h2>
-            <p className='mt-5 max-w-2xl text-base leading-7 text-muted-foreground'>
+            <p className='max-w-2xl text-base leading-7 text-muted-foreground'>
               Clients can send requests for fashion, gold, accessories, shoes,
               bags, and special pieces. We help source the items in the UK,
               prepare the order, and arrange waybill delivery to Nigeria.
@@ -122,7 +122,7 @@ export default function AboutPage() {
                 <p className='text-xs font-medium uppercase text-muted-foreground'>
                   Step 01
                 </p>
-                <p className='mt-2 font-heading text-2xl font-semibold'>
+                <p className='font-heading text-2xl font-semibold'>
                   Send what you want
                 </p>
               </div>
@@ -130,7 +130,7 @@ export default function AboutPage() {
                 <p className='text-xs font-medium uppercase text-muted-foreground'>
                   Step 02
                 </p>
-                <p className='mt-2 font-heading text-2xl font-semibold'>
+                <p className='font-heading text-2xl font-semibold'>
                   We source and check it
                 </p>
               </div>
@@ -138,7 +138,7 @@ export default function AboutPage() {
                 <p className='text-xs font-medium uppercase text-muted-foreground'>
                   Step 03
                 </p>
-                <p className='mt-2 font-heading text-2xl font-semibold'>
+                <p className='font-heading text-2xl font-semibold'>
                   It is waybilled to Nigeria
                 </p>
               </div>
@@ -150,16 +150,16 @@ export default function AboutPage() {
       <section>
         <div className='mx-auto grid w-full gap-8 px-5 py-16 sm:px-8 lg:grid-cols-[1fr_auto] lg:items-end lg:px-12 lg:py-20'>
           <div>
-            <p className='mb-3 text-sm font-medium uppercase text-muted-foreground'>
+            <p className='text-sm font-medium uppercase text-muted-foreground'>
               Growing with intention
             </p>
             <h2 className='max-w-3xl font-heading text-4xl font-bold leading-tight sm:text-5xl'>
-              0210 is becoming a home for more than one business
+              FM LUXE is becoming a home for more than one business
             </h2>
-            <p className='mt-5 max-w-2xl text-base leading-7 text-muted-foreground'>
+            <p className='max-w-2xl text-base leading-7 text-muted-foreground'>
               Gold and fashion remain central, while new businesses such as
               Nigerian delicacies and future services will sit under the wider
-              0210 direction as they are ready.
+              FM LUXE direction as they are ready.
             </p>
           </div>
 

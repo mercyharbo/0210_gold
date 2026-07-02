@@ -28,7 +28,7 @@ export function FeatureCard({
     <Link
       href={href}
       className={cn(
-        'group flex min-h-[30rem] flex-col overflow-hidden border border-black/10 bg-white text-black transition-colors hover:border-black/35',
+        'group flex min-h-120 flex-col overflow-hidden border border-black/10 bg-white text-black transition-colors hover:border-black/35',
         className,
       )}
     >
@@ -43,16 +43,16 @@ export function FeatureCard({
       </div>
 
       <div className='flex flex-1 flex-col justify-between gap-8 p-5'>
-        <div>
+        <div className='flex flex-col gap-2'>
           {meta ? (
-            <p className='mb-3 text-xs font-medium uppercase text-muted-foreground'>
+            <p className='text-xs font-medium text-muted-foreground'>
               {meta}
             </p>
           ) : null}
           <h3 className='font-heading text-3xl font-semibold leading-tight'>
             {title}
           </h3>
-          <p className='mt-3 text-sm leading-6 text-muted-foreground'>
+          <p className='text-sm leading-6 text-muted-foreground'>
             {description}
           </p>
         </div>

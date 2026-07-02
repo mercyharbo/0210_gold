@@ -17,7 +17,7 @@ export function AdminHeader() {
     const href = `/${segments.slice(0, index + 1).join("/")}`
     const isLast = index === segments.length - 1
 
-    // Format text nicely (e.g. personal-shopper-requests -> Personal Shopper Requests)
+    // Format text nicely (e.g. order-requests -> Order Requests)
     let title = segment.replace(/-/g, " ")
     if (title.length > 20 && title.includes("%")) {
       // Decode URL segments
@@ -95,8 +95,8 @@ export function AdminHeader() {
             <span className="text-sm font-semibold leading-none text-foreground">
               Manager
             </span>
-            <span className="text-xs leading-none text-muted-foreground mt-0.5">
-              0210 Gold
+            <span className="text-xs leading-none text-muted-foreground">
+              FM LUXE
             </span>
           </div>
         </div>

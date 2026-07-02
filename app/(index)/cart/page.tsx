@@ -60,7 +60,7 @@ export default function CartPage() {
       <section className='border-b border-black/10 px-5 py-14 sm:px-8 lg:px-12 lg:py-16'>
         <div className='mx-auto flex max-w-7xl flex-col gap-5 sm:flex-row sm:items-end sm:justify-between'>
           <div>
-            <p className='mb-4 text-xs font-semibold uppercase text-gold'>
+            <p className='text-xs font-semibold uppercase text-gold'>
               Shopping cart
             </p>
             <h1 className='font-heading text-5xl font-semibold leading-none sm:text-6xl'>
@@ -113,14 +113,14 @@ export default function CartPage() {
                         </p>
                         <Link
                           href={`/products/${item.id}`}
-                          className='mt-2 block font-heading text-2xl font-semibold transition-opacity hover:opacity-65'
+                          className='block font-heading text-2xl font-semibold transition-opacity hover:opacity-65'
                         >
                           {item.name}
                         </Link>
-                        <p className='mt-2 text-sm text-muted-foreground'>
+                        <p className='text-sm text-muted-foreground'>
                           {item.color} / {item.size}
                         </p>
-                        <p className='mt-3 text-sm font-semibold md:hidden'>
+                        <p className='text-sm font-semibold md:hidden'>
                           {formatNaira(item.price)}
                         </p>
                       </div>
@@ -164,12 +164,12 @@ export default function CartPage() {
           </div>
 
           <aside className='h-fit border border-black/10 p-6 sm:p-8'>
-            <div className='mb-7 flex items-center justify-between gap-4'>
+            <div className='flex items-center justify-between gap-4'>
               <div>
                 <p className='text-xs font-semibold uppercase text-muted-foreground'>
                   Summary
                 </p>
-                <h2 className='mt-2 font-heading text-3xl font-semibold'>
+                <h2 className='font-heading text-3xl font-semibold'>
                   Order total
                 </h2>
               </div>
@@ -200,10 +200,10 @@ export default function CartPage() {
               <ArrowRight className='size-4' strokeWidth={1.8} />
             </Link>
 
-            <div className='mt-6 grid gap-3 border-t border-black/10 pt-6'>
+            <div className='grid gap-3 border-t border-black/10 pt-6'>
               <div className='flex gap-3'>
                 <ShieldCheck
-                  className='mt-0.5 size-5 text-gold'
+                  className='size-5 text-gold'
                   strokeWidth={1.7}
                 />
                 <p className='text-sm leading-6 text-muted-foreground'>

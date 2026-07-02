@@ -90,8 +90,8 @@ export function ProductCreateForm({ categories }: ProductCreateFormProps) {
         >
           <div
             className={cn(
-              'pointer-events-auto flex items-start gap-3 rounded-lg border bg-card px-4 py-3 text-sm text-card-foreground shadow-lg',
-              'border-destructive/30 bg-destructive/10 text-destructive',
+              'pointer-events-auto flex items-start gap-3 rounded-lg border px-4 py-3 text-sm shadow-lg',
+              'border-red-300 bg-red-50 text-red-900',
             )}
           >
             <p className='min-w-0 flex-1 leading-6'>{toast.message}</p>
@@ -99,7 +99,7 @@ export function ProductCreateForm({ categories }: ProductCreateFormProps) {
               type='button'
               variant='ghost'
               size='icon-xs'
-              className='shrink-0 text-destructive hover:text-destructive'
+              className='shrink-0 text-red-800 hover:bg-red-100 hover:text-red-950'
               onClick={() => setDismissedToastId(toast.id)}
             >
               <X className='size-4' />

@@ -5,7 +5,11 @@ import {
 } from '@/lib/products/storefront-products'
 
 type ShopPageProps = {
-  searchParams: Promise<{ q?: string | string[] }>
+  searchParams: Promise<{
+    category?: string | string[]
+    q?: string | string[]
+    sort?: string | string[]
+  }>
 }
 
 export default async function ShopPage({ searchParams }: ShopPageProps) {
@@ -13,6 +17,12 @@ export default async function ShopPage({ searchParams }: ShopPageProps) {
   const initialQuery = Array.isArray(queryParams.q)
     ? queryParams.q[0] ?? ''
     : queryParams.q ?? ''
+  const initialSort = Array.isArray(queryParams.sort)
+    ? queryParams.sort[0] ?? ''
+    : queryParams.sort ?? ''
+  const initialCategorySlug = Array.isArray(queryParams.category)
+    ? queryParams.category[0] ?? ''
+    : queryParams.category ?? ''
   const products = await getStorefrontProducts()
   const categories = getStorefrontCategories(products)
 
@@ -21,7 +31,9 @@ export default async function ShopPage({ searchParams }: ShopPageProps) {
       <ShopHero />
       <ShopContent
         categories={categories}
+        initialCategorySlug={initialCategorySlug}
         initialQuery={initialQuery}
+        initialSort={initialSort}
         products={products}
       />
     </div>

@@ -13,6 +13,7 @@ import {
 import { cn } from '@/lib/utils'
 
 type ProductOptionMultiSelectProps = {
+  defaultValue?: string[]
   name: string
   options: readonly string[]
   placeholder: string
@@ -26,11 +27,12 @@ function formatOptionLabel(option: string) {
 }
 
 export function ProductOptionMultiSelect({
+  defaultValue = [],
   name,
   options,
   placeholder,
 }: ProductOptionMultiSelectProps) {
-  const [selectedOptions, setSelectedOptions] = useState<string[]>([])
+  const [selectedOptions, setSelectedOptions] = useState<string[]>(defaultValue)
   const selectedLabel = useMemo(() => {
     if (selectedOptions.length === 0) {
       return placeholder

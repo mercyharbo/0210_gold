@@ -9,7 +9,7 @@ const handlers: HandlerMap = {
     health: () =>
       ok(
         {
-          service: '0210 Gold API',
+          service: 'FM LUXE API',
           timestamp: new Date().toISOString(),
         },
         { message: 'API is healthy' },
@@ -48,10 +48,10 @@ const handlers: HandlerMap = {
         { received: body ?? null },
         { message: 'Contact request received' },
       ),
-    'personal-shopper-request': ({ body }) =>
+    'make-a-request': ({ body }) =>
       ok(
         { received: body ?? null },
-        { message: 'Personal shopper request received' },
+        { message: 'Request received' },
       ),
   },
 }

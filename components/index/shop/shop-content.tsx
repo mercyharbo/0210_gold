@@ -7,18 +7,40 @@ import { ShopControls } from './shop-controls'
 
 type ShopContentProps = {
   categories: string[]
+  initialCategorySlug?: string
   initialQuery?: string
+  initialSort?: string
   products: Product[]
+}
+
+const sortOptions = ['featured', 'newest', 'price-low', 'price-high'] as const
+
+function getInitialSort(sort: string) {
+  return sortOptions.includes(sort as (typeof sortOptions)[number])
+    ? sort
+    : 'featured'
 }
 
 export function ShopContent({
   categories,
+  initialCategorySlug = '',
   initialQuery = '',
+  initialSort = '',
   products,
 }: ShopContentProps) {
-  const [activeCategory, setActiveCategory] = useState('All')
+  const initialCategory = useMemo(() => {
+    if (!initialCategorySlug) {
+      return 'All'
+    }
+
+    return (
+      products.find((product) => product.categorySlug === initialCategorySlug)
+        ?.category ?? 'All'
+    )
+  }, [initialCategorySlug, products])
+  const [activeCategory, setActiveCategory] = useState(initialCategory)
   const [query, setQuery] = useState(initialQuery)
-  const [sort, setSort] = useState('featured')
+  const [sort, setSort] = useState(getInitialSort(initialSort))
 
   const filteredProducts = useMemo(() => {
     const normalizedQuery = query.trim().toLowerCase()
@@ -56,8 +78,8 @@ export function ShopContent({
         <div className='flex flex-col gap-8'>
           <div className='flex flex-col gap-4 md:flex-row md:items-end md:justify-between'>
             <div className='flex flex-col gap-3'>
-              <p className='text-sm font-medium uppercase text-muted-foreground'>
-              Browse
+              <p className='text-sm font-medium text-muted-foreground'>
+                Browse
               </p>
               <h2 className='font-heading text-4xl font-bold leading-tight sm:text-5xl'>
                 Shop the edit

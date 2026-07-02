@@ -34,7 +34,7 @@ export function ShopControls({
         </label>
 
         <label className='flex items-center gap-3'>
-          <span className='text-xs font-medium uppercase text-muted-foreground'>
+          <span className='text-xs font-medium text-muted-foreground'>
             Sort
           </span>
           <select
@@ -58,8 +58,8 @@ export function ShopControls({
             onClick={() => onCategoryChange(category)}
             className={
               activeCategory === category
-                ? 'shrink-0 bg-black px-4 py-2 text-xs font-medium uppercase text-white'
-                : 'shrink-0 border border-black/10 px-4 py-2 text-xs font-medium uppercase text-muted-foreground transition-colors hover:border-black hover:text-black'
+                ? 'shrink-0 bg-black px-4 py-2 text-xs font-medium text-white'
+                : 'shrink-0 border border-black/10 px-4 py-2 text-xs font-medium text-muted-foreground transition-colors hover:border-black hover:text-black'
             }
           >
             {category}

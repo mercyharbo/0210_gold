@@ -3,6 +3,7 @@ import type {
   AdminProductListItem,
   CreateProductInput,
   ProductPricingType,
+  UpdateProductInput,
 } from '@/types/product'
 
 const productImageBucket = 'product-media'
@@ -55,7 +56,7 @@ function getProductImageUploadErrorMessage(message: string) {
   return `image upload failed: ${message}`
 }
 
-function getProductCreateErrorMessage(error: { code?: string; message: string }) {
+function getProductWriteErrorMessage(error: { code?: string; message: string }) {
   const normalizedMessage = error.message.toLowerCase()
 
   if (
@@ -71,7 +72,22 @@ function getProductCreateErrorMessage(error: { code?: string; message: string })
     return 'a product with this slug already exists.'
   }
 
-  return `unable to create product: ${error.message}`
+  return `unable to save product: ${error.message}`
+}
+
+function getProductImageStoragePath(pathOrUrl: string) {
+  if (!pathOrUrl.startsWith('http')) {
+    return pathOrUrl.startsWith('products/') ? pathOrUrl : null
+  }
+
+  const marker = `/${productImageBucket}/`
+  const markerIndex = pathOrUrl.indexOf(marker)
+
+  if (markerIndex === -1) {
+    return null
+  }
+
+  return decodeURIComponent(pathOrUrl.slice(markerIndex + marker.length))
 }
 
 export function formatAdminProductPrice(
@@ -93,12 +109,16 @@ export function formatAdminProductPrice(
     : formattedPrice
 }
 
-export function getProductImageFiles(values: FormDataEntryValue[]) {
+export function getProductImageFiles(
+  values: FormDataEntryValue[],
+  options: { required?: boolean } = {},
+) {
+  const required = options.required ?? true
   const files = values.filter(
     (value): value is File => value instanceof File && value.size > 0,
   )
 
-  if (files.length === 0) {
+  if (required && files.length === 0) {
     throw new Error('upload at least one product image.')
   }
 
@@ -167,19 +187,23 @@ export async function uploadProductImage(file: File, slug: string) {
 }
 
 export async function deleteProductImages(paths: string[]) {
-  if (paths.length === 0) {
+  const storagePaths = paths
+    .map(getProductImageStoragePath)
+    .filter((path): path is string => Boolean(path))
+
+  if (storagePaths.length === 0) {
     return
   }
 
   const supabase = await createSupabaseServerClient()
   const { error } = await supabase.storage
     .from(productImageBucket)
-    .remove(paths)
+    .remove(storagePaths)
 
   if (error) {
     console.error('product image cleanup failed:', {
       message: error.message,
-      paths,
+      paths: storagePaths,
     })
   }
 }
@@ -268,6 +292,58 @@ export async function createProduct(input: CreateProductInput) {
       message: error.message,
     })
 
-    throw new Error(getProductCreateErrorMessage(error))
+    throw new Error(getProductWriteErrorMessage(error))
+  }
+}
+
+export async function updateProduct(
+  productId: string,
+  input: UpdateProductInput,
+) {
+  const supabase = await createSupabaseServerClient()
+  const { error } = await supabase
+    .from('products')
+    .update({
+      name: input.name,
+      slug: input.slug,
+      category_id: input.categoryId,
+      pricing_type: input.pricingType,
+      price: input.price,
+      stock: input.stock,
+      status: input.status,
+      description: input.description,
+      image_src: input.imageSrc,
+      image_urls: input.imageUrls,
+      image_alt: input.imageAlt,
+      label: input.label,
+      sizes: input.sizes,
+      colors: input.colors,
+      details: input.details,
+    })
+    .eq('id', productId)
+
+  if (error) {
+    console.error('product update failed:', {
+      code: error.code,
+      message: error.message,
+      productId,
+    })
+
+    throw new Error(getProductWriteErrorMessage(error))
+  }
+}
+
+export async function deleteProduct(productId: string) {
+  const supabase = await createSupabaseServerClient()
+  const { error } = await supabase.from('products').delete().eq('id', productId)
+
+  if (error) {
+    console.error('product delete failed:', {
+      code: error.code,
+      message: error.message,
+      productId,
+    })
+
+    throw new Error(`unable to delete product: ${error.message}`)
   }
 }

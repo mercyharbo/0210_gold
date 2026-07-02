@@ -5,11 +5,11 @@ const contactMethods = [
   {
     title: 'General enquiries',
     description: 'Questions about products, categories, companies, or orders.',
-    detail: 'hello@0210gold.com',
+    detail: 'hello@fmluxe.com',
     Icon: Mail,
   },
   {
-    title: 'Personal shopping',
+    title: 'Shopping requests',
     description: 'UK shopping requests and Nigeria waybill delivery support.',
     detail: 'Use the request form',
     Icon: ShoppingBag,
@@ -36,7 +36,7 @@ export default function ContactPage() {
       <section className='bg-muted'>
         <div className='mx-auto grid w-full gap-10 px-5 py-16 sm:px-8 lg:grid-cols-[0.9fr_1.1fr] lg:items-end lg:px-12 lg:py-24'>
           <div className='max-w-3xl'>
-            <p className='mb-4 text-sm font-medium uppercase text-muted-foreground'>
+            <p className='text-sm font-medium uppercase text-muted-foreground'>
               Contact
             </p>
             <h1 className='font-heading text-5xl font-bold leading-[0.95] sm:text-6xl lg:text-7xl'>
@@ -45,8 +45,8 @@ export default function ContactPage() {
           </div>
 
           <p className='max-w-2xl text-base leading-7 text-muted-foreground lg:ml-auto'>
-            Send a message about products, personal shopping, UK sourcing,
-            Nigerian delicacies, delivery, or any business under 0210.
+            Send a message about products, custom requests, UK sourcing,
+            Nigerian delicacies, delivery, or any business under FM LUXE.
           </p>
         </div>
       </section>
@@ -56,27 +56,27 @@ export default function ContactPage() {
           <aside className='space-y-4'>
             {contactMethods.map(({ title, description, detail, Icon }) => (
               <article key={title} className='border border-black/10 p-5'>
-                <Icon className='mb-6 size-5 stroke-[1.6]' />
+                <Icon className='size-5 stroke-[1.6]' />
                 <h2 className='font-heading text-xl font-semibold'>{title}</h2>
-                <p className='mt-3 text-sm leading-6 text-muted-foreground'>
+                <p className='text-sm leading-6 text-muted-foreground'>
                   {description}
                 </p>
-                <p className='mt-4 text-sm font-medium text-black'>{detail}</p>
+                <p className='text-sm font-medium text-black'>{detail}</p>
               </article>
             ))}
 
             <div className='border border-black/10 bg-black p-5 text-white'>
-              <MessageCircle className='mb-6 size-5 stroke-[1.6]' />
+              <MessageCircle className='size-5 stroke-[1.6]' />
               <h2 className='font-heading text-xl font-semibold'>
                 Shopping request
               </h2>
-              <p className='mt-3 text-sm leading-6 text-muted-foreground'>
+              <p className='text-sm leading-6 text-muted-foreground'>
                 For UK sourcing and waybill delivery to Nigeria, use the full
-                personal shopper request form.
+                make a request form.
               </p>
               <Link
-                href='/personal-shopper-request'
-                className='mt-5 inline-flex items-center gap-3 border-b border-white text-sm font-medium text-white transition-opacity hover:opacity-70'
+                href='/make-a-request'
+                className='inline-flex items-center gap-3 border-b border-white text-sm font-medium text-white transition-opacity hover:opacity-70'
               >
                 Open request form
                 <ArrowRight className='size-4 stroke-[1.8]' />
@@ -86,7 +86,7 @@ export default function ContactPage() {
 
           <form className='space-y-8 border border-black/10 p-5 sm:p-8'>
             <div>
-              <p className='mb-3 text-sm font-medium uppercase text-muted-foreground'>
+              <p className='text-sm font-medium uppercase text-muted-foreground'>
                 Send a message
               </p>
               <h2 className='font-heading text-4xl font-bold leading-tight'>
@@ -129,7 +129,7 @@ export default function ContactPage() {
                 <span className={labelClassName}>Enquiry type</span>
                 <select className={inputClassName} name='type'>
                   <option>Product enquiry</option>
-                  <option>Personal shopping</option>
+                  <option>Shopping request</option>
                   <option>Order support</option>
                   <option>Nigerian delicacies</option>
                   <option>Company enquiry</option>

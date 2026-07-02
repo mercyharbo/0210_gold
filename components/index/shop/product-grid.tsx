@@ -10,7 +10,7 @@ export function ProductGrid({ products }: ProductGridProps) {
     return (
       <div className='border border-black/10 px-5 py-16 text-center'>
         <h3 className='font-heading text-3xl font-semibold'>No items found</h3>
-        <p className='mx-auto mt-3 max-w-md text-sm leading-6 text-muted-foreground'>
+        <p className='mx-auto max-w-md text-sm leading-6 text-muted-foreground'>
           Try another category, search term, or sort option.
         </p>
       </div>

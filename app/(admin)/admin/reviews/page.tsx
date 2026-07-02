@@ -29,8 +29,8 @@ export default function AdminReviewsPage() {
       id: "rev-3",
       customer: "James Obi",
       rating: 5,
-      comment: "The personal shopping team sourced a bespoke Rolex watch for me within a week. Phenomenal service.",
-      product: "Personal Shopping Service",
+      comment: "The request team sourced a bespoke Rolex watch for me within a week. Phenomenal service.",
+      product: "Bespoke Watch Request",
       date: "June 22, 2026",
       status: "Pending",
     },
@@ -100,7 +100,7 @@ export default function AdminReviewsPage() {
                       <p className="line-clamp-2 leading-relaxed">
                         &ldquo;{review.comment}&rdquo;
                       </p>
-                      <span className="text-[10px] block mt-1 text-muted-foreground/60">
+                      <span className="text-[10px] block text-muted-foreground/60">
                         {review.date}
                       </span>
                     </td>

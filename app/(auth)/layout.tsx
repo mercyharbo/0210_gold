@@ -16,7 +16,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
 
           <div className='flex flex-col gap-6 py-16 lg:py-24'>
             <p className='text-xs font-semibold uppercase text-gold'>
-              0210 Gold account
+              FM LUXE account
             </p>
             <h1 className='max-w-xl font-sans text-5xl font-semibold leading-[0.95] sm:text-6xl'>
               Manage your shopping profile securely.
@@ -29,7 +29,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
 
           <div className='flex max-w-md gap-3 border-t border-white/15 pt-6'>
             <ShieldCheck
-              className='mt-0.5 size-5 shrink-0 text-gold'
+              className='size-5 shrink-0 text-gold'
               strokeWidth={1.7}
             />
             <p className='text-xs leading-5 text-muted-foreground'>

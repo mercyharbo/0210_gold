@@ -10,12 +10,12 @@ import { forgotPassword } from '../actions'
 
 export default function ForgotPasswordPage() {
   return (
-    <>
-      <div className='mb-8'>
+    <div className='flex flex-col gap-8'>
+      <div className='space-y-2'>
         <p className='text-xs font-semibold uppercase text-gold'>
           Reset password
         </p>
-        <h2 className='mt-2 font-sans text-4xl font-semibold'>
+        <h2 className='font-sans text-4xl font-semibold'>
           Email verification
         </h2>
       </div>
@@ -39,7 +39,7 @@ export default function ForgotPasswordPage() {
         />
       </form>
 
-      <div className='mt-7 flex flex-col gap-3 border-t border-black/10 pt-6 text-sm text-muted-foreground sm:flex-row sm:items-center sm:justify-between'>
+      <div className='flex flex-col gap-3 border-t border-black/10 pt-6 text-sm text-muted-foreground sm:flex-row sm:items-center sm:justify-between'>
         <span>Remember your password?</span>
         <Link
           href='/login'
@@ -48,6 +48,6 @@ export default function ForgotPasswordPage() {
           Back to login
         </Link>
       </div>
-    </>
+    </div>
   )
 }

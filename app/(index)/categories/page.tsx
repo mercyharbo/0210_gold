@@ -139,7 +139,7 @@ const categoryGroups = [
       'Church outfits',
       'Travel outfits',
       'Gift ideas',
-      'Personal shopper picks',
+      'Request-based picks',
     ],
   },
 ]
@@ -154,7 +154,7 @@ const shoppingNotes = [
   {
     title: 'Request what you need',
     description:
-      'If a product is not listed yet, send a personal shopper request with your budget, size, and preferred style.',
+      'If a product is not listed yet, make a request with your budget, size, and preferred style.',
     Icon: ShoppingBag,
   },
   {
@@ -171,7 +171,7 @@ export default function CategoriesPage() {
       <section className='bg-muted'>
         <div className='mx-auto grid w-full gap-10 px-5 py-16 sm:px-8 lg:grid-cols-[0.9fr_1.1fr] lg:items-end lg:px-12 lg:py-24'>
           <div className='max-w-3xl'>
-            <p className='mb-4 text-sm font-medium uppercase text-muted-foreground'>
+            <p className='text-sm font-medium uppercase text-muted-foreground'>
               Fashion categories
             </p>
             <h1 className='font-heading text-5xl font-bold leading-[0.95] sm:text-6xl lg:text-7xl'>
@@ -188,10 +188,10 @@ export default function CategoriesPage() {
       </section>
 
       <section>
-        <div className='mx-auto w-full px-5 py-16 sm:px-8 lg:px-12 lg:py-20'>
-          <div className='mb-10 flex flex-col gap-6 md:flex-row md:items-end md:justify-between'>
+        <div className='mx-auto w-full px-5 py-16 space-y-8 sm:px-8 lg:px-12 lg:py-20'>
+          <div className='flex flex-col gap-6 md:flex-row md:items-end md:justify-between'>
             <div className='max-w-2xl'>
-              <p className='mb-3 text-sm font-medium uppercase text-muted-foreground'>
+              <p className='text-sm font-medium uppercase text-muted-foreground'>
                 Featured
               </p>
               <h2 className='font-heading text-4xl font-bold leading-tight sm:text-5xl'>
@@ -200,10 +200,10 @@ export default function CategoriesPage() {
             </div>
 
             <Link
-              href='/personal-shopper-request'
+              href='/make-a-request'
               className='inline-flex h-11 items-center gap-3 border-b border-black text-sm font-medium text-black transition-opacity hover:opacity-65'
             >
-              Request a personal shopper
+              Make a request
               <ArrowRight className='size-4 stroke-[1.8]' />
             </Link>
           </div>
@@ -225,13 +225,13 @@ export default function CategoriesPage() {
                   />
                 </div>
                 <div className='p-5'>
-                  <p className='mb-3 text-xs font-medium uppercase text-muted-foreground'>
+                  <p className='text-xs font-medium uppercase text-muted-foreground'>
                     {category.meta}
                   </p>
                   <h3 className='font-heading text-3xl font-semibold leading-tight'>
                     {category.title}
                   </h3>
-                  <p className='mt-3 text-sm leading-6 text-muted-foreground'>
+                  <p className='text-sm leading-6 text-muted-foreground'>
                     {category.description}
                   </p>
                 </div>
@@ -243,8 +243,8 @@ export default function CategoriesPage() {
 
       <section className='bg-black text-white'>
         <div className='mx-auto w-full px-5 py-16 sm:px-8 lg:px-12 lg:py-20'>
-          <div className='mb-10 max-w-3xl'>
-            <p className='mb-3 text-sm font-medium uppercase text-muted-foreground'>
+          <div className='max-w-3xl'>
+            <p className='text-sm font-medium uppercase text-muted-foreground'>
               Full category list
             </p>
             <h2 className='font-heading text-4xl font-bold leading-tight sm:text-5xl'>
@@ -258,7 +258,7 @@ export default function CategoriesPage() {
                 <h3 className='font-heading text-2xl font-semibold'>
                   {group.title}
                 </h3>
-                <div className='mt-5 flex flex-wrap gap-2'>
+                <div className='flex flex-wrap gap-2'>
                   {group.categories.map((category) => (
                     <Link
                       key={category}
@@ -280,9 +280,9 @@ export default function CategoriesPage() {
           <div className='grid gap-4 md:grid-cols-3'>
             {shoppingNotes.map(({ title, description, Icon }) => (
               <article key={title} className='border border-black/10 p-5'>
-                <Icon className='mb-6 size-5 stroke-[1.6]' />
+                <Icon className='size-5 stroke-[1.6]' />
                 <h3 className='font-heading text-xl font-semibold'>{title}</h3>
-                <p className='mt-3 text-sm leading-6 text-muted-foreground'>
+                <p className='text-sm leading-6 text-muted-foreground'>
                   {description}
                 </p>
               </article>
