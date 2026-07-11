@@ -32,7 +32,7 @@ export function ProductCard({ product }: ProductCardProps) {
       </div>
 
       <div className='flex flex-col gap-0.5 text-black'>
-        <h3 className='text-[13px] font-medium leading-5'>{product.name}</h3>
+        <h3 className='font-sans text-[13px] font-medium leading-5'>{product.name}</h3>
         <p className='text-[12px] font-medium text-muted-foreground'>{formatProductPrice(product)}</p>
       </div>
     </Link>

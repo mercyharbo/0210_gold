@@ -9,14 +9,14 @@ export function NewsletterSection() {
             Newsletter
           </p>
           <h2 className='font-heading text-4xl font-bold leading-tight sm:text-5xl'>
-            New drops, shopping windows, and client updates
+            Be the first to know about new arrivals and exclusive drops
           </h2>
         </div>
 
         <div className='flex flex-col gap-5 lg:items-end'>
           <p className='max-w-xl text-base leading-7 text-muted-foreground lg:text-right'>
-            Get updates on featured fashion pieces, gold arrivals, UK shopping
-            availability, and delivery notices for Nigeria-bound orders.
+            Get updates on featured fashion pieces, gold arrivals, exclusive offers,
+            and style inspiration delivered straight to your inbox.
           </p>
 
           <form className='flex w-full max-w-xl items-center border-b border-white/45'>

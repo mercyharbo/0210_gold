@@ -25,7 +25,6 @@ const footerGroups = [
     title: 'About',
     links: [
       { href: '/about', label: 'Our Story' },
-      { href: '/companies', label: 'Companies' },
       { href: '/about', label: 'Quality' },
       { href: '/contact', label: 'Terms & Conditions' },
     ],
@@ -35,7 +34,6 @@ const footerGroups = [
     links: [
       { href: '/contact', label: 'Email Us' },
       { href: '/contact', label: 'Store Locations' },
-      { href: '/make-a-request', label: 'Make a Request' },
       { href: '/contact', label: 'Social Media' },
     ],
   },

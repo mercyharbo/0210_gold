@@ -40,14 +40,13 @@ type NavItem = {
 }
 
 const desktopLeftNavItems: NavItem[] = [
-  { href: '/about', label: 'About' },
   { href: '/shop', label: 'Shop', match: 'shop' },
   { href: '/shop?sort=newest', label: 'New Arrivals', match: 'new-arrivals' },
+  { href: '/categories', label: 'Collections' },
 ]
 
 const desktopRightNavItems: NavItem[] = [
-  { href: '/categories', label: 'Collections' },
-  { href: '/make-a-request', label: 'Make a Request' },
+  { href: '/about', label: 'About' },
 ]
 
 const menuNavItems: NavItem[] = [
@@ -55,7 +54,6 @@ const menuNavItems: NavItem[] = [
   { href: '/shop', label: 'Shop', match: 'shop' },
   { href: '/shop?sort=newest', label: 'New Arrivals', match: 'new-arrivals' },
   { href: '/categories', label: 'Collections' },
-  { href: '/make-a-request', label: 'Make a Request' },
   { href: '/about', label: 'About' },
   { href: '/contact', label: 'Contact' },
 ]
@@ -390,8 +388,8 @@ export function IndexHeader() {
                 >
                   <p className='text-sm font-medium text-gold'>Style desk</p>
                   <p className='max-w-md text-xl leading-8 text-black sm:text-2xl'>
-                    Curated fashion, gold, bags, shoes, and request support for
-                    polished everyday and occasion looks.
+                    Curated fashion, gold, bags, shoes, and premium accessories
+                    for polished everyday and occasion looks.
                   </p>
                 </div>
 

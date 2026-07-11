@@ -2,6 +2,7 @@
 
 import {
   FolderTree,
+  Images,
   LayoutDashboard,
   MessageSquare,
   Package,
@@ -41,6 +42,11 @@ const navItems = [
     title: 'Categories',
     href: '/admin/categories',
     icon: FolderTree,
+  },
+  {
+    title: 'Banners',
+    href: '/admin/hero-banners',
+    icon: Images,
   },
   {
     title: 'Orders',
