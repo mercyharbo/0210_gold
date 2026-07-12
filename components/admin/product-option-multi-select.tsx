@@ -32,7 +32,9 @@ export function ProductOptionMultiSelect({
   options,
   placeholder,
 }: ProductOptionMultiSelectProps) {
-  const [selectedOptions, setSelectedOptions] = useState<string[]>(defaultValue)
+  const [selectedOptions, setSelectedOptions] = useState<string[]>(
+    defaultValue.map((val) => val.toLowerCase())
+  )
   const selectedLabel = useMemo(() => {
     if (selectedOptions.length === 0) {
       return placeholder

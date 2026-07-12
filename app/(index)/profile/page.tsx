@@ -15,6 +15,8 @@ import Link from 'next/link'
 
 import { formatNaira } from '@/components/index/shop/shop-data'
 import { ProfileForms } from '@/components/profile/profile-forms'
+import { ProfileReviews } from '@/components/profile/profile-reviews'
+import { ProfileWishlist } from '@/components/profile/profile-wishlist'
 import {
   Card,
   CardAction,
@@ -23,6 +25,7 @@ import {
   CardTitle,
 } from '@/components/ui/card'
 import { requireUser } from '@/lib/auth/session'
+import { getStorefrontWishlist } from '@/lib/products/storefront-products'
 import {
   getActiveCategories,
   getProfileCategoryPreferences,
@@ -32,43 +35,7 @@ import {
   ensureCustomerProfile,
   getCustomerAddresses,
 } from '@/lib/profile/customer-profile'
-
-const orders = [
-  {
-    id: 'FML-5482',
-    date: '18 Jun 2026',
-    status: 'Delivered',
-    items: 'Flowing Occasion Abaya, Gold Styling Set',
-    total: 305000,
-  },
-  {
-    id: 'FML-5416',
-    date: '04 Jun 2026',
-    status: 'In transit',
-    items: 'Structured Day Bag',
-    total: 78000,
-  },
-  {
-    id: 'FML-5331',
-    date: '22 May 2026',
-    status: 'Processing',
-    items: 'Polished Shoe Pair',
-    total: 88000,
-  },
-]
-
-const reviewItems = [
-  {
-    title: 'Gold Styling Set',
-    status: 'Review added',
-    detail: '5 star review on jewellery and accessories',
-  },
-  {
-    title: 'Flowing Occasion Abaya',
-    status: 'Ready for review',
-    detail: 'Share fit, fabric, and styling feedback',
-  },
-]
+import { createSupabaseServerClient } from '@/lib/supabase/server'
 
 const shoppingRequests = [
   {
@@ -80,23 +47,6 @@ const shoppingRequests = [
     title: 'Beauty and accessories shopping',
     status: 'Items being checked',
     destination: 'Abuja, Nigeria',
-  },
-]
-
-const savedItems = [
-  {
-    id: 'coordinated-modest-set',
-    name: 'Coordinated Modest Set',
-    imageAlt: 'Coordinated modest fashion outfit styled in a boutique studio',
-    imageSrc: '/images/featured-collections/modest-sets.png',
-    price: 135000,
-  },
-  {
-    id: 'polished-shoe-pair',
-    name: 'Polished Shoe Pair',
-    imageAlt: 'Elegant shoes arranged on minimal studio plinths',
-    imageSrc: '/images/featured-collections/shoes.png',
-    price: 88000,
   },
 ]
 
@@ -139,8 +89,11 @@ function ProfileSetupRequired() {
             </div>
             <p className='text-sm leading-6 text-muted-foreground'>
               Open your Supabase project SQL editor and run the setup script at
-              <span className='font-semibold'> supabase/profiles-and-addresses.sql</span>.
-              After it runs, refresh this page. If you already ran it, refresh
+              <span className='font-semibold'>
+                {' '}
+                supabase/profiles-and-addresses.sql
+              </span>
+              . After it runs, refresh this page. If you already ran it, refresh
               Supabase schema cache or restart the dev server.
             </p>
           </CardContent>
@@ -177,6 +130,68 @@ export default async function ProfilePage() {
     throw error
   }
 
+  const supabase = await createSupabaseServerClient()
+
+  // Fetch real orders
+  const { data: dbOrders } = await supabase
+    .from('orders')
+    .select('*, order_items(*)')
+    .eq('user_id', user.id)
+    .order('created_at', { ascending: false })
+
+  const recentOrders = (dbOrders || []).map((order) => {
+    const itemsList = order.order_items
+      .map((i: any) => i.product_name)
+      .join(', ')
+    return {
+      id: `FML-${order.order_number}`,
+      date: new Date(order.created_at).toLocaleDateString('en-GB', {
+        day: '2-digit',
+        month: 'short',
+        year: 'numeric',
+      }),
+      status: order.status.charAt(0).toUpperCase() + order.status.slice(1),
+      items: itemsList || 'No items',
+      total: order.total_amount,
+    }
+  })
+
+  // Fetch purchased products (for "Ready for review")
+  const purchasedProducts = new Map<string, string>()
+  dbOrders?.forEach((order) => {
+    if (order.status !== 'cancelled') {
+      order.order_items?.forEach((item: any) => {
+        purchasedProducts.set(item.product_id, item.product_name)
+      })
+    }
+  })
+
+  // Fetch reviews written by the customer
+  const { data: dbReviews } = await supabase
+    .from('reviews')
+    .select('*, product:products(name)')
+    .eq('user_id', user.id)
+    .order('created_at', { ascending: false })
+
+  const reviewsList = (dbReviews || []).map((r: any) => ({
+    id: r.id,
+    productId: r.product_id,
+    productName: r.product?.name || 'Unknown Product',
+    rating: r.rating,
+    comment: r.comment,
+  }))
+
+  const reviewedProductIds = new Set(reviewsList.map((r) => r.productId))
+  const readyForReview: { id: string; name: string }[] = []
+  purchasedProducts.forEach((name, id) => {
+    if (!reviewedProductIds.has(id)) {
+      readyForReview.push({ id, name })
+    }
+  })
+
+  // Fetch real wishlist items
+  const wishlistItems = await getStorefrontWishlist(user.id)
+
   const fullName =
     [profile.first_name, profile.last_name].filter(Boolean).join(' ') ||
     (typeof user?.user_metadata.full_name === 'string'
@@ -184,8 +199,8 @@ export default async function ProfilePage() {
       : 'Customer')
 
   const stats = [
-    { label: 'Orders', value: String(orders.length) },
-    { label: 'Reviews', value: String(reviewItems.length) },
+    { label: 'Orders', value: String(recentOrders.length) },
+    { label: 'Reviews', value: String(reviewsList.length) },
     { label: 'Addresses', value: String(addresses.length) },
     { label: 'Requests', value: String(shoppingRequests.length) },
   ]
@@ -199,9 +214,9 @@ export default async function ProfilePage() {
               <p className='text-xs font-semibold uppercase text-gold'>
                 Customer profile
               </p>
-            <h1 className='max-w-3xl font-heading text-5xl font-semibold leading-[0.95] sm:text-6xl lg:text-7xl'>
-              Your shopping history and account details.
-            </h1>
+              <h1 className='max-w-3xl font-heading text-5xl font-semibold leading-[0.95] sm:text-6xl lg:text-7xl'>
+                Your shopping history and account details.
+              </h1>
             </div>
             <p className='max-w-2xl text-base leading-7 text-muted-foreground'>
               Manage orders, reviews, saved items, delivery addresses, and UK to
@@ -212,32 +227,36 @@ export default async function ProfilePage() {
           <Card className='rounded-none bg-white lg:min-w-80'>
             <CardContent className='space-y-6'>
               <div className='flex items-center gap-4'>
-              <span className='grid size-14 place-items-center bg-black text-white'>
-                <User className='size-6' strokeWidth={1.7} />
-              </span>
-              <div>
-                <h2 className='font-heading text-2xl font-semibold'>
-                  {fullName}
-                </h2>
-                <p className='text-sm text-muted-foreground'>
-                  {profile.email ?? user?.email}
-                </p>
+                <span className='grid size-14 place-items-center bg-black text-white'>
+                  <User className='size-6' strokeWidth={1.7} />
+                </span>
+                <div>
+                  <h2 className='font-heading text-2xl font-semibold'>
+                    {fullName}
+                  </h2>
+                  <p className='text-sm text-muted-foreground'>
+                    {profile.email ?? user?.email}
+                  </p>
+                </div>
               </div>
-            </div>
-            <div className='grid grid-cols-2 gap-3'>
-              {stats.map((stat) => (
-                <Card key={stat.label} className='rounded-none bg-white' size='sm'>
-                  <CardContent className='space-y-1'>
-                  <p className='font-heading text-3xl font-semibold'>
-                    {stat.value}
-                  </p>
-                  <p className='text-xs font-semibold uppercase text-muted-foreground'>
-                    {stat.label}
-                  </p>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
+              <div className='grid grid-cols-2 gap-3'>
+                {stats.map((stat) => (
+                  <Card
+                    key={stat.label}
+                    className='rounded-none bg-white'
+                    size='sm'
+                  >
+                    <CardContent className='space-y-1'>
+                      <p className='font-heading text-3xl font-semibold'>
+                        {stat.value}
+                      </p>
+                      <p className='text-xs font-semibold uppercase text-muted-foreground'>
+                        {stat.label}
+                      </p>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
             </CardContent>
           </Card>
         </div>
@@ -269,37 +288,47 @@ export default async function ProfilePage() {
                   </CardTitle>
                 </div>
                 <CardAction>
-                <Link
-                  href='/track-order'
-                  className='inline-flex w-fit items-center gap-2 text-sm font-semibold underline underline-offset-4'
-                >
-                  Track order
-                  <ArrowRight className='size-4' strokeWidth={1.8} />
-                </Link>
+                  <Link
+                    href='/track-order'
+                    className='inline-flex w-fit items-center gap-2 text-sm font-semibold underline underline-offset-4'
+                  >
+                    Track order
+                    <ArrowRight className='size-4' strokeWidth={1.8} />
+                  </Link>
                 </CardAction>
               </CardHeader>
 
               <CardContent className='divide-y divide-black/10'>
-                {orders.map((order) => (
-                  <div
-                    key={order.id}
-                    className='grid gap-4 py-5 md:grid-cols-[140px_1fr_auto] md:items-center'
-                  >
-                    <div className='space-y-1'>
-                      <p className='text-sm font-semibold'>{order.id}</p>
-                      <p className='text-xs text-muted-foreground'>{order.date}</p>
+                {recentOrders.length === 0 ? (
+                  <p className='text-sm text-muted-foreground py-6 text-center'>
+                    No orders placed yet.
+                  </p>
+                ) : (
+                  recentOrders.map((order) => (
+                    <div
+                      key={order.id}
+                      className='grid gap-4 py-5 md:grid-cols-[140px_1fr_auto] md:items-center'
+                    >
+                      <div className='space-y-1'>
+                        <p className='text-sm font-semibold'>{order.id}</p>
+                        <p className='text-xs text-muted-foreground'>
+                          {order.date}
+                        </p>
+                      </div>
+                      <div className='space-y-2'>
+                        <p className='text-sm text-muted-foreground'>
+                          {order.items}
+                        </p>
+                        <span className='inline-flex bg-gold/35 px-3 py-1 text-xs font-semibold text-black'>
+                          {order.status}
+                        </span>
+                      </div>
+                      <p className='text-sm font-semibold'>
+                        {formatNaira(order.total)}
+                      </p>
                     </div>
-                    <div className='space-y-2'>
-                      <p className='text-sm text-muted-foreground'>{order.items}</p>
-                      <span className='inline-flex bg-gold/35 px-3 py-1 text-xs font-semibold text-black'>
-                        {order.status}
-                      </span>
-                    </div>
-                    <p className='text-sm font-semibold'>
-                      {formatNaira(order.total)}
-                    </p>
-                  </div>
-                ))}
+                  ))
+                )}
               </CardContent>
             </Card>
 
@@ -317,21 +346,10 @@ export default async function ProfilePage() {
                   </div>
                 </CardHeader>
                 <CardContent className='space-y-4'>
-                  {reviewItems.map((item) => (
-                    <div key={item.title} className='border-t border-black/10 pt-4'>
-                      <div className='flex items-start justify-between gap-4'>
-                        <div className='space-y-1'>
-                          <h3 className='text-sm font-semibold'>{item.title}</h3>
-                          <p className='text-sm leading-6 text-muted-foreground'>
-                            {item.detail}
-                          </p>
-                        </div>
-                        <span className='shrink-0 text-xs font-semibold text-gold'>
-                          {item.status}
-                        </span>
-                      </div>
-                    </div>
-                  ))}
+                  <ProfileReviews
+                    reviews={reviewsList}
+                    readyForReview={readyForReview}
+                  />
                 </CardContent>
               </Card>
 
@@ -381,32 +399,8 @@ export default async function ProfilePage() {
                 </CardAction>
               </CardHeader>
 
-              <CardContent className='grid gap-5 sm:grid-cols-2'>
-                {savedItems.map((item) => (
-                  <Link
-                    key={item.id}
-                    href={`/products/${item.id}`}
-                    className='grid grid-cols-[96px_1fr] gap-4 ring-1 ring-black/10 p-3 transition-colors hover:ring-black'
-                  >
-                    <span className='relative aspect-square bg-muted'>
-                      <Image
-                        src={item.imageSrc}
-                        alt={item.imageAlt}
-                        fill
-                        sizes='96px'
-                        className='object-cover'
-                      />
-                    </span>
-                    <span className='flex flex-col justify-center gap-2'>
-                      <span className='font-heading text-xl font-semibold'>
-                        {item.name}
-                      </span>
-                      <span className='text-sm font-semibold'>
-                        {formatNaira(item.price)}
-                      </span>
-                    </span>
-                  </Link>
-                ))}
+              <CardContent className='pt-0'>
+                <ProfileWishlist items={wishlistItems} />
               </CardContent>
             </Card>
           </div>
@@ -426,7 +420,10 @@ export default async function ProfilePage() {
                     href={href}
                     className='grid grid-cols-[auto_1fr] gap-3 border-t border-black/10 pt-4 transition-opacity hover:opacity-65'
                   >
-                    <Icon className='size-4 translate-y-0.5' strokeWidth={1.7} />
+                    <Icon
+                      className='size-4 translate-y-0.5'
+                      strokeWidth={1.7}
+                    />
                     <span className='space-y-1'>
                       <span className='block text-sm font-semibold'>
                         {title}

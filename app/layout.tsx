@@ -5,6 +5,7 @@ import { Suspense } from "react";
 import "./globals.css";
 import { cn } from "@/lib/utils";
 import { QueryParamToast } from "@/components/query-param-toast";
+import { ToastProvider } from "@/components/toast-provider";
 import { TooltipProvider } from "@/components/ui/tooltip";
 
 const inter = Inter({
@@ -144,6 +145,7 @@ export default function RootLayout({
           <Suspense fallback={null}>
             <QueryParamToast />
           </Suspense>
+          <ToastProvider />
         </TooltipProvider>
       </body>
     </html>

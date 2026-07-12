@@ -1,4 +1,5 @@
 import { createServerClient } from '@supabase/ssr'
+import { createClient } from '@supabase/supabase-js'
 import { cookies } from 'next/headers'
 
 import { getRequiredSupabaseServerEnv } from './server-env'
@@ -22,6 +23,20 @@ export async function createSupabaseServerClient() {
           // Handlers can, which is where auth mutations are performed.
         }
       },
+    },
+  })
+}
+
+export function createSupabaseAdminClient() {
+  const { url, secretKey } = getRequiredSupabaseServerEnv()
+
+  if (!secretKey) {
+    throw new Error('Missing SUPABASE_SECRET_KEY environment variable.')
+  }
+
+  return createClient(url, secretKey, {
+    auth: {
+      persistSession: false,
     },
   })
 }

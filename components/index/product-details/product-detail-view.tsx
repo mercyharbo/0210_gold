@@ -1,102 +1,73 @@
 'use client'
 
-import {
-  ArrowLeft,
-  ChevronLeft,
-  ChevronRight,
-  Expand,
-  Heart,
-  Minus,
-  Plus,
-  ShoppingBag,
-} from 'lucide-react'
+import { ArrowLeft, ChevronLeft, ChevronRight, X } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { useState } from 'react'
+import { useEffect } from 'react'
 
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogTitle,
-} from '@/components/ui/dialog'
-import { ProductCard } from '../shop/product-card'
-import {
-  formatProductPrice,
-  getProductLabelClassName,
-  type Product,
-} from '../shop/shop-data'
+import { formatProductPrice } from '@/components/index/shop/shop-data'
+import type { Product } from '@/components/index/shop/shop-data'
+import { Dialog, DialogContent } from '@/components/ui/dialog'
+import { useProductDetailStore } from '@/stores/hooks/use-product-detail'
+import { ProductGallery } from './product-gallery'
+import { ProductInfo } from './product-info'
+import { ProductOptions } from './product-options'
 
 type ProductDetailViewProps = {
   product: Product
   relatedProducts: Product[]
+  initiallyWishlisted?: boolean
 }
 
 export function ProductDetailView({
   product,
   relatedProducts,
+  initiallyWishlisted = false,
 }: ProductDetailViewProps) {
   const productImages =
     product.imageUrls.length > 0 ? product.imageUrls : [product.imageSrc]
-  const descriptionParagraphs = product.description
-    .split(/\n{2,}/)
-    .map((paragraph) => paragraph.trim())
-    .filter(Boolean)
-  const descriptionPreviewLimit = 260
-  const firstDescriptionParagraph = descriptionParagraphs[0] ?? ''
-  const hasLongFirstParagraph =
-    firstDescriptionParagraph.length > descriptionPreviewLimit
-  const descriptionHasMore =
-    descriptionParagraphs.length > 1 || hasLongFirstParagraph
-  const collapsedParagraphs = [
-    hasLongFirstParagraph
-      ? `${firstDescriptionParagraph.slice(0, descriptionPreviewLimit).trim()}...`
-      : firstDescriptionParagraph,
-  ].filter(Boolean)
-  const [activeImageIndex, setActiveImageIndex] = useState(0)
-  const [galleryOpen, setGalleryOpen] = useState(false)
-  const [descriptionOpen, setDescriptionOpen] = useState(false)
-  const [quantity, setQuantity] = useState(1)
-  const activeImage = productImages[activeImageIndex] ?? productImages[0]
-  const visibleDescriptionParagraphs = descriptionOpen
-    ? descriptionParagraphs
-    : collapsedParagraphs
-  const maxQuantity =
-    typeof product.stock === 'number'
-      ? Math.max(1, product.stock)
-      : Number.POSITIVE_INFINITY
 
-  const formattedLabel = product.label
-    ? product.label
-        .split(' ')
-        .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-        .join(' ')
-    : null
+  // Retrieve state and setters from Zustand store
+  const {
+    activeImageIndex,
+    setActiveImageIndex,
+    galleryOpen,
+    setGalleryOpen,
+    setSelectedSize,
+    setSelectedColor,
+    setIsWishlisted,
+    resetStore,
+  } = useProductDetailStore()
+
+  // Initialize store values on mount/update
+  useEffect(() => {
+    setIsWishlisted(initiallyWishlisted)
+    setSelectedSize(product.sizes[0] || null)
+    setSelectedColor(product.colors[0] || null)
+
+    return () => {
+      resetStore()
+    }
+  }, [
+    product,
+    initiallyWishlisted,
+    setIsWishlisted,
+    setSelectedSize,
+    setSelectedColor,
+    resetStore,
+  ])
+
+  const activeImage = productImages[activeImageIndex] ?? productImages[0]
 
   function showPreviousImage() {
-    setActiveImageIndex((currentIndex) =>
-      currentIndex === 0 ? productImages.length - 1 : currentIndex - 1,
+    setActiveImageIndex(
+      activeImageIndex === 0 ? productImages.length - 1 : activeImageIndex - 1
     )
   }
 
   function showNextImage() {
-    setActiveImageIndex((currentIndex) =>
-      currentIndex === productImages.length - 1 ? 0 : currentIndex + 1,
-    )
-  }
-
-  function openGallery(index: number) {
-    setActiveImageIndex(index)
-    setGalleryOpen(true)
-  }
-
-  function decreaseQuantity() {
-    setQuantity((currentQuantity) => Math.max(1, currentQuantity - 1))
-  }
-
-  function increaseQuantity() {
-    setQuantity((currentQuantity) =>
-      Math.min(maxQuantity, currentQuantity + 1),
+    setActiveImageIndex(
+      activeImageIndex === productImages.length - 1 ? 0 : activeImageIndex + 1
     )
   }
 
@@ -113,211 +84,26 @@ export function ProductDetailView({
           </Link>
 
           <div className='grid gap-10 pt-6 lg:grid-cols-[minmax(0,0.74fr)_minmax(0,1fr)] lg:items-start xl:grid-cols-[minmax(0,0.66fr)_minmax(0,1fr)]'>
-            <div className='grid max-w-2xl gap-4 md:grid-cols-[4.25rem_1fr]'>
-              <div className='hidden gap-3 md:flex md:flex-col'>
-                {productImages.map((imageSrc, index) => (
-                  <button
-                    key={`${imageSrc}-${index}`}
-                    type='button'
-                    aria-label={`View ${product.name} image ${index + 1}`}
-                    onClick={() => setActiveImageIndex(index)}
-                    className={
-                      activeImageIndex === index
-                        ? 'relative aspect-square overflow-hidden border border-black bg-muted'
-                        : 'relative aspect-square overflow-hidden border border-black/10 bg-muted transition-colors hover:border-black'
-                    }
-                  >
-                    <Image
-                      src={imageSrc}
-                      alt={`${product.name} preview ${index + 1}`}
-                      fill
-                      sizes='4.25rem'
-                      unoptimized
-                      className='object-cover object-center'
-                    />
-                  </button>
-                ))}
-              </div>
+            {/* Left Column: Product Gallery */}
+            <ProductGallery product={product} productImages={productImages} />
 
-              <button
-                type='button'
-                onClick={() => openGallery(activeImageIndex)}
-                className='group relative aspect-[4/5] max-h-[44rem] overflow-hidden bg-muted text-left sm:aspect-[3/4]'
-              >
-                <Image
-                  src={activeImage}
-                  alt={product.imageAlt}
-                  fill
-                  loading='eager'
-                  sizes='(min-width: 1280px) 32vw, (min-width: 1024px) 40vw, 100vw'
-                  unoptimized
-                  className='object-cover object-center transition-transform duration-500 group-hover:scale-[1.02]'
-                />
-                <span className='absolute bottom-4 right-4 inline-flex items-center gap-2 bg-black px-3 py-2 text-xs font-medium text-white opacity-0 transition-opacity group-hover:opacity-100'>
-                  <Expand className='size-3.5' />
-                  View Gallery
-                </span>
-              </button>
-
-              {productImages.length > 1 ? (
-                <div className='flex gap-2 overflow-x-auto md:hidden'>
-                  {productImages.map((imageSrc, index) => (
-                    <button
-                      key={`${imageSrc}-${index}`}
-                      type='button'
-                      aria-label={`View ${product.name} image ${index + 1}`}
-                      onClick={() => setActiveImageIndex(index)}
-                      className={
-                        activeImageIndex === index
-                          ? 'relative size-16 shrink-0 overflow-hidden border border-black bg-muted'
-                          : 'relative size-16 shrink-0 overflow-hidden border border-black/10 bg-muted'
-                      }
-                    >
-                      <Image
-                        src={imageSrc}
-                        alt={`${product.name} preview ${index + 1}`}
-                        fill
-                        sizes='4rem'
-                        unoptimized
-                        className='object-cover object-center'
-                      />
-                    </button>
-                  ))}
-                </div>
-              ) : null}
-            </div>
-
+            {/* Right Column: Info and Options */}
             <div className='lg:sticky lg:top-28'>
-              <div className='flex flex-col gap-5 border-b border-black/10 pb-8'>
-                {formattedLabel ? (
-                  <span
-                    className={`inline-flex w-fit px-3 py-1 text-xs font-medium ${getProductLabelClassName(product.label ?? '')}`}
-                  >
-                    {formattedLabel}
-                  </span>
-                ) : null}
-                <div className='flex flex-col gap-3'>
-                  <p className='text-sm font-medium text-muted-foreground'>
-                    {product.category}
-                  </p>
-                  <div className='flex flex-col gap-2'>
-                    <h1 className='font-heading text-4xl font-bold leading-tight sm:text-5xl'>
-                      {product.name}
-                    </h1>
-                    <p className='font-heading text-2xl font-semibold sm:text-3xl'>
-                      {formatProductPrice(product)}
-                    </p>
-                  </div>
-                </div>
-                <div className='flex max-w-xl flex-col gap-3 text-sm leading-6 text-muted-foreground'>
-                  {visibleDescriptionParagraphs.map((paragraph) => (
-                    <p key={paragraph} className='whitespace-pre-line'>
-                      {paragraph}
-                    </p>
-                  ))}
-                  {descriptionHasMore ? (
-                    <button
-                      type='button'
-                      onClick={() => setDescriptionOpen((open) => !open)}
-                      className='w-fit border-b border-black text-sm font-medium text-black transition-opacity hover:opacity-65'
-                    >
-                      {descriptionOpen ? 'Show less' : 'Read more'}
-                    </button>
-                  ) : null}
-                </div>
-              </div>
+              <ProductInfo product={product} />
 
-              <div className='flex flex-col gap-6 border-b border-black/10 py-6'>
-                <div className='flex flex-col gap-3'>
-                  <p className='text-xs font-medium text-muted-foreground'>
-                    Size
-                  </p>
-                  <div className='flex flex-wrap gap-2'>
-                    {product.sizes.map((size) => (
-                      <button
-                        key={size}
-                        type='button'
-                        className='h-10 min-w-12 border border-black/15 px-4 text-sm font-medium text-black transition-colors hover:border-black focus:border-black'
-                      >
-                        {size}
-                      </button>
-                    ))}
-                  </div>
-                </div>
+              <ProductOptions product={product} />
 
-                <div className='flex flex-col gap-3'>
-                  <p className='text-xs font-medium text-muted-foreground'>
-                    Color
-                  </p>
-                  <div className='flex flex-wrap gap-2'>
-                    {product.colors.map((color) => (
-                      <button
-                        key={color}
-                        type='button'
-                        className='h-10 border border-black/15 px-4 text-sm font-medium text-black transition-colors hover:border-black focus:border-black'
-                      >
-                        {color}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              </div>
-
-              <div className='flex flex-col gap-4 border-b border-black/10 py-6'>
-                <div className='flex flex-col gap-3'>
-                  <p className='text-xs font-medium text-muted-foreground'>
-                    Quantity
-                  </p>
-                  <div className='flex w-fit items-center border border-black/15'>
-                    <button
-                      type='button'
-                      aria-label='Decrease quantity'
-                      disabled={quantity === 1}
-                      onClick={decreaseQuantity}
-                      className='grid size-11 place-items-center transition-colors hover:bg-black hover:text-white disabled:cursor-not-allowed disabled:opacity-35 disabled:hover:bg-transparent disabled:hover:text-black'
-                    >
-                      <Minus className='size-4 stroke-[1.8]' />
-                    </button>
-                    <span className='grid h-11 min-w-12 place-items-center border-x border-black/15 text-sm font-semibold'>
-                      {quantity}
-                    </span>
-                    <button
-                      type='button'
-                      aria-label='Increase quantity'
-                      disabled={quantity >= maxQuantity}
-                      onClick={increaseQuantity}
-                      className='grid size-11 place-items-center transition-colors hover:bg-black hover:text-white disabled:cursor-not-allowed disabled:opacity-35 disabled:hover:bg-transparent disabled:hover:text-black'
-                    >
-                      <Plus className='size-4 stroke-[1.8]' />
-                    </button>
-                  </div>
-                </div>
-
-                <div className='grid gap-3 sm:grid-cols-[1fr_auto]'>
-                  <button
-                    type='button'
-                    className='inline-flex h-12 items-center justify-center gap-3 bg-black px-7 text-sm font-medium text-white transition-opacity hover:opacity-80'
-                  >
-                    Add to cart
-                    <ShoppingBag className='size-4 stroke-[1.8]' />
-                  </button>
-                  <button
-                    type='button'
-                    aria-label='Add to wishlist'
-                    className='grid h-12 w-full place-items-center border border-black/15 text-black transition-colors hover:border-black sm:w-12'
-                  >
-                    <Heart className='size-4 stroke-[1.8]' />
-                  </button>
-                </div>
-              </div>
-
+              {/* Product Specifications */}
               <div className='flex flex-col gap-4 py-6'>
-                <h2 className='font-heading text-xl font-semibold'>
-                  Product details
+                <h2 className='font-heading text-xl font-semibold text-black'>
+                  Specifications
                 </h2>
                 <ul className='overflow-hidden border border-black/10 text-sm leading-6 text-muted-foreground'>
                   {product.details.map((detail) => (
-                    <li key={detail} className='border-b border-black/10 px-4 py-3 last:border-b-0'>
+                    <li
+                      key={detail}
+                      className='border-b border-black/10 px-4 py-3 last:border-b-0'
+                    >
                       {detail}
                     </li>
                   ))}
@@ -328,45 +114,57 @@ export function ProductDetailView({
         </div>
       </section>
 
-      {relatedProducts.length ? (
-        <section className='border-t border-black/10'>
-          <div className='mx-auto flex w-full flex-col gap-8 px-5 py-16 sm:px-8 lg:px-12 lg:py-20'>
-            <div className='flex items-end justify-between gap-6'>
-              <div className='flex flex-col gap-2'>
-                <p className='text-sm font-medium text-muted-foreground'>
-                  Related
-                </p>
-                <h2 className='font-heading text-4xl font-bold leading-tight'>
-                  You may also like
-                </h2>
-              </div>
-              <Link
-                href='/shop'
-                className='hidden border-b border-black text-sm font-medium text-black transition-opacity hover:opacity-65 sm:inline-flex'
-              >
-                View shop
-              </Link>
-            </div>
-
-            <div className='grid grid-cols-2 gap-x-4 gap-y-8 md:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-4 min-[120rem]:grid-cols-5'>
+      {/* Related Products */}
+      {relatedProducts.length > 0 && (
+        <section className='border-t border-black/10 px-5 py-16 sm:px-8 lg:px-12 lg:py-24'>
+          <div className='mx-auto max-w-7xl space-y-10 sm:space-y-14'>
+            <h2 className='text-center font-heading text-4xl font-bold sm:text-5xl text-black'>
+              You may also like
+            </h2>
+            <div className='grid gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-4'>
               {relatedProducts.map((relatedProduct) => (
-                <ProductCard key={relatedProduct.id} product={relatedProduct} />
+                <Link
+                  key={relatedProduct.id}
+                  href={`/products/${relatedProduct.slug}`}
+                  className='group flex flex-col gap-4'
+                >
+                  <div className='relative aspect-[3/4] overflow-hidden bg-muted'>
+                    <Image
+                      src={relatedProduct.imageSrc}
+                      alt={relatedProduct.imageAlt}
+                      fill
+                      sizes='(min-width: 1024px) 20vw, (min-width: 640px) 45vw, 90vw'
+                      unoptimized
+                      className='object-cover object-center transition-transform duration-500 group-hover:scale-[1.02]'
+                    />
+                  </div>
+                  <div className='flex flex-col gap-1 items-start text-left'>
+                    <h3 className='font-heading text-lg font-semibold text-black transition-opacity group-hover:opacity-65'>
+                      {relatedProduct.name}
+                    </h3>
+                    <p className='text-sm font-semibold text-black/70'>
+                      {formatProductPrice(relatedProduct)}
+                    </p>
+                  </div>
+                </Link>
               ))}
             </div>
           </div>
         </section>
-      ) : null}
+      )}
 
+      {/* Fullscreen Gallery Modal */}
       <Dialog open={galleryOpen} onOpenChange={setGalleryOpen}>
-        <DialogContent
-          showCloseButton
-          className='max-w-[calc(100vw-2rem)] gap-0 rounded-none bg-black p-0 text-white ring-0 sm:max-w-[min(92vw,72rem)]'
-        >
-          <DialogTitle className='sr-only'>{product.name} gallery</DialogTitle>
-          <DialogDescription className='sr-only'>
-            Use the previous and next buttons to view product images.
-          </DialogDescription>
-          <div className='relative flex min-h-[70vh] items-center justify-center'>
+        <DialogContent className='relative flex h-full max-h-none w-full max-w-none flex-col justify-between overflow-y-auto rounded-none border-none bg-black/95 p-0 text-white'>
+          <button
+            type='button'
+            aria-label='Close gallery'
+            onClick={() => setGalleryOpen(false)}
+            className='absolute right-4 top-4 z-50 grid size-10 place-items-center bg-white/10 text-white backdrop-blur transition-colors hover:bg-white/20 cursor-pointer'
+          >
+            <X className='size-5' />
+          </button>
+          <div className='relative flex flex-1 items-center justify-center p-4'>
             <Image
               src={activeImage}
               alt={product.imageAlt}
@@ -381,7 +179,7 @@ export function ProductDetailView({
                   type='button'
                   aria-label='Previous image'
                   onClick={showPreviousImage}
-                  className='absolute left-4 top-1/2 grid size-10 -translate-y-1/2 place-items-center border border-white/20 bg-white/10 text-white backdrop-blur transition-colors hover:bg-white/20'
+                  className='absolute left-4 top-1/2 grid size-10 -translate-y-1/2 place-items-center border border-white/20 bg-white/10 text-white backdrop-blur transition-colors hover:bg-white/20 cursor-pointer'
                 >
                   <ChevronLeft className='size-5' />
                 </button>
@@ -389,7 +187,7 @@ export function ProductDetailView({
                   type='button'
                   aria-label='Next image'
                   onClick={showNextImage}
-                  className='absolute right-4 top-1/2 grid size-10 -translate-y-1/2 place-items-center border border-white/20 bg-white/10 text-white backdrop-blur transition-colors hover:bg-white/20'
+                  className='absolute right-4 top-1/2 grid size-10 -translate-y-1/2 place-items-center border border-white/20 bg-white/10 text-white backdrop-blur transition-colors hover:bg-white/20 cursor-pointer'
                 >
                   <ChevronRight className='size-5' />
                 </button>
@@ -406,8 +204,8 @@ export function ProductDetailView({
                   onClick={() => setActiveImageIndex(index)}
                   className={
                     activeImageIndex === index
-                      ? 'relative size-16 shrink-0 overflow-hidden border border-white bg-white/10'
-                      : 'relative size-16 shrink-0 overflow-hidden border border-white/20 bg-white/10 opacity-70 transition-opacity hover:opacity-100'
+                      ? 'relative size-16 shrink-0 overflow-hidden border border-white bg-white/10 cursor-pointer'
+                      : 'relative size-16 shrink-0 overflow-hidden border border-white/20 bg-white/10 opacity-70 transition-opacity hover:opacity-100 cursor-pointer'
                   }
                 >
                   <Image

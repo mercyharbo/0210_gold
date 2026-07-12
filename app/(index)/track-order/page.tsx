@@ -53,7 +53,7 @@ export default function TrackOrderPage() {
 
       <section className='px-5 py-14 sm:px-8 lg:px-12'>
         <div className='mx-auto grid max-w-7xl gap-10 lg:grid-cols-[0.9fr_1.1fr]'>
-          <div className='border border-black/10 p-6 sm:p-8'>
+          <div className='border border-black/10 p-6 sm:p-8 space-y-5'>
             <div className='flex items-center justify-between gap-4'>
               <div>
                 <p className='text-xs font-semibold uppercase text-muted-foreground'>
@@ -67,7 +67,7 @@ export default function TrackOrderPage() {
             </div>
 
             <form className='space-y-5'>
-              <div>
+              <div className='space-y-2'>
                 <label
                   htmlFor='order-reference'
                   className='block text-sm font-medium'
@@ -82,7 +82,7 @@ export default function TrackOrderPage() {
                 />
               </div>
 
-              <div>
+              <div className='space-y-2'>
                 <label
                   htmlFor='customer-contact'
                   className='block text-sm font-medium'
@@ -132,7 +132,7 @@ export default function TrackOrderPage() {
               </div>
             ))}
 
-            <div className='border border-black bg-black p-6 text-white sm:p-8'>
+            <div className='border border-black bg-black p-6 text-white space-y-5 sm:p-8'>
               <HelpCircle
                 className='size-6 text-gold'
                 strokeWidth={1.7}

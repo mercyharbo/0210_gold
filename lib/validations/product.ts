@@ -45,6 +45,10 @@ function parseList(value: unknown) {
     .filter(Boolean)
 }
 
+function parseListLowercase(value: unknown) {
+  return parseList(value).map((item) => item.toLowerCase())
+}
+
 export const createProductSchema = z
   .object({
     name: z.string().trim().min(1, 'enter the product name.'),
@@ -82,11 +86,11 @@ export const createProductSchema = z
       z.enum(productLabelOptions).optional(),
     ),
     sizes: z.preprocess(
-      parseList,
+      parseListLowercase,
       z.array(z.enum(productSizeOptions)).default([]),
     ),
     colors: z.preprocess(
-      parseList,
+      parseListLowercase,
       z.array(z.enum(productColorOptions)).default([]),
     ),
     details: z.preprocess(parseList, z.array(z.string()).default([])),

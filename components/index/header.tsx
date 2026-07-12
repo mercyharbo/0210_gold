@@ -28,6 +28,7 @@ import {
   X,
 } from 'lucide-react'
 import Link from 'next/link'
+import { useCart } from '@/stores/hooks/use-cart'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { type FormEvent, useLayoutEffect, useRef, useState } from 'react'
 
@@ -88,7 +89,11 @@ function BrandMark() {
   )
 }
 
-export function IndexHeader() {
+type IndexHeaderProps = {
+  isLoggedIn?: boolean
+}
+
+export function IndexHeader({ isLoggedIn = false }: IndexHeaderProps) {
   const [menuOpen, setMenuOpen] = useState(false)
   const [searchOpen, setSearchOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
@@ -97,6 +102,7 @@ export function IndexHeader() {
   const searchParams = useSearchParams()
   const desktopNavItemsRef = useRef<HTMLAnchorElement[]>([])
   const menuNavScopeRef = useRef<HTMLDivElement>(null)
+  const { totalItems } = useCart()
 
   function isActiveNavItem(item: NavItem) {
     const currentSort = searchParams.get('sort')
@@ -278,33 +284,58 @@ export function IndexHeader() {
               <DropdownMenuContent align='end' className='rounded-none'>
                 <DropdownMenuLabel>Account</DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem asChild>
-                  <Link href='/profile'>
-                    <User className='size-4' strokeWidth={1.7} />
-                    Profile
-                  </Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem asChild>
-                  <Link href='/track-order'>
-                    <PackageCheck className='size-4' strokeWidth={1.7} />
-                    Track order
-                  </Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem asChild>
-                  <Link href='/change-password'>
-                    <LockKeyhole className='size-4' strokeWidth={1.7} />
-                    Change password
-                  </Link>
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <form action={logout}>
-                  <DropdownMenuItem asChild variant='destructive'>
-                    <button type='submit' className='w-full'>
-                      <LogOut className='size-4' strokeWidth={1.7} />
-                      Logout
-                    </button>
-                  </DropdownMenuItem>
-                </form>
+                {isLoggedIn ? (
+                  <>
+                    <DropdownMenuItem asChild>
+                      <Link href='/profile'>
+                        <User className='size-4' strokeWidth={1.7} />
+                        Profile
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link href='/track-order'>
+                        <PackageCheck className='size-4' strokeWidth={1.7} />
+                        Track order
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link href='/change-password'>
+                        <LockKeyhole className='size-4' strokeWidth={1.7} />
+                        Change password
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <form action={logout}>
+                      <DropdownMenuItem asChild variant='destructive'>
+                        <button type='submit' className='w-full cursor-pointer'>
+                          <LogOut className='size-4' strokeWidth={1.7} />
+                          Logout
+                        </button>
+                      </DropdownMenuItem>
+                    </form>
+                  </>
+                ) : (
+                  <>
+                    <DropdownMenuItem asChild>
+                      <Link href='/login'>
+                        <User className='size-4' strokeWidth={1.7} />
+                        Login
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link href='/register'>
+                        <User className='size-4' strokeWidth={1.7} />
+                        Register
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link href='/track-order'>
+                        <PackageCheck className='size-4' strokeWidth={1.7} />
+                        Track order
+                      </Link>
+                    </DropdownMenuItem>
+                  </>
+                )}
               </DropdownMenuContent>
             </DropdownMenu>
             <Link
@@ -317,7 +348,7 @@ export function IndexHeader() {
             >
               <ShoppingBag className='size-5 stroke-[1.6]' />
               <span className='absolute -right-2 -top-2 grid size-4 place-items-center rounded-full bg-black text-xs font-medium text-white'>
-                0
+                {totalItems}
               </span>
             </Link>
             <button

@@ -2,7 +2,7 @@ import { NextResponse, type NextRequest } from 'next/server'
 
 import { createSupabaseProxyClient } from '@/lib/supabase/proxy'
 
-const authRequiredRoutes = ['/profile', '/checkout', '/admin']
+const authRequiredRoutes = ['/profile', '/admin']
 const guestOnlyRoutes = ['/login', '/signup', '/register', '/forgot-password']
 const changePasswordRoute = '/change-password'
 

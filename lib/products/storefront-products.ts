@@ -101,3 +101,32 @@ export function getStorefrontCategories(products: StorefrontProduct[]) {
     ...Array.from(new Set(products.map((product) => product.category))),
   ]
 }
+
+export async function getStorefrontWishlist(userId: string) {
+  const supabase = await createSupabaseServerClient()
+  const { data, error } = await supabase
+    .from('wishlists')
+    .select(`
+      id,
+      product:products (
+        *,
+        category:categories (
+          name,
+          slug
+        )
+      )
+    `)
+    .eq('user_id', userId)
+
+  if (error) {
+    console.error('Failed to load wishlist:', error)
+    return []
+  }
+
+  return (data ?? [])
+    .filter((item: any) => item.product !== null)
+    .map((item: any) => ({
+      wishlistId: item.id,
+      product: mapStorefrontProduct(item.product)
+    }))
+}

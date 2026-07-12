@@ -3,6 +3,7 @@ import {
   getRelatedStorefrontProducts,
   getStorefrontProductBySlug,
 } from '@/lib/products/storefront-products'
+import { createSupabaseServerClient } from '@/lib/supabase/server'
 import { notFound } from 'next/navigation'
 
 export default async function ProductDetailsPage({
@@ -19,7 +20,28 @@ export default async function ProductDetailsPage({
 
   const relatedProducts = await getRelatedStorefrontProducts(product)
 
+  // Check wishlist status if user is logged in
+  const supabase = await createSupabaseServerClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
+  let initiallyWishlisted = false
+  if (user) {
+    const { data: existing } = await supabase
+      .from('wishlists')
+      .select('id')
+      .eq('user_id', user.id)
+      .eq('product_id', product.id)
+      .maybeSingle()
+    initiallyWishlisted = !!existing
+  }
+
   return (
-    <ProductDetailView product={product} relatedProducts={relatedProducts} />
+    <ProductDetailView
+      product={product}
+      relatedProducts={relatedProducts}
+      initiallyWishlisted={initiallyWishlisted}
+    />
   )
 }

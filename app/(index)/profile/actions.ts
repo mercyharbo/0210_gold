@@ -4,6 +4,7 @@ import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 
 import { requireUser } from '@/lib/auth/session'
+import { createSupabaseServerClient } from '@/lib/supabase/server'
 import { updateProfileCategoryPreferences } from '@/lib/profile/categories'
 import {
   createCustomerAddress,
@@ -148,4 +149,51 @@ export async function setDefaultAddress(addressId: string) {
   await setDefaultCustomerAddress(user.id, addressId)
   revalidatePath('/profile')
   redirectWithMessage('Default address updated.')
+}
+
+export async function toggleWishlistItemAction(productId: string) {
+  const user = await requireUser('/login?error=Sign in to save items to your wishlist.')
+  const supabase = await createSupabaseServerClient()
+
+  // Check if it already exists
+  const { data: existing } = await supabase
+    .from('wishlists')
+    .select('id')
+    .eq('user_id', user.id)
+    .eq('product_id', productId)
+    .maybeSingle()
+
+  if (existing) {
+    await supabase.from('wishlists').delete().eq('id', existing.id)
+  } else {
+    await supabase.from('wishlists').insert({
+      user_id: user.id,
+      product_id: productId,
+    })
+  }
+
+  revalidatePath('/profile')
+}
+
+export async function createProductReviewAction(
+  productId: string,
+  rating: number,
+  comment: string
+) {
+  const user = await requireUser('/login?error=Sign in to write reviews.')
+  const supabase = await createSupabaseServerClient()
+
+  const { error } = await supabase.from('reviews').insert({
+    user_id: user.id,
+    product_id: productId,
+    rating,
+    comment: comment.trim() || null,
+  })
+
+  if (error) {
+    console.error('Failed to save product review:', error)
+    throw new Error('Failed to save review.')
+  }
+
+  revalidatePath('/profile')
 }

@@ -1,9 +1,11 @@
 'use client'
 
-import { Save, Trash2, X } from 'lucide-react'
+import { Save, Trash2, X, ChevronLeft, ChevronRight } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { type FormEvent, useEffect, useState, useTransition } from 'react'
+
+import { cn } from '@/lib/utils'
 
 import { ProductOptionMultiSelect } from '@/components/admin/product-option-multi-select'
 import { Button } from '@/components/ui/button'
@@ -100,6 +102,7 @@ export function ProductEditForm({
   const [result, setResult] = useState<ProductActionResult>(null)
   const [isPending, startTransition] = useTransition()
   const [keptImages, setKeptImages] = useState(productImages)
+  const [activeEditImageIndex, setActiveEditImageIndex] = useState(0)
   const [dismissedToastId, setDismissedToastId] = useState<string | null>(null)
   const toast = result?.id === dismissedToastId ? null : result
 
@@ -387,43 +390,102 @@ export function ProductEditForm({
             </CardHeader>
             <CardContent>
               <FieldGroup>
-                <div className='grid gap-3'>
-                  {productImages.map((imageUrl, index) => {
-                    const kept = keptImages.includes(imageUrl)
+                <div className='flex flex-col gap-4'>
+                  {/* Main Active Image View (Carousel) */}
+                  <div className='relative aspect-square w-full overflow-hidden rounded-md bg-muted border border-border flex items-center justify-center group'>
+                    <Image
+                      src={productImages[activeEditImageIndex] || '/images/placeholder.jpg'}
+                      alt={`${product.image_alt} ${activeEditImageIndex + 1}`}
+                      fill
+                      unoptimized
+                      className='object-cover'
+                    />
+                    
+                    {/* Navigation Arrows */}
+                    {productImages.length > 1 && (
+                      <>
+                        <button
+                          type='button'
+                          onClick={(e) => {
+                            e.preventDefault()
+                            setActiveEditImageIndex((idx) =>
+                              idx === 0 ? productImages.length - 1 : idx - 1
+                            )
+                          }}
+                          className='absolute left-2 top-1/2 -translate-y-1/2 grid size-8 place-items-center rounded-full bg-white/80 border border-black/10 text-black shadow-sm transition-opacity opacity-0 group-hover:opacity-100 hover:bg-white cursor-pointer'
+                        >
+                          <ChevronLeft className='size-4' />
+                        </button>
+                        <button
+                          type='button'
+                          onClick={(e) => {
+                            e.preventDefault()
+                            setActiveEditImageIndex((idx) =>
+                              idx === productImages.length - 1 ? 0 : idx + 1
+                            )
+                          }}
+                          className='absolute right-2 top-1/2 -translate-y-1/2 grid size-8 place-items-center rounded-full bg-white/80 border border-black/10 text-black shadow-sm transition-opacity opacity-0 group-hover:opacity-100 hover:bg-white cursor-pointer'
+                        >
+                          <ChevronRight className='size-4' />
+                        </button>
+                      </>
+                    )}
+                  </div>
 
-                    return (
-                      <label
-                        key={`${imageUrl}-${index}`}
-                        className='grid gap-3 rounded-lg border border-border p-3'
-                      >
-                        <div className='overflow-hidden rounded-md bg-muted'>
-                          <Image
-                            src={imageUrl}
-                            alt={`${product.image_alt} ${index + 1}`}
-                            width={640}
-                            height={640}
-                            unoptimized
-                            className='aspect-square w-full object-cover'
-                          />
-                        </div>
-                        <span className='flex items-start gap-3'>
-                          <Checkbox
-                            checked={kept}
-                            onCheckedChange={() => toggleImage(imageUrl)}
-                            className='translate-y-0.5'
-                          />
-                          <span className='flex flex-col gap-1'>
-                            <span className='text-sm font-medium text-foreground'>
-                              Keep image {index + 1}
-                            </span>
-                            <span className='text-sm leading-6 text-muted-foreground'>
-                              Uncheck to remove it when saving.
-                            </span>
-                          </span>
+                  {/* Checkbox for active image */}
+                  {productImages[activeEditImageIndex] && (
+                    <div className='flex items-start gap-3 p-3 border border-border bg-muted/20 rounded-md'>
+                      <Checkbox
+                        checked={keptImages.includes(productImages[activeEditImageIndex])}
+                        onCheckedChange={() => toggleImage(productImages[activeEditImageIndex])}
+                        className='translate-y-0.5'
+                      />
+                      <div className='flex flex-col gap-0.5 leading-none'>
+                        <span className='text-sm font-medium text-foreground'>
+                          Keep Image {activeEditImageIndex + 1}
                         </span>
-                      </label>
-                    )
-                  })}
+                        <span className='text-xs text-muted-foreground'>
+                          Uncheck to remove it from this product when saving.
+                        </span>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Thumbnail Row */}
+                  {productImages.length > 1 && (
+                    <div className='flex gap-2 overflow-x-auto py-1 border-t border-border pt-3'>
+                      {productImages.map((imageUrl, index) => {
+                        const isActive = activeEditImageIndex === index
+                        const isKept = keptImages.includes(imageUrl)
+
+                        return (
+                          <button
+                            key={`${imageUrl}-${index}`}
+                            type='button'
+                            onClick={() => setActiveEditImageIndex(index)}
+                            className={cn(
+                              'relative size-12 shrink-0 overflow-hidden border bg-muted cursor-pointer transition-colors',
+                              isActive ? 'border-black ring-1 ring-black' : 'border-border',
+                              !isKept && 'opacity-40'
+                            )}
+                          >
+                            <Image
+                              src={imageUrl}
+                              alt={`Thumbnail ${index + 1}`}
+                              fill
+                              unoptimized
+                              className='object-cover'
+                            />
+                            {!isKept && (
+                              <div className='absolute inset-0 bg-red-500/20 flex items-center justify-center text-[10px] text-red-600 font-bold'>
+                                ✕
+                              </div>
+                            )}
+                          </button>
+                        )
+                      })}
+                    </div>
+                  )}
                 </div>
 
                 <Field>
