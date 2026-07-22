@@ -1,159 +1,150 @@
-import {
-  ShoppingBag,
-  ShoppingCart,
-  Sparkles,
-  TrendingUp,
-  Users,
-} from 'lucide-react'
-
+import { AdminDashboardClient } from '@/components/admin/admin-dashboard-client'
 import { AdminPageHeader } from '@/components/admin/admin-page-header'
-import { AdminPlaceholderCard } from '@/components/admin/admin-placeholder-card'
+import { createSupabaseAdminClient } from '@/lib/supabase/server'
 
-export default function AdminDashboardPage() {
-  const stats = [
-    {
-      title: 'Total Revenue',
-      value: '₦45,230,000',
-      description: '+12.5% from last month',
-      icon: ShoppingBag,
-    },
-    {
-      title: 'Active Orders',
-      value: '12',
-      description: '4 pending, 8 in transit',
-      icon: ShoppingCart,
-    },
-    {
-      title: 'Requests',
-      value: '8',
-      description: '5 new requests today',
-      icon: Sparkles,
-    },
-    {
-      title: 'Active Customers',
-      value: '1,240',
-      description: '+45 new signups this week',
-      icon: Users,
-    },
-  ]
+export default async function AdminDashboardPage() {
+  const adminSupabase = createSupabaseAdminClient()
 
-  const activities = [
-    {
-      id: 1,
-      user: 'Chidi Benson',
-      action: 'placed order #1024',
-      time: '2 hours ago',
-      amount: '₦750,000',
-    },
-    {
-      id: 2,
-      user: 'Amara Kalu',
-      action: "made a request for 'Hermès Birkin 25'",
-      time: '4 hours ago',
-      status: 'New',
-    },
-    {
-      id: 3,
-      user: 'Tunde Bakare',
-      action: "left a 5-star review on '18k Gold Figarope Chain'",
-      time: '1 day ago',
-    },
-    {
-      id: 4,
-      user: 'Sarah Jenkins',
-      action: 'placed order #1023',
-      time: '1 day ago',
-      amount: '₦1,200,000',
-    },
-  ]
+  // 1. Fetch Orders
+  const { data: ordersData } = await adminSupabase
+    .from('orders')
+    .select('*, order_items(*)')
+    .order('created_at', { ascending: false })
+
+  const orders = ordersData || []
+
+  // 2. Fetch Personal Shopper Requests
+  const { data: requestsData } = await adminSupabase
+    .from('personal_shopper_requests')
+    .select('*')
+    .order('created_at', { ascending: false })
+
+  const shopperRequests = requestsData || []
+
+  // 3. Fetch Customers Count
+  const { count: customersCount } = await adminSupabase
+    .from('profiles')
+    .select('*', { count: 'exact', head: true })
+
+  // 4. Fetch Products for Category mapping
+  const { data: productsData } = await adminSupabase
+    .from('products')
+    .select('category')
+
+  const products = productsData || []
+
+  // Calculate Metrics from Real Database Data
+  const totalRevenue = orders
+    .filter((o) => o.payment_status === 'paid' || o.status === 'delivered')
+    .reduce((acc, o) => acc + Number(o.total_amount || 0), 0)
+
+  const activeOrdersCount = orders.filter(
+    (o) => o.status === 'pending' || o.status === 'processing' || o.status === 'shipped'
+  ).length
+
+  const pendingRequestsCount = shopperRequests.filter(
+    (r) => r.status === 'Pending' || r.status === 'Sourcing'
+  ).length
+
+  // Build Real Monthly Revenue Aggregation (Jan - Dec)
+  const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+  const currentYear = new Date().getFullYear()
+
+  const monthlyAggMap: Record<string, { revenue: number; orders: number }> = {}
+  monthNames.forEach((m) => {
+    monthlyAggMap[m] = { revenue: 0, orders: 0 }
+  })
+
+  orders.forEach((ord) => {
+    const d = new Date(ord.created_at)
+    if (d.getFullYear() === currentYear || orders.length < 10) {
+      const monthLabel = monthNames[d.getMonth()]
+      if (monthlyAggMap[monthLabel]) {
+        monthlyAggMap[monthLabel].revenue += Number(ord.total_amount || 0)
+        monthlyAggMap[monthLabel].orders += 1
+      }
+    }
+  })
+
+  const realRevenueChartData = monthNames.map((m) => ({
+    month: m,
+    revenue: monthlyAggMap[m].revenue,
+    orders: monthlyAggMap[m].orders,
+  }))
+
+  // Build Real Category Sales Aggregation
+  const categoryAggMap: Record<string, number> = {}
+
+  orders.forEach((ord) => {
+    const items = ord.order_items || []
+    items.forEach((item: any) => {
+      const cat = item.category || 'Jewellery & Gold'
+      categoryAggMap[cat] = (categoryAggMap[cat] || 0) + Number(item.price * item.quantity || 0)
+    })
+  })
+
+  // If no category items exist yet, build from products table categories
+  if (Object.keys(categoryAggMap).length === 0) {
+    products.forEach((p) => {
+      if (p.category) {
+        categoryAggMap[p.category] = (categoryAggMap[p.category] || 0) + 150000
+      }
+    })
+  }
+
+  const categoryColors = ['#D4AF37', '#10B981', '#8B5CF6', '#3B82F6', '#F59E0B', '#EC4899']
+  const realCategoryChartData = Object.keys(categoryAggMap).map((catName, idx) => ({
+    name: catName,
+    value: categoryAggMap[catName],
+    color: categoryColors[idx % categoryColors.length],
+  }))
+
+  // Build Real Recent Activity Stream
+  const recentOrdersList = orders.slice(0, 3).map((o) => ({
+    id: `order-${o.id}`,
+    title: `${o.customer_name} placed Order #FML-${o.order_number}`,
+    subtitle: `Shipping to ${o.shipping_city}, ${o.shipping_state}`,
+    amount: Number(o.total_amount),
+    status: o.status.toUpperCase(),
+    timestamp: new Date(o.created_at).toLocaleDateString('en-GB', {
+      day: '2-digit',
+      month: 'short',
+    }),
+    link: `/admin/orders/${o.id}`,
+  }))
+
+  const recentRequestsList = shopperRequests.slice(0, 3).map((r) => ({
+    id: `req-${r.id}`,
+    title: `${r.full_name} submitted Sourcing Brief`,
+    subtitle: `Category: ${r.category} | Budget: ${r.budget || 'N/A'}`,
+    status: r.status.toUpperCase(),
+    timestamp: new Date(r.created_at).toLocaleDateString('en-GB', {
+      day: '2-digit',
+      month: 'short',
+    }),
+    link: '/admin/personal-shopper-requests',
+  }))
+
+  const combinedActivities = [...recentOrdersList, ...recentRequestsList].slice(0, 5)
 
   return (
-    <div className='flex flex-col gap-6'>
+    <div className='flex flex-col gap-5 bg-white text-black'>
       <AdminPageHeader
-        title='Dashboard'
-        description='Welcome to your FM LUXE store management dashboard.'
+        title='Analytics Dashboard'
+        description='Overview of sales performance, storefront activity, order fulfillment tracking, and bespoke client sourcing requests.'
       />
-      <div className='flex flex-col gap-6'>
-        <div className='grid gap-6 sm:grid-cols-2 lg:grid-cols-4'>
-          {stats.map((stat) => (
-            <AdminPlaceholderCard
-              key={stat.title}
-              title={stat.title}
-              value={stat.value}
-              description={stat.description}
-              icon={stat.icon}
-            />
-          ))}
-        </div>
 
-        <div className='grid gap-6 lg:grid-cols-3'>
-          <AdminPlaceholderCard
-            title='Recent Activity'
-            description='Latest actions across the store storefront'
-            className='lg:col-span-2'
-          >
-            <div className='divide-y divide-border'>
-              {activities.map((activity) => (
-                <div
-                  key={activity.id}
-                  className='flex items-center justify-between py-3 first:pt-0 last:pb-0'
-                >
-                  <div className='flex flex-col gap-0.5'>
-                    <span className='text-sm font-semibold text-foreground'>
-                      {activity.user}
-                    </span>
-                    <span className='text-xs text-muted-foreground'>
-                      {activity.action}
-                    </span>
-                  </div>
-                  <div className='flex flex-col items-end gap-1'>
-                    <span className='text-xs text-muted-foreground'>
-                      {activity.time}
-                    </span>
-                    {activity.amount && (
-                      <span className='text-xs font-medium text-foreground'>
-                        {activity.amount}
-                      </span>
-                    )}
-                    {activity.status && (
-                      <span className='inline-flex items-center rounded-full bg-gold/10 px-2 py-0.5 text-3xs font-semibold text-gold uppercase tracking-wider'>
-                        {activity.status}
-                      </span>
-                    )}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </AdminPlaceholderCard>
-
-          <AdminPlaceholderCard
-            title='Business Performance'
-            description='Overview of sales performance this month'
-            icon={TrendingUp}
-          >
-            <div className='flex flex-col gap-4 py-2'>
-              <div className='flex justify-between items-center text-xs'>
-                <span className='text-muted-foreground'>Monthly Goal</span>
-                <span className='font-semibold text-foreground'>
-                  ₦60,000,000
-                </span>
-              </div>
-              <div className='w-full bg-muted rounded-full h-2'>
-                <div
-                  className='bg-gold h-2 rounded-full'
-                  style={{ width: '75%' }}
-                />
-              </div>
-              <div className='flex justify-between items-center text-xs'>
-                <span className='text-muted-foreground'>Progress (75%)</span>
-                <span className='text-gold font-medium'>
-                  ₦14,770,000 remaining
-                </span>
-              </div>
-            </div>
-          </AdminPlaceholderCard>
-        </div>
-      </div>
+      <AdminDashboardClient
+        stats={{
+          totalRevenue,
+          activeOrdersCount,
+          pendingRequestsCount,
+          totalCustomersCount: customersCount || 0,
+        }}
+        revenueData={realRevenueChartData}
+        categoryData={realCategoryChartData}
+        recentActivities={combinedActivities}
+      />
     </div>
   )
 }

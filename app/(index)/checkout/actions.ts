@@ -1,15 +1,18 @@
 'use server'
 
+import { initializePaystackTransaction } from '@/lib/payment/paystack'
 import {
   createSupabaseAdminClient,
   createSupabaseServerClient,
 } from '@/lib/supabase/server'
 import type { CartItem } from '@/stores/hooks/use-cart'
+import type { PaymentMethod } from '@/stores/hooks/use-checkout'
 
 export type OrderActionResult = {
   success: boolean
   error?: string
   orderId?: string
+  authorizationUrl?: string
 }
 
 export async function createOrderAction(
@@ -22,7 +25,8 @@ export async function createOrderAction(
     shippingState: string
   },
   cartItems: CartItem[],
-  password?: string
+  password?: string,
+  paymentMethod: PaymentMethod = 'paystack'
 ): Promise<OrderActionResult> {
   // Validate cart is not empty
   if (!cartItems || cartItems.length === 0) {
@@ -126,6 +130,29 @@ export async function createOrderAction(
     return {
       success: false,
       error: 'Failed to save order details. Please try again.',
+    }
+  }
+
+  // Handle Paystack payment initialization if selected
+  if (paymentMethod === 'paystack') {
+    const baseUrl = process.env.SITE_URL || 'http://localhost:4000'
+    const paystackRes = await initializePaystackTransaction({
+      email: shippingDetails.customerEmail,
+      amountInNaira: total,
+      reference: order.id,
+      callbackUrl: `${baseUrl}/order-success`,
+      metadata: {
+        order_id: order.id,
+        customer_name: shippingDetails.customerName,
+      },
+    })
+
+    if (paystackRes.success && paystackRes.authorizationUrl) {
+      return {
+        success: true,
+        orderId: order.id,
+        authorizationUrl: paystackRes.authorizationUrl,
+      }
     }
   }
 

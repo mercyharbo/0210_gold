@@ -8,8 +8,8 @@ export function AdminPageHeader({
   description,
 }: AdminPageHeaderProps) {
   return (
-    <div className="flex flex-col gap-1.5">
-      <h1 className="font-sans text-2xl font-bold tracking-tight text-foreground md:text-3xl">
+    <div className="flex flex-col gap-1.5 font-sans">
+      <h1 className="text-lg font-sans font-semibold text-foreground md:text-xl">
         {title}
       </h1>
       {description && (

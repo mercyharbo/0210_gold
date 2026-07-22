@@ -12,17 +12,21 @@ import { useProductDetailStore } from '@/stores/hooks/use-product-detail'
 import { ProductGallery } from './product-gallery'
 import { ProductInfo } from './product-info'
 import { ProductOptions } from './product-options'
+import { ProductReviews } from './product-reviews'
+import type { StorefrontReview } from '@/lib/reviews/storefront-reviews'
 
 type ProductDetailViewProps = {
   product: Product
   relatedProducts: Product[]
   initiallyWishlisted?: boolean
+  approvedReviews?: StorefrontReview[]
 }
 
 export function ProductDetailView({
   product,
   relatedProducts,
   initiallyWishlisted = false,
+  approvedReviews = [],
 }: ProductDetailViewProps) {
   const productImages =
     product.imageUrls.length > 0 ? product.imageUrls : [product.imageSrc]
@@ -109,6 +113,13 @@ export function ProductDetailView({
                   ))}
                 </ul>
               </div>
+
+              {/* Product Customer Reviews */}
+              <ProductReviews
+                productId={product.id}
+                productSlug={product.slug}
+                initialReviews={approvedReviews}
+              />
             </div>
           </div>
         </div>

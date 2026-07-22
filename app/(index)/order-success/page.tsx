@@ -1,28 +1,46 @@
-import { ArrowRight, CheckCircle2, Mail, MapPin, Phone } from 'lucide-react'
+import { ArrowRight, CheckCircle2, CreditCard, Mail, MapPin, Phone } from 'lucide-react'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 
 import { formatNaira } from '@/components/index/shop/shop-data'
+import { verifyPaystackTransaction } from '@/lib/payment/paystack'
 import { createSupabaseAdminClient } from '@/lib/supabase/server'
 
 export default async function OrderSuccessPage({
   searchParams,
 }: {
-  searchParams: Promise<{ orderId?: string }>
+  searchParams: Promise<{ orderId?: string; reference?: string; trxref?: string }>
 }) {
-  const { orderId } = await searchParams
+  const params = await searchParams
+  const reference = params.reference || params.trxref
+  const targetOrderId = params.orderId || reference
 
-  if (!orderId) {
+  if (!targetOrderId) {
     notFound()
   }
 
   const adminSupabase = createSupabaseAdminClient()
 
+  // If returning from Paystack redirect with reference, verify and update order payment_status
+  if (reference) {
+    const verifyRes = await verifyPaystackTransaction(reference)
+    if (verifyRes.success) {
+      await adminSupabase
+        .from('orders')
+        .update({
+          payment_status: 'paid',
+          status: 'processing',
+          updated_at: new Date().toISOString(),
+        })
+        .or(`id.eq.${reference},id.eq.${targetOrderId}`)
+    }
+  }
+
   // Fetch Order
-  const { data: order, error: orderError } = await adminSupabase
+  let { data: order, error: orderError } = await adminSupabase
     .from('orders')
     .select('*')
-    .eq('id', orderId)
+    .or(`id.eq.${targetOrderId},id.eq.${reference || targetOrderId}`)
     .single()
 
   if (orderError || !order) {
@@ -31,14 +49,10 @@ export default async function OrderSuccessPage({
   }
 
   // Fetch Order Items
-  const { data: items, error: itemsError } = await adminSupabase
+  const { data: items } = await adminSupabase
     .from('order_items')
     .select('*')
-    .eq('order_id', orderId)
-
-  if (itemsError) {
-    console.error('Failed to load order items for success screen:', itemsError)
-  }
+    .eq('order_id', order.id)
 
   const orderItems = items || []
 
@@ -52,24 +66,23 @@ export default async function OrderSuccessPage({
           </div>
           <div className='flex flex-col gap-1.5'>
             <h1 className='font-heading text-4xl font-semibold leading-none sm:text-5xl'>
-              Order Placed!
+              Order Confirmed!
             </h1>
             <p className='text-sm text-muted-foreground'>
-              Thank you for shopping with us. Your order has been placed
-              successfully.
+              Thank you for shopping with Mercyharbo. Your order and payment details are confirmed.
             </p>
           </div>
         </div>
 
         {/* Order Details Grid */}
         <div className='grid gap-6 border-y border-black/10 py-6 text-sm'>
-          <div className='grid sm:grid-cols-2 gap-4'>
+          <div className='grid sm:grid-cols-3 gap-4'>
             <div className='flex flex-col gap-1'>
               <span className='text-xs font-semibold text-muted-foreground uppercase'>
                 Order Number
               </span>
-              <span className='font-mono font-semibold text-black'>
-                #{order.order_number}
+              <span className='font-mono font-bold text-black text-base'>
+                #FML-{order.order_number}
               </span>
             </div>
             <div className='flex flex-col gap-1'>
@@ -79,9 +92,17 @@ export default async function OrderSuccessPage({
               <span className='font-medium text-black'>
                 {new Date(order.created_at).toLocaleDateString('en-US', {
                   year: 'numeric',
-                  month: 'long',
+                  month: 'short',
                   day: 'numeric',
                 })}
+              </span>
+            </div>
+            <div className='flex flex-col gap-1'>
+              <span className='text-xs font-semibold text-muted-foreground uppercase'>
+                Payment Status
+              </span>
+              <span className='font-bold uppercase tracking-wider text-xs text-emerald-600 flex items-center gap-1 mt-0.5'>
+                <CreditCard className='size-3.5' /> {order.payment_status}
               </span>
             </div>
           </div>
@@ -89,7 +110,7 @@ export default async function OrderSuccessPage({
           <div className='grid sm:grid-cols-2 gap-4 border-t border-black/10 pt-4'>
             <div className='flex flex-col gap-1.5'>
               <span className='text-xs font-semibold text-muted-foreground uppercase'>
-                Delivery Details
+                Delivery Destination
               </span>
               <div className='flex items-start gap-2 text-muted-foreground'>
                 <MapPin className='size-4 text-gold mt-0.5 flex-shrink-0' />
@@ -129,7 +150,7 @@ export default async function OrderSuccessPage({
         {/* Ordered Items List */}
         <div className='flex flex-col gap-4'>
           <h2 className='text-sm font-semibold uppercase text-muted-foreground'>
-            Items Ordered
+            Items Summary
           </h2>
           <div className='divide-y divide-black/10 border border-black/10 p-4'>
             {orderItems.map((item: any) => (
@@ -148,7 +169,7 @@ export default async function OrderSuccessPage({
                       : ''}
                   </p>
                 </div>
-                <span className='font-semibold text-black flex-shrink-0'>
+                <span className='font-semibold text-black flex-shrink-0 font-mono'>
                   {formatNaira(item.price * item.quantity)}
                 </span>
               </div>
@@ -157,24 +178,20 @@ export default async function OrderSuccessPage({
         </div>
 
         {/* Total Calculations */}
-        <div className='bg-muted/30 border border-black/10 p-5 space-y-3 text-sm'>
-          <div className='flex items-center justify-between gap-4'>
-            <span className='text-muted-foreground'>Subtotal</span>
-            <span className='font-semibold'>
-              {formatNaira(order.subtotal_amount)}
-            </span>
+        <div className='bg-neutral-50 border border-black/10 p-5 space-y-3 text-sm'>
+          <div className='flex items-center justify-between gap-4 text-xs font-mono text-muted-foreground'>
+            <span>Subtotal</span>
+            <span>{formatNaira(order.subtotal_amount)}</span>
           </div>
-          <div className='flex items-center justify-between gap-4'>
-            <span className='text-muted-foreground'>Delivery</span>
-            <span className='font-semibold'>
-              {formatNaira(order.delivery_amount)}
-            </span>
+          <div className='flex items-center justify-between gap-4 text-xs font-mono text-muted-foreground'>
+            <span>Delivery</span>
+            <span>{formatNaira(order.delivery_amount)}</span>
           </div>
           <div className='flex items-center justify-between gap-4 border-t border-black/10 pt-3'>
-            <span className='font-heading text-xl font-semibold'>
+            <span className='font-heading text-xl font-bold'>
               Total Paid
             </span>
-            <span className='text-lg font-semibold'>
+            <span className='text-xl font-bold font-mono text-gold'>
               {formatNaira(order.total_amount)}
             </span>
           </div>
@@ -184,14 +201,14 @@ export default async function OrderSuccessPage({
         <div className='flex flex-col sm:flex-row gap-4'>
           <Link
             href='/shop'
-            className='flex-1 inline-flex h-12 items-center justify-center gap-2 bg-black px-6 text-sm font-semibold text-white transition-colors hover:bg-gold hover:text-black text-center'
+            className='flex-1 inline-flex h-12 items-center justify-center gap-2 bg-black px-6 text-xs font-semibold uppercase tracking-wider text-white transition-colors hover:bg-gold hover:text-black text-center'
           >
             Continue Shopping
             <ArrowRight className='size-4' strokeWidth={1.8} />
           </Link>
           <Link
             href='/track-order'
-            className='flex-1 inline-flex h-12 items-center justify-center gap-2 border border-black/25 px-6 text-sm font-semibold text-black transition-colors hover:border-black text-center'
+            className='flex-1 inline-flex h-12 items-center justify-center gap-2 border border-black/25 px-6 text-xs font-semibold uppercase tracking-wider text-black transition-colors hover:border-black text-center'
           >
             Track Order Status
           </Link>

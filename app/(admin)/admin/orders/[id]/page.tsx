@@ -7,6 +7,7 @@ import * as React from 'react'
 import { AdminPageHeader } from '@/components/admin/admin-page-header'
 import { AdminPlaceholderCard } from '@/components/admin/admin-placeholder-card'
 import { formatNaira } from '@/components/index/shop/shop-data'
+import { StatusBadge } from '@/components/ui/status-badge'
 import { createSupabaseServerClient } from '@/lib/supabase/server'
 import { OrderDetailsActions } from './order-details-actions'
 
@@ -29,12 +30,8 @@ export default async function AdminOrderDetailPage({ params }: PageProps) {
     notFound()
   }
 
-  const paymentDisplay =
-    order.payment_status.charAt(0).toUpperCase() + order.payment_status.slice(1)
-  const statusDisplay = order.status.charAt(0).toUpperCase() + order.status.slice(1)
-
   return (
-    <div className='flex flex-col gap-6 bg-white text-black'>
+    <div className='flex flex-col gap-6 bg-white text-black font-sans'>
       <div className='flex flex-col gap-3 md:flex-row md:items-start md:justify-between'>
         <AdminPageHeader
           title={`Order Details: #FML-${order.order_number}`}
@@ -46,6 +43,7 @@ export default async function AdminOrderDetailPage({ params }: PageProps) {
             orderNumber={order.order_number}
             currentStatus={order.status}
             currentPaymentStatus={order.payment_status}
+            order={order}
           />
         </div>
       </div>
@@ -73,7 +71,7 @@ export default async function AdminOrderDetailPage({ params }: PageProps) {
                     >
                       <div className='flex items-center gap-4 z-10'>
                         {/* Image Thumbnail */}
-                        <div className='relative size-12 shrink-0 bg-muted border border-black/5 overflow-hidden'>
+                        <div className='relative size-12 shrink-0 bg-neutral-100 border border-black/5 overflow-hidden rounded'>
                           <Image
                             src={imageSrc}
                             alt={item.product_name}
@@ -102,7 +100,7 @@ export default async function AdminOrderDetailPage({ params }: PageProps) {
                           </span>
                         </div>
                       </div>
-                      <span className='text-sm font-medium text-foreground shrink-0 z-10'>
+                      <span className='text-sm font-bold text-foreground shrink-0 z-10'>
                         {formatNaira(item.price * item.quantity)}
                       </span>
                     </div>
@@ -110,7 +108,7 @@ export default async function AdminOrderDetailPage({ params }: PageProps) {
                 })}
 
                 {/* Subtotal & Delivery Breakdowns */}
-                <div className='flex flex-col gap-2 pt-4 text-sm'>
+                <div className='flex flex-col gap-2 pt-4 text-xs font-sans'>
                   <div className='flex justify-between items-center text-muted-foreground'>
                     <span>Subtotal</span>
                     <span className='font-medium text-foreground'>
@@ -127,7 +125,7 @@ export default async function AdminOrderDetailPage({ params }: PageProps) {
                     <span className='font-semibold text-muted-foreground'>
                       Total Amount
                     </span>
-                    <span className='text-base font-bold text-foreground'>
+                    <span className='text-base font-bold text-foreground text-gold'>
                       {formatNaira(order.total_amount)}
                     </span>
                   </div>
@@ -141,26 +139,13 @@ export default async function AdminOrderDetailPage({ params }: PageProps) {
               description='Current status and shipping address details.'
               icon={Truck}
             >
-              <div className='flex flex-col gap-4 py-2 text-xs'>
+              <div className='flex flex-col gap-4 py-2 text-xs font-sans'>
                 <div className='flex items-center gap-3'>
-                  <div
-                    className={`h-2.5 w-2.5 rounded-full ${
-                      order.status === 'delivered'
-                        ? 'bg-green-500'
-                        : order.status === 'shipped'
-                          ? 'bg-blue-500'
-                          : order.status === 'processing'
-                            ? 'bg-purple-500'
-                            : 'bg-amber-500'
-                    }`}
-                  />
-                  <span className='text-muted-foreground'>Fulfillment Status:</span>
-                  <span className='font-semibold text-foreground'>
-                    {statusDisplay}
-                  </span>
+                  <span className='text-muted-foreground font-medium'>Fulfillment Status:</span>
+                  <StatusBadge status={order.status} />
                 </div>
                 <div className='flex flex-col gap-1 border-t border-border pt-3'>
-                  <span className='font-semibold text-muted-foreground uppercase text-[10px] tracking-wider'>
+                  <span className='font-semibold text-muted-foreground uppercase text-[10px]'>
                     Shipping Address
                   </span>
                   <span className='text-foreground font-medium leading-relaxed'>
@@ -179,9 +164,9 @@ export default async function AdminOrderDetailPage({ params }: PageProps) {
               description='Client contact details.'
               icon={User}
             >
-              <div className='flex flex-col gap-3 py-1'>
+              <div className='flex flex-col gap-3 py-1 text-xs font-sans'>
                 <div className='flex flex-col gap-0.5'>
-                  <span className='text-[10px] font-semibold text-muted-foreground uppercase tracking-wider'>
+                  <span className='text-[10px] font-semibold text-muted-foreground uppercase'>
                     Name
                   </span>
                   <span className='text-sm font-medium text-foreground'>
@@ -189,18 +174,18 @@ export default async function AdminOrderDetailPage({ params }: PageProps) {
                   </span>
                 </div>
                 <div className='flex flex-col gap-0.5 border-t border-border pt-2.5'>
-                  <span className='text-[10px] font-semibold text-muted-foreground uppercase tracking-wider'>
+                  <span className='text-[10px] font-semibold text-muted-foreground uppercase'>
                     Email
                   </span>
-                  <span className='text-sm text-foreground'>
+                  <span className='text-sm text-foreground truncate'>
                     {order.customer_email}
                   </span>
                 </div>
                 <div className='flex flex-col gap-0.5 border-t border-border pt-2.5'>
-                  <span className='text-[10px] font-semibold text-muted-foreground uppercase tracking-wider'>
+                  <span className='text-[10px] font-semibold text-muted-foreground uppercase'>
                     Phone
                   </span>
-                  <span className='text-sm text-foreground'>
+                  <span className='text-sm text-foreground font-medium'>
                     {order.customer_phone}
                   </span>
                 </div>
@@ -213,31 +198,15 @@ export default async function AdminOrderDetailPage({ params }: PageProps) {
               description='Transaction confirmation.'
               icon={CreditCard}
             >
-              <div className='flex flex-col gap-3 py-1 text-xs'>
-                <div className='flex justify-between text-muted-foreground'>
-                  <span>Status</span>
-                  <span
-                    className={`inline-flex items-center rounded-full px-2 py-0.5 font-medium ${
-                      order.payment_status === 'paid'
-                        ? 'bg-green-500/10 text-green-600'
-                        : order.payment_status === 'failed'
-                          ? 'bg-red-500/10 text-red-600'
-                          : 'bg-amber-500/10 text-amber-600'
-                    }`}
-                  >
-                    {paymentDisplay}
-                  </span>
+              <div className='flex flex-col gap-3 py-1 text-xs font-sans'>
+                <div className='flex justify-between items-center text-muted-foreground'>
+                  <span>Payment Status</span>
+                  <StatusBadge status={order.payment_status} />
                 </div>
-                <div className='flex justify-between border-t border-border pt-3 text-muted-foreground'>
+                <div className='flex justify-between border-t border-border pt-3 text-muted-foreground items-center'>
                   <span>Fulfillment</span>
-                  <span className='font-semibold text-foreground'>
-                    {statusDisplay}
-                  </span>
+                  <StatusBadge status={order.status} />
                 </div>
-                <p className='text-[10px] text-muted-foreground leading-normal border-t border-border pt-2.5'>
-                  Payment is handled manually. Update the status using the Update
-                  Status button once payment is confirmed.
-                </p>
               </div>
             </AdminPlaceholderCard>
           </div>

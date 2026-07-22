@@ -2,16 +2,18 @@
 
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
+
 import { requireAdmin } from '@/lib/auth/session'
 import {
   createHeroBanner,
-  deleteHeroBanner,
   deleteBannerImage,
+  deleteHeroBanner,
   getAdminHeroBannerById,
   getBannerImageFile,
   updateHeroBanner,
   uploadBannerImage,
 } from '@/lib/hero-banners/admin-hero-banners'
+import { createSupabaseAdminClient } from '@/lib/supabase/server'
 import { heroBannerFormSchema } from '@/lib/validations/hero-banner'
 
 export type BannerActionResult = {
@@ -179,4 +181,36 @@ export async function deleteHeroBannerAction(formData: FormData) {
 
   revalidateBannerPaths()
   redirect('/admin/hero-banners?message=Banner deleted successfully.')
+}
+
+export async function bulkDeleteBannersAction(bannerIds: string[]) {
+  await requireAdmin()
+  const supabase = createSupabaseAdminClient()
+
+  const { error } = await supabase
+    .from('hero_banners')
+    .delete()
+    .in('id', bannerIds)
+
+  if (error) {
+    throw new Error(error.message || 'Failed to delete selected hero banners.')
+  }
+
+  revalidateBannerPaths()
+}
+
+export async function bulkUpdateBannersStatusAction(bannerIds: string[], isActive: boolean) {
+  await requireAdmin()
+  const supabase = createSupabaseAdminClient()
+
+  const { error } = await supabase
+    .from('hero_banners')
+    .update({ is_active: isActive })
+    .in('id', bannerIds)
+
+  if (error) {
+    throw new Error(error.message || 'Failed to update hero banner visibility.')
+  }
+
+  revalidateBannerPaths()
 }

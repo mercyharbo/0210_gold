@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation'
 import { useEffect, useTransition } from 'react'
 
 import { CheckoutAddressSelector } from '@/components/checkout/checkout-address-selector'
+import { CheckoutPaymentSelector } from '@/components/checkout/checkout-payment-selector'
 import { CheckoutPromoBanner } from '@/components/checkout/checkout-promo-banner'
 import { CheckoutSaveInfo } from '@/components/checkout/checkout-save-info'
 import { CheckoutShippingForm } from '@/components/checkout/checkout-shipping-form'
@@ -15,6 +16,7 @@ import { useCart } from '@/stores/hooks/use-cart'
 import { useCheckout } from '@/stores/hooks/use-checkout'
 import type { CustomerAddress } from '@/types/address'
 import type { CustomerProfile } from '@/types/profile'
+
 import { createOrderAction } from './actions'
 
 export type CheckoutFormProps = {
@@ -50,6 +52,7 @@ export function CheckoutForm({
     validationError,
     setValidationError,
     setStatesList,
+    paymentMethod,
     resetForm,
   } = useCheckout()
 
@@ -160,12 +163,17 @@ export function CheckoutForm({
           shippingState,
         },
         cartItems,
-        createAccount ? password : undefined
+        createAccount ? password : undefined,
+        paymentMethod
       )
 
       if (result.success && result.orderId) {
         clearCart()
-        router.push(`/order-success?orderId=${result.orderId}`)
+        if (result.authorizationUrl) {
+          window.location.href = result.authorizationUrl
+        } else {
+          router.push(`/order-success?orderId=${result.orderId}`)
+        }
       } else {
         setValidationError(
           result.error || 'Failed to place order. Please try again.'
@@ -220,7 +228,10 @@ export function CheckoutForm({
             {/* Step 1 & 2 Form Fields */}
             <CheckoutShippingForm />
 
-            {/* Step 3 Save User Info (Create Account) */}
+            {/* Step 3 Payment Method Selector */}
+            <CheckoutPaymentSelector />
+
+            {/* Step 4 Save User Info (Create Account) */}
             <CheckoutSaveInfo visible={!initialProfile} />
           </div>
 

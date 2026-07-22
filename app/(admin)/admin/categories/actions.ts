@@ -13,6 +13,7 @@ import {
   updateCategory,
   uploadCategoryImage,
 } from '@/lib/categories/admin-categories'
+import { createSupabaseAdminClient } from '@/lib/supabase/server'
 import { categoryFormSchema } from '@/lib/validations/category'
 
 export type CategoryActionResult = {
@@ -197,4 +198,20 @@ export async function deleteCategoryAction(formData: FormData) {
 
   revalidateCategoryPaths()
   redirect('/admin/categories?message=category deleted successfully.')
+}
+
+export async function bulkDeleteCategoriesAction(categoryIds: string[]) {
+  await requireAdmin()
+  const supabase = createSupabaseAdminClient()
+
+  const { error } = await supabase
+    .from('categories')
+    .delete()
+    .in('id', categoryIds)
+
+  if (error) {
+    throw new Error(error.message || 'Failed to delete selected categories.')
+  }
+
+  revalidateCategoryPaths()
 }

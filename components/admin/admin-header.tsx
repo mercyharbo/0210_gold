@@ -87,11 +87,11 @@ export function AdminHeader() {
 
         <div className="flex items-center gap-3">
           <Avatar className="h-8 w-8 ring-1 ring-gold/40">
-            <AvatarFallback className="bg-gold text-xs font-bold text-white">
+            <AvatarFallback className="bg-gold text-xs text-white">
               AD
             </AvatarFallback>
           </Avatar>
-          <div className="hidden md:flex flex-col text-left">
+          <div className="hidden gap-1 md:flex flex-col text-left">
             <span className="text-sm font-semibold leading-none text-foreground">
               Manager
             </span>

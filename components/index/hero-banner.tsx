@@ -11,9 +11,9 @@ export async function HeroBanner() {
       : [
           {
             id: 'default-banner',
-            title: 'Gold that defines you',
+            title: 'Fashion & Style Refined',
             description:
-              'Timeless gold jewellery crafted for every moment. Elegance. Quality. You.',
+              'Discover our curated collections of premium clothing, fine gold, footwear, and luxury fashion accessories.',
             image_src: '/images/hero-editorial-jewellery.png',
             route: '/shop',
             sort_order: 0,

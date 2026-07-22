@@ -65,10 +65,17 @@ async function getCountriesWithStates() {
 
 export async function getCountries(): Promise<CountryOption[]> {
   const countries = await getCountriesWithStates()
+  const seen = new Set<string>()
+  const uniqueCountries: CountryOption[] = []
 
-  return countries
-    .map((country) => toOption(country.name))
-    .sort((first, second) => first.label.localeCompare(second.label))
+  for (const c of countries) {
+    if (c.name && !seen.has(c.name)) {
+      seen.add(c.name)
+      uniqueCountries.push(toOption(c.name))
+    }
+  }
+
+  return uniqueCountries.sort((first, second) => first.label.localeCompare(second.label))
 }
 
 export async function getStates(country: string | null): Promise<StateOption[]> {
@@ -79,11 +86,18 @@ export async function getStates(country: string | null): Promise<StateOption[]> 
   const countries = await getCountriesWithStates()
   const matchedCountry = countries.find((item) => item.name === country)
 
-  return (
-    matchedCountry?.states
-      ?.map((state) => toOption(state.name))
-      .sort((first, second) => first.label.localeCompare(second.label)) ?? []
-  )
+  const states = matchedCountry?.states ?? []
+  const seen = new Set<string>()
+  const uniqueStates: StateOption[] = []
+
+  for (const s of states) {
+    if (s.name && !seen.has(s.name)) {
+      seen.add(s.name)
+      uniqueStates.push(toOption(s.name))
+    }
+  }
+
+  return uniqueStates.sort((first, second) => first.label.localeCompare(second.label))
 }
 
 export async function getCities(
@@ -116,7 +130,15 @@ export async function getCities(
     throw new Error(payload.msg || 'Unable to load cities.')
   }
 
-  return payload.data
-    .map((city) => toOption(city))
-    .sort((first, second) => first.label.localeCompare(second.label))
+  const seen = new Set<string>()
+  const uniqueCities: CityOption[] = []
+
+  for (const city of payload.data) {
+    if (city && !seen.has(city)) {
+      seen.add(city)
+      uniqueCities.push(toOption(city))
+    }
+  }
+
+  return uniqueCities.sort((first, second) => first.label.localeCompare(second.label))
 }

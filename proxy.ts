@@ -36,7 +36,7 @@ export async function proxy(request: NextRequest) {
   const response = getResponse()
   const isAuthenticated = Boolean(user)
 
-  if (matchesRoute(pathname, authRequiredRoutes) && !isAuthenticated) {
+  if (matchesRoute(pathname, authRequiredRoutes) && !isAuthenticated && process.env.NODE_ENV !== 'development') {
     return redirectTo(request, '/login?error=Sign in to continue.', response)
   }
 

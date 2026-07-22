@@ -1,10 +1,12 @@
+import { notFound } from 'next/navigation'
+
 import { ProductDetailView } from '@/components/index/product-details'
 import {
   getRelatedStorefrontProducts,
   getStorefrontProductBySlug,
 } from '@/lib/products/storefront-products'
+import { getApprovedProductReviews } from '@/lib/reviews/storefront-reviews'
 import { createSupabaseServerClient } from '@/lib/supabase/server'
-import { notFound } from 'next/navigation'
 
 export default async function ProductDetailsPage({
   params,
@@ -19,6 +21,7 @@ export default async function ProductDetailsPage({
   }
 
   const relatedProducts = await getRelatedStorefrontProducts(product)
+  const approvedReviews = await getApprovedProductReviews(product.id)
 
   // Check wishlist status if user is logged in
   const supabase = await createSupabaseServerClient()
@@ -42,6 +45,7 @@ export default async function ProductDetailsPage({
       product={product}
       relatedProducts={relatedProducts}
       initiallyWishlisted={initiallyWishlisted}
+      approvedReviews={approvedReviews}
     />
   )
 }

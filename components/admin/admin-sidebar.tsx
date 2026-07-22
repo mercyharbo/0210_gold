@@ -1,6 +1,7 @@
 'use client'
 
 import {
+  FileText,
   FolderTree,
   Images,
   LayoutDashboard,
@@ -8,7 +9,6 @@ import {
   Package,
   Settings,
   ShoppingCart,
-  Sparkles,
   Store,
   Users,
 } from 'lucide-react'
@@ -64,9 +64,9 @@ const navItems = [
     icon: MessageSquare,
   },
   {
-    title: 'Requests',
-    href: '/admin/requests',
-    icon: Sparkles,
+    title: 'Personal Shopper',
+    href: '/admin/personal-shopper-requests',
+    icon: FileText,
   },
   {
     title: 'Settings',
@@ -79,11 +79,11 @@ export function AdminSidebar() {
   const pathname = usePathname()
 
   return (
-    <Sidebar collapsible='icon' className='border-r border-gold bg-gold'>
+    <Sidebar collapsible='icon' className='border-r border-gold bg-gold font-sans'>
       <SidebarHeader className='flex h-16 items-center justify-between px-6 bg-gold text-white'>
         <Link
           href='/admin'
-          className='flex items-center gap-2.5 text-lg font-bold tracking-tight text-white group-data-[collapsible=icon]:hidden'
+          className='flex items-center gap-2.5 text-lg font-bold text-white group-data-[collapsible=icon]:hidden'
         >
           <span>FM</span> LUXE Admin
         </Link>

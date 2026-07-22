@@ -13,6 +13,7 @@ import {
   updateProduct,
   uploadProductImages,
 } from '@/lib/products/admin-products'
+import { createSupabaseAdminClient } from '@/lib/supabase/server'
 import { createProductSchema } from '@/lib/validations/product'
 
 export type CreateProductActionResult = {
@@ -247,4 +248,38 @@ export async function deleteProductAction(formData: FormData) {
 
   revalidateProductPaths(product.slug)
   redirect('/admin/products?message=product deleted successfully.')
+}
+
+export async function bulkDeleteProductsAction(productIds: string[]) {
+  await requireAdmin()
+  const supabase = createSupabaseAdminClient()
+
+  const { error } = await supabase
+    .from('products')
+    .delete()
+    .in('id', productIds)
+
+  if (error) {
+    throw new Error(error.message || 'Failed to delete selected products.')
+  }
+
+  revalidatePath('/admin/products')
+  revalidatePath('/shop')
+}
+
+export async function bulkUpdateProductsStatusAction(productIds: string[], status: string) {
+  await requireAdmin()
+  const supabase = createSupabaseAdminClient()
+
+  const { error } = await supabase
+    .from('products')
+    .update({ status, updated_at: new Date().toISOString() })
+    .in('id', productIds)
+
+  if (error) {
+    throw new Error(error.message || 'Failed to update product statuses.')
+  }
+
+  revalidatePath('/admin/products')
+  revalidatePath('/shop')
 }
