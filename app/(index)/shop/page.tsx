@@ -1,8 +1,24 @@
+import type { Metadata } from 'next'
 import { ShopContent, ShopHero } from '@/components/index/shop'
 import {
   getStorefrontCategories,
   getStorefrontProducts,
 } from '@/lib/products/storefront-products'
+
+export const metadata: Metadata = {
+  title: 'Shop Gold Jewellery & Accessories',
+  description:
+    'Browse our curated collection of authentic 18k gold jewellery, gold necklaces, rings, earrings, bracelets, and luxury fashion accessories at FM LUXE.',
+  alternates: {
+    canonical: '/shop',
+  },
+  openGraph: {
+    title: 'Shop Gold Jewellery & Luxury Accessories | FM LUXE',
+    description:
+      'Browse our curated collection of authentic 18k gold jewellery, gold necklaces, rings, earrings, bracelets, and luxury fashion accessories.',
+    url: '/shop',
+  },
+}
 
 type ShopPageProps = {
   searchParams: Promise<{

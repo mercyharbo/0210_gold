@@ -62,7 +62,7 @@ export function AddressCard({ address, profile }: AddressCardProps) {
   const recipient = address.recipient_name || fullName(profile)
 
   return (
-    <Card className=''>
+    <Card className='rounded-none'>
       <CardHeader>
         <div className='flex flex-wrap items-center gap-2'>
           <CardTitle className='text-lg font-semibold'>

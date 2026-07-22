@@ -1,5 +1,21 @@
+import type { Metadata } from 'next'
 import { ArrowRight, HelpCircle, PackageCheck, ShoppingBag } from 'lucide-react'
 import Link from 'next/link'
+
+export const metadata: Metadata = {
+  title: 'Frequently Asked Questions (FAQ)',
+  description:
+    'Find answers to common questions about shopping 18k gold jewellery, UK-to-Nigeria personal shopping requests, delivery timelines, and order tracking at FM LUXE.',
+  alternates: {
+    canonical: '/faq',
+  },
+  openGraph: {
+    title: 'Frequently Asked Questions | FM LUXE',
+    description:
+      'Find answers to common questions about shopping 18k gold jewellery, UK-to-Nigeria personal shopping requests, delivery timelines, and order tracking.',
+    url: '/faq',
+  },
+}
 
 const faqGroups = [
   {
@@ -58,7 +74,7 @@ const faqGroups = [
       {
         question: 'What currency are prices shown in?',
         answer:
-          'Shop prices are shown in Nigerian naira, using the ₦ currency symbol.',
+          'Prices are shown in Nigerian Naira (NGN), with clear breakdown for product costs and delivery fees.',
       },
     ],
   },
@@ -84,6 +100,20 @@ const faqGroups = [
   },
 ]
 
+const allQuestions = faqGroups.flatMap((group) => group.questions)
+const faqJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: allQuestions.map((q) => ({
+    '@type': 'Question',
+    name: q.question,
+    acceptedAnswer: {
+      '@type': 'Answer',
+      text: q.answer,
+    },
+  })),
+}
+
 const quickLinks = [
   {
     title: 'Shop products',
@@ -108,6 +138,12 @@ const quickLinks = [
 export default function FaqPage() {
   return (
     <div className='bg-white text-black'>
+      <script
+        type='application/ld+json'
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(faqJsonLd),
+        }}
+      />
       <section className='bg-muted'>
         <div className='mx-auto grid w-full gap-10 px-5 py-16 sm:px-8 lg:grid-cols-[0.9fr_1.1fr] lg:items-end lg:px-12 lg:py-24'>
           <div className='max-w-3xl'>

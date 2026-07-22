@@ -56,7 +56,7 @@ export function ProfileInformationCard({
   fallbackEmail,
 }: ProfileInformationCardProps) {
   return (
-    <Card className='h-fit [--card-spacing:--spacing(6)] sm:[--card-spacing:--spacing(8)]'>
+    <Card className='h-fit rounded-none [--card-spacing:--spacing(6)] sm:[--card-spacing:--spacing(8)]'>
       <CardHeader className='gap-3'>
         <div className='space-y-2'>
           <p className='text-xs font-semibold uppercase text-muted-foreground'>

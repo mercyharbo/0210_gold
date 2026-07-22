@@ -1,6 +1,22 @@
+import type { Metadata } from 'next'
 import { ArrowRight, Shirt, ShoppingBag, Sparkles } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
+
+export const metadata: Metadata = {
+  title: 'Jewellery & Fashion Categories',
+  description:
+    'Explore FM LUXE categories: Gold Jewellery, 18k Gold Necklaces, Rings, Earrings, Bracelets, Abaya, Luxury Accessories, Bags, and UK Shopping Sourcing.',
+  alternates: {
+    canonical: '/categories',
+  },
+  openGraph: {
+    title: 'Jewellery & Fashion Categories | FM LUXE',
+    description:
+      'Explore FM LUXE categories: Gold Jewellery, 18k Gold Necklaces, Rings, Earrings, Bracelets, Abaya, Luxury Accessories, Bags, and UK Shopping Sourcing.',
+    url: '/categories',
+  },
+}
 
 const featuredCategories = [
   {

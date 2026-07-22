@@ -37,7 +37,7 @@ function AddAddressButton() {
 
 export function AddressesCard({ profile, addresses }: AddressesCardProps) {
   return (
-    <Card className='[--card-spacing:--spacing(6)] sm:[--card-spacing:--spacing(8)]'>
+    <Card className='rounded-none [--card-spacing:--spacing(6)] sm:[--card-spacing:--spacing(8)]'>
       <CardHeader>
         <div className='space-y-2'>
           <p className='text-xs font-semibold uppercase text-muted-foreground'>

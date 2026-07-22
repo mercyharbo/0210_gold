@@ -1,6 +1,22 @@
+import type { Metadata } from 'next'
 import { ArrowRight, PackageCheck, ShoppingBag, Sparkles } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
+
+export const metadata: Metadata = {
+  title: 'About Us | Premium Gold Jewellery & UK Sourcing',
+  description:
+    'Discover the story behind FM LUXE — your trusted luxury brand for authentic 18k gold jewellery, fashion accessories, and bespoke UK to Nigeria personal shopping.',
+  alternates: {
+    canonical: '/about',
+  },
+  openGraph: {
+    title: 'About FM LUXE | Premium Jewellery & Personal Sourcing',
+    description:
+      'Discover the story behind FM LUXE — your trusted luxury brand for authentic 18k gold jewellery, fashion accessories, and bespoke UK to Nigeria personal shopping.',
+    url: '/about',
+  },
+}
 
 const values = [
   {

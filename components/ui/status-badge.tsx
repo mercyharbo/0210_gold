@@ -9,8 +9,11 @@ type StatusBadgeProps = {
 
 function formatStatusText(status: string): string {
   if (!status) return ''
-  const lower = status.toLowerCase()
-  return lower.charAt(0).toUpperCase() + lower.slice(1)
+  return status
+    .toLowerCase()
+    .split(' ')
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ')
 }
 
 function getStatusStyles(status: string): string {
@@ -53,7 +56,7 @@ export function StatusBadge({ status, className }: StatusBadgeProps) {
   return (
     <span
       className={cn(
-        'inline-flex items-center justify-center rounded-full px-2.5 py-0.5 text-xs font-medium border font-sans shrink-0',
+        'inline-flex items-center justify-center px-2.5 py-0.5 text-sm font-medium border font-sans shrink-0',
         colorStyles,
         className
       )}

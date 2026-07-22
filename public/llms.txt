@@ -1,0 +1,35 @@
+# FM LUXE - Premium Gold Jewellery & Luxury UK-to-Nigeria Personal Shopping
+
+> FM LUXE is a premier luxury brand specialising in authentic 18k gold jewellery, high-fashion accessories, and bespoke UK-to-Nigeria personal shopping and custom sourcing services.
+
+## Brand Overview
+- **Brand Name**: FM LUXE
+- **Website**: https://fm-luxe.vercel.app
+- **Specialties**: Authentic Gold Jewellery, 18k Gold Necklaces, Gold Rings, Earrings, Bracelets, Luxury Accessories, and UK-to-Nigeria Custom Shopping & Sourcing.
+- **Regions Served**: Nigeria (Lagos, Abuja, Port Harcourt, and nationwide) & United Kingdom.
+- **Currency**: Nigerian Naira (NGN / ₦) & British Pound Sterling (GBP / £).
+
+## Core Offerings
+
+### 1. Premium Gold Jewellery Collection
+- **Gold Necklaces**: 18k solid gold chains, pendants, occasion statement necklaces, and minimalist daily wear pieces.
+- **Gold Rings**: Wedding bands, signet rings, gemstone rings, and stacked 18k gold rings.
+- **Gold Earrings**: Gold hoops, drop earrings, studs, and occasion statement earrings.
+- **Gold Bracelets & Bangles**: Bangle sets, tennis bracelets, link bracelets, and charm bracelets.
+- Shop catalog: https://fm-luxe.vercel.app/shop
+- Browse categories: https://fm-luxe.vercel.app/categories
+
+### 2. UK-to-Nigeria Personal Shopping & Custom Sourcing
+- FM LUXE offers a dedicated personal shopping service sourcing luxury fashion items, designer pieces, occasion outfits, and hard-to-find accessories directly from top UK retailers and boutiques.
+- Delivered securely to specified addresses across Nigeria.
+- Submit a request: https://fm-luxe.vercel.app/make-a-request
+
+### 3. Live Order Tracking
+- Customers can track live delivery milestones and waybill progress from dispatch to final delivery.
+- Track order: https://fm-luxe.vercel.app/track-order
+
+## Customer Support & Information
+- **Contact Support**: https://fm-luxe.vercel.app/contact
+- **Frequently Asked Questions (FAQ)**: https://fm-luxe.vercel.app/faq
+- **About FM LUXE**: https://fm-luxe.vercel.app/about
+- **Shipping Policy**: Worldwide UK sourcing with fast, tracked shipping to Nigeria.

@@ -122,6 +122,20 @@ export const metadata: Metadata = {
   },
 };
 
+const organizationJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'OnlineStore',
+  name: 'FM LUXE',
+  url: siteUrl,
+  logo: `${siteUrl}/og-image.png`,
+  image: `${siteUrl}/og-image.png`,
+  description:
+    'Premium gold jewellery, luxury fashion accessories, and UK to Nigeria custom shopping and sourcing services.',
+  currenciesAccepted: 'NGN, GBP',
+  paymentAccepted: 'Credit Card, Debit Card, Paystack, Bank Transfer',
+  areaServed: ['NG', 'GB'],
+}
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -139,6 +153,14 @@ export default function RootLayout({
         "font-sans"
       )}
     >
+      <head>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(organizationJsonLd),
+          }}
+        />
+      </head>
       <body className="min-h-full flex flex-col">
         <TooltipProvider>
           {children}

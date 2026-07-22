@@ -1,5 +1,21 @@
+import type { Metadata } from 'next'
 import { ArrowRight, Mail, MapPin, MessageCircle, ShoppingBag } from 'lucide-react'
 import Link from 'next/link'
+
+export const metadata: Metadata = {
+  title: 'Contact Us | Customer Support & Enquiries',
+  description:
+    'Get in touch with FM LUXE for jewellery enquiries, order support, and UK to Nigeria personal shopping assistance.',
+  alternates: {
+    canonical: '/contact',
+  },
+  openGraph: {
+    title: 'Contact FM LUXE | Customer Support & Enquiries',
+    description:
+      'Get in touch with FM LUXE for jewellery enquiries, order support, and UK to Nigeria personal shopping assistance.',
+    url: '/contact',
+  },
+}
 
 const contactMethods = [
   {
