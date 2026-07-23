@@ -1,127 +1,134 @@
-import * as React from "react"
-import Link from "next/link"
-import { Eye, Mail, MapPin } from "lucide-react"
+import { AdminPageHeader } from '@/components/admin/admin-page-header'
+import { CustomerRecord, CustomersClient } from '@/components/admin/customers-client'
+import { createSupabaseAdminClient } from '@/lib/supabase/server'
 
-import { Button } from "@/components/ui/button"
-import { AdminPageHeader } from "@/components/admin/admin-page-header"
-import { AdminPlaceholderCard } from "@/components/admin/admin-placeholder-card"
+export default async function AdminCustomersPage() {
+  const adminSupabase = createSupabaseAdminClient()
 
-export default function AdminCustomersPage() {
-  const mockCustomers = [
-    {
-      id: "cust-1",
-      name: "Chidi Benson",
-      email: "chidi.benson@example.com",
-      location: "Lagos, Nigeria",
-      ordersCount: 5,
-      totalSpent: "₦3,450,000",
-    },
-    {
-      id: "cust-2",
-      name: "Sarah Jenkins",
-      email: "sarah.jenkins@example.com",
-      location: "London, UK",
-      ordersCount: 3,
-      totalSpent: "₦2,800,000",
-    },
-    {
-      id: "cust-3",
-      name: "Amara Kalu",
-      email: "amara.kalu@example.com",
-      location: "Abuja, Nigeria",
-      ordersCount: 8,
-      totalSpent: "₦6,120,000",
-    },
-    {
-      id: "cust-4",
-      name: "Tunde Bakare",
-      email: "tunde.bakare@example.com",
-      location: "Lekki, Nigeria",
-      ordersCount: 1,
-      totalSpent: "₦320,000",
-    },
-  ]
+  // 1. Fetch profiles
+  const { data: profilesData } = await adminSupabase
+    .from('profiles')
+    .select('*')
+    .order('created_at', { ascending: false })
+
+  const profiles = profilesData || []
+
+  // 2. Fetch addresses
+  const { data: addressesData } = await adminSupabase
+    .from('addresses')
+    .select('*')
+
+  const addresses = addressesData || []
+
+  // 3. Fetch orders
+  const { data: ordersData } = await adminSupabase
+    .from('orders')
+    .select('*')
+    .order('created_at', { ascending: false })
+
+  const orders = ordersData || []
+
+  // Track emails of registered profiles
+  const registeredEmails = new Set<string>()
+
+  // Map registered customers from profiles table
+  const registeredCustomers: CustomerRecord[] = profiles.map((p) => {
+    if (p.email) registeredEmails.add(p.email.toLowerCase())
+
+    const userOrders = orders.filter(
+      (o) =>
+        o.user_id === p.id ||
+        (o.customer_email && o.customer_email.toLowerCase() === p.email?.toLowerCase())
+    )
+
+    const userAddress =
+      addresses.find((a) => a.user_id === p.id && a.is_default) ||
+      addresses.find((a) => a.user_id === p.id)
+
+    let location = 'Nigeria'
+    let country = 'Nigeria'
+
+    if (userAddress) {
+      location =
+        [userAddress.city || userAddress.state, userAddress.country]
+          .filter(Boolean)
+          .join(', ') || 'Nigeria'
+      country = userAddress.country || 'Nigeria'
+    } else if (userOrders.length > 0) {
+      location = `${userOrders[0].shipping_city}, ${userOrders[0].shipping_country}`
+      country = userOrders[0].shipping_country || 'Nigeria'
+    }
+
+    const name =
+      [p.first_name, p.last_name].filter(Boolean).join(' ') ||
+      userOrders[0]?.customer_name ||
+      p.email?.split('@')[0] ||
+      'Registered Client'
+
+    const totalSpent = userOrders.reduce((sum, o) => sum + Number(o.total_amount || 0), 0)
+
+    return {
+      id: p.id,
+      name,
+      first_name: p.first_name || '',
+      last_name: p.last_name || '',
+      email: p.email || 'N/A',
+      phone: p.phone || userOrders[0]?.customer_phone || 'N/A',
+      location,
+      country,
+      ordersCount: userOrders.length,
+      totalSpent,
+      role: p.role || 'customer',
+      preferences: p.preferences || [],
+      created_at: p.created_at,
+    }
+  })
+
+  // Map guest buyers from orders who do not have a registered profile
+  const guestMap = new Map<string, typeof orders>()
+  orders.forEach((ord) => {
+    const email = ord.customer_email?.toLowerCase()
+    if (email && !registeredEmails.has(email)) {
+      if (!guestMap.has(email)) {
+        guestMap.set(email, [])
+      }
+      guestMap.get(email)!.push(ord)
+    }
+  })
+
+  const guestCustomers: CustomerRecord[] = Array.from(guestMap.entries()).map(
+    ([email, gOrders]) => {
+      const latestOrder = gOrders[0]
+      const totalSpent = gOrders.reduce((sum, o) => sum + Number(o.total_amount || 0), 0)
+      const location = `${latestOrder.shipping_city}, ${latestOrder.shipping_country}`
+
+      return {
+        id: `guest-${latestOrder.id}`,
+        name: latestOrder.customer_name || 'Guest Client',
+        email: latestOrder.customer_email,
+        phone: latestOrder.customer_phone || 'N/A',
+        location,
+        country: latestOrder.shipping_country || 'Nigeria',
+        ordersCount: gOrders.length,
+        totalSpent,
+        role: 'guest',
+        preferences: [],
+        created_at: latestOrder.created_at,
+      }
+    }
+  )
+
+  const allCustomers = [...registeredCustomers, ...guestCustomers]
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className='flex flex-col gap-6 bg-white text-black'>
       <AdminPageHeader
-      title="Customers"
-      description="View client statistics, locations, order history, and preferences."
-     />
-      <div className="flex flex-col gap-6">
-<div className="grid gap-6">
-        <div className="grid gap-6 sm:grid-cols-3">
-          <AdminPlaceholderCard
-            title="Total Registered"
-            value="1,240"
-            icon={Mail}
-          />
-          <AdminPlaceholderCard
-            title="Repeat Buyers"
-            value="84"
-            icon={Eye}
-          />
-          <AdminPlaceholderCard
-            title="International Clients"
-            value="35"
-            icon={MapPin}
-          />
-        </div>
+        title='Customer Management'
+        description='Inspect client profiles, purchase frequencies, delivery locations, style preferences, and engagement history.'
+      />
 
-        <AdminPlaceholderCard
-          title="Customer Base"
-          description="Listing of registered clients and billing history"
-        >
-          <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse text-sm">
-              <thead>
-                <tr className="border-b border-border text-muted-foreground font-semibold">
-                  <th className="py-3 px-4">Name</th>
-                  <th className="py-3 px-4">Email</th>
-                  <th className="py-3 px-4">Location</th>
-                  <th className="py-3 px-4 text-center">Orders</th>
-                  <th className="py-3 px-4 text-right">Total Spent</th>
-                  <th className="py-3 px-4 text-right">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-border">
-                {mockCustomers.map((customer) => (
-                  <tr key={customer.id} className="hover:bg-muted/40 transition-colors">
-                    <td className="py-3.5 px-4 font-medium text-foreground">
-                      <Link
-                        href={`/admin/customers/${customer.id}`}
-                        className="hover:underline hover:text-gold"
-                      >
-                        {customer.name}
-                      </Link>
-                    </td>
-                    <td className="py-3.5 px-4 text-muted-foreground font-mono text-xs">
-                      {customer.email}
-                    </td>
-                    <td className="py-3.5 px-4 text-muted-foreground">
-                      {customer.location}
-                    </td>
-                    <td className="py-3.5 px-4 text-center text-foreground font-semibold">
-                      {customer.ordersCount}
-                    </td>
-                    <td className="py-3.5 px-4 text-right text-foreground">
-                      {customer.totalSpent}
-                    </td>
-                    <td className="py-3.5 px-4 text-right">
-                      <Button variant="ghost" size="icon-sm" asChild>
-                        <Link href={`/admin/customers/${customer.id}`}>
-                          <Eye className="size-3.5" />
-                        </Link>
-                      </Button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </AdminPlaceholderCard>
-      </div>
-    </div>
+      <CustomersClient customers={allCustomers} />
     </div>
   )
 }
+

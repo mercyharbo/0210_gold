@@ -2,7 +2,8 @@
 
 import { revalidatePath } from 'next/cache'
 
-import { createSupabaseServerClient } from '@/lib/supabase/server'
+import { createSupabaseAdminClient, createSupabaseServerClient } from '@/lib/supabase/server'
+
 
 export type StorefrontReview = {
   id: string
@@ -13,21 +14,35 @@ export type StorefrontReview = {
 }
 
 export async function getApprovedProductReviews(productId: string): Promise<StorefrontReview[]> {
-  const supabase = await createSupabaseServerClient()
+  let reviewsData: any[] = []
 
-  const { data, error } = await supabase
-    .from('reviews')
-    .select('id, customer_name, rating, comment, created_at')
-    .eq('product_id', productId)
-    .eq('status', 'Approved')
-    .order('created_at', { ascending: false })
+  try {
+    const adminSupabase = createSupabaseAdminClient()
+    const { data, error } = await adminSupabase
+      .from('reviews')
+      .select('id, customer_name, rating, comment, created_at, status')
+      .eq('product_id', productId)
+      .in('status', ['Approved', 'approved'])
+      .order('created_at', { ascending: false })
 
-  if (error) {
-    console.warn('Error fetching product reviews:', error.message)
-    return []
+    if (!error && data) {
+      reviewsData = data
+    } else {
+      const supabase = await createSupabaseServerClient()
+      const { data: fallbackData } = await supabase
+        .from('reviews')
+        .select('id, customer_name, rating, comment, created_at, status')
+        .eq('product_id', productId)
+        .in('status', ['Approved', 'approved'])
+        .order('created_at', { ascending: false })
+
+      reviewsData = fallbackData || []
+    }
+  } catch (error: any) {
+    console.warn('Error fetching product reviews:', error?.message || error)
   }
 
-  return (data || []).map((r) => ({
+  return reviewsData.map((r) => ({
     id: r.id,
     customer_name: r.customer_name || 'Verified Customer',
     rating: r.rating,
@@ -39,6 +54,7 @@ export async function getApprovedProductReviews(productId: string): Promise<Stor
     }),
   }))
 }
+
 
 export async function submitProductReviewAction(formData: FormData) {
   const productId = formData.get('productId') as string

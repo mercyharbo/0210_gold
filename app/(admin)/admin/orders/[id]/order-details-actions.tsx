@@ -5,7 +5,10 @@ import Link from 'next/link'
 import { useState } from 'react'
 
 import { OrderStatusDialog } from '@/components/admin/order-status-dialog'
-import { OrderWaybillModal } from '@/components/admin/order-waybill-modal'
+import {
+  printOrderWaybill,
+  type OrderReceiptData,
+} from '@/components/admin/order-waybill-modal'
 import { Button } from '@/components/ui/button'
 
 type OrderDetailsActionsProps = {
@@ -13,7 +16,7 @@ type OrderDetailsActionsProps = {
   orderNumber: number
   currentStatus: string
   currentPaymentStatus: string
-  order: any
+  order: OrderReceiptData | null
 }
 
 export function OrderDetailsActions({
@@ -24,7 +27,6 @@ export function OrderDetailsActions({
   order,
 }: OrderDetailsActionsProps) {
   const [isStatusOpen, setIsStatusOpen] = useState(false)
-  const [isWaybillOpen, setIsWaybillOpen] = useState(false)
 
   return (
     <div className='flex items-center gap-3'>
@@ -39,8 +41,8 @@ export function OrderDetailsActions({
         <Button
           size='sm'
           variant='outline'
-          onClick={() => setIsWaybillOpen(true)}
-          className='border-black/30 text-black hover:bg-neutral-100 cursor-pointer rounded-none h-9 px-4 gap-2 text-xs font-semibold uppercase tracking-wider'
+          onClick={() => printOrderWaybill(order)}
+          className='h-9 cursor-pointer gap-2 rounded-none border-black/30 px-4 text-xs font-semibold text-black hover:bg-gray-100'
         >
           <Printer className='size-3.5' />
           Print Waybill
@@ -50,7 +52,7 @@ export function OrderDetailsActions({
       <Button
         size='sm'
         onClick={() => setIsStatusOpen(true)}
-        className='bg-black text-white hover:bg-gold hover:text-black cursor-pointer rounded-none h-9 px-4 text-xs font-semibold uppercase tracking-wider'
+        className='h-9 cursor-pointer rounded-none bg-black px-4 text-xs font-semibold text-white hover:bg-gold hover:text-black'
       >
         Update Status
       </Button>
@@ -64,13 +66,6 @@ export function OrderDetailsActions({
         currentPaymentStatus={currentPaymentStatus}
       />
 
-      {order && (
-        <OrderWaybillModal
-          isOpen={isWaybillOpen}
-          onClose={() => setIsWaybillOpen(false)}
-          order={order}
-        />
-      )}
     </div>
   )
 }
