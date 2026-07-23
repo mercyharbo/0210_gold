@@ -1,9 +1,11 @@
 'use client'
 
+import Script from 'next/script'
 import { ArrowLeft } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { useEffect, useTransition } from 'react'
+import { useEffect, useState, useTransition } from 'react'
+
 
 import { CheckoutAddressSelector } from '@/components/checkout/checkout-address-selector'
 import { CheckoutPaymentSelector } from '@/components/checkout/checkout-payment-selector'
@@ -19,6 +21,21 @@ import type { CustomerProfile } from '@/types/profile'
 
 import { createOrderAction } from './actions'
 
+function loadPaystackScript(): Promise<boolean> {
+  return new Promise((resolve) => {
+    if (typeof window !== 'undefined' && (window as any).PaystackPop) {
+      resolve(true)
+      return
+    }
+    const script = document.createElement('script')
+    script.src = 'https://js.paystack.co/v1/inline.js'
+    script.async = true
+    script.onload = () => resolve(true)
+    script.onerror = () => resolve(false)
+    document.body.appendChild(script)
+  })
+}
+
 export type CheckoutFormProps = {
   initialProfile: CustomerProfile | null
   initialAddresses: CustomerAddress[]
@@ -31,6 +48,7 @@ export function CheckoutForm({
   const router = useRouter()
   const { items: cartItems, subtotal, clearCart, isHydrated } = useCart()
   const [isPending, startTransition] = useTransition()
+  const [isOrderCompleted, setIsOrderCompleted] = useState(false)
 
   // Retrieve state and setters from Zustand store
   const {
@@ -76,12 +94,12 @@ export function CheckoutForm({
       })
   }, [setStatesList])
 
-  // Redirect to cart if empty (only after cart is hydrated on client)
+  // Redirect to cart if empty (only after cart is hydrated on client and not completing order)
   useEffect(() => {
-    if (isHydrated && cartItems.length === 0 && !isPending) {
+    if (isHydrated && cartItems.length === 0 && !isPending && !isOrderCompleted) {
       router.replace('/cart')
     }
-  }, [isHydrated, cartItems.length, router, isPending])
+  }, [isHydrated, cartItems.length, router, isPending, isOrderCompleted])
 
   // Populate from profile/addresses on mount or reset
   useEffect(() => {
@@ -168,10 +186,74 @@ export function CheckoutForm({
       )
 
       if (result.success && result.orderId) {
-        clearCart()
-        if (result.authorizationUrl) {
+        if (result.authorizationUrl && paymentMethod === 'paystack') {
+          const isScriptLoaded = await loadPaystackScript()
+
+          if (isScriptLoaded && (window as any).PaystackPop) {
+            try {
+              const PaystackPop = (window as any).PaystackPop
+              const publicKey = process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY || ''
+
+              // 1. Paystack Pop V1 inline setup
+              if (typeof PaystackPop.setup === 'function') {
+                const handler = PaystackPop.setup({
+                  key: publicKey,
+                  email: customerEmail,
+                  amount: Math.round((subtotal + (shippingCity.trim().toLowerCase() === 'osogbo' ? 2000 : 5000)) * 100),
+                  ref: result.reference || result.orderId,
+                  access_code: result.accessCode,
+                  callback: (response: any) => {
+                    setIsOrderCompleted(true)
+                    clearCart()
+                    const ref = response?.reference || result.reference || result.orderId
+                    router.push(
+                      `/order-success?orderId=${result.orderId}&trxref=${ref}&reference=${ref}`
+                    )
+                  },
+                  onClose: () => {
+                    setValidationError(
+                      'Payment process was closed. Your order has been recorded and you can try paying again.'
+                    )
+                  },
+                })
+                handler.openIframe()
+                return
+              }
+
+              // 2. Paystack Pop V2 inline setup
+              if (typeof PaystackPop === 'function') {
+                const paystack = new PaystackPop()
+                if (result.accessCode && typeof paystack.resumeTransaction === 'function') {
+                  paystack.resumeTransaction(result.accessCode, {
+                    onSuccess: (trx: any) => {
+                      setIsOrderCompleted(true)
+                      clearCart()
+                      const ref = trx?.reference || result.reference || result.orderId
+                      router.push(
+                        `/order-success?orderId=${result.orderId}&trxref=${ref}&reference=${ref}`
+                      )
+                    },
+                    onCancel: () => {
+                      setValidationError(
+                        'Payment process was closed. Your order has been recorded and you can try paying again.'
+                      )
+                    },
+                  })
+                  return
+                }
+              }
+            } catch (inlineErr) {
+              console.warn('Paystack inline modal error, falling back to redirect:', inlineErr)
+            }
+          }
+
+          // Fallback to standard authorization URL redirect if inline script fails
+          setIsOrderCompleted(true)
+          clearCart()
           window.location.href = result.authorizationUrl
         } else {
+          setIsOrderCompleted(true)
+          clearCart()
           router.push(`/order-success?orderId=${result.orderId}`)
         }
       } else {
@@ -182,6 +264,8 @@ export function CheckoutForm({
     })
   }
 
+
+
   // Prevent flash/redirect layout if not hydrated yet
   if (!isHydrated) {
     return null
@@ -189,7 +273,9 @@ export function CheckoutForm({
 
   return (
     <div className='bg-white text-black'>
+      <Script src='https://js.paystack.co/v1/inline.js' strategy='lazyOnload' />
       {/* Top section */}
+
       <section className='border-b border-black/10 bg-muted px-5 py-8 sm:px-8 lg:px-12'>
         <div className='mx-auto flex max-w-7xl flex-col gap-3'>
           <Link

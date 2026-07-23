@@ -31,8 +31,8 @@ export async function initializePaystackTransaction(
 
   const amountInKobo = Math.round(params.amountInNaira * 100)
 
-  // If secret key is not set, provide sandbox fallback authorization URL
-  if (!secretKey || secretKey.includes('pk_test_') || secretKey.startsWith('sk_test_placeholder')) {
+  // If secret key is not set or placeholder, provide sandbox fallback authorization URL
+  if (!secretKey || secretKey.includes('placeholder') || secretKey === 'sk_test_your_key') {
     console.warn('[Paystack] PAYSTACK_SECRET_KEY missing or placeholder. Using fallback payment verification.')
     return {
       success: true,
@@ -40,6 +40,7 @@ export async function initializePaystackTransaction(
       reference: params.reference,
     }
   }
+
 
   try {
     const res = await fetch('https://api.paystack.co/transaction/initialize', {
@@ -87,13 +88,14 @@ export async function verifyPaystackTransaction(
 ): Promise<PaystackVerifyResponse> {
   const secretKey = process.env.PAYSTACK_SECRET_KEY
 
-  if (!secretKey || secretKey.includes('pk_test_') || secretKey.startsWith('sk_test_placeholder')) {
+  if (!secretKey || secretKey.includes('placeholder') || secretKey === 'sk_test_your_key') {
     return {
       success: true,
       status: 'success',
       reference,
     }
   }
+
 
   try {
     const res = await fetch(

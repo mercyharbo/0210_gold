@@ -53,10 +53,8 @@ export function CheckoutPaymentSelector() {
               <span className='font-semibold text-sm text-black flex items-center gap-2'>
                 <CreditCard className='size-4 text-gold' /> Paystack Online Payment
               </span>
-              <span className='text-3xs uppercase tracking-wider font-bold bg-black text-gold px-2 py-0.5'>
-                Recommended
-              </span>
             </div>
+
             <p className='text-xs text-muted-foreground leading-relaxed'>
               Pay instantly using Debit Cards (Mastercard, Visa, Verve), Instant Bank Transfer, USSD, or Apple Pay.
             </p>

@@ -13,7 +13,10 @@ export type OrderActionResult = {
   error?: string
   orderId?: string
   authorizationUrl?: string
+  accessCode?: string
+  reference?: string
 }
+
 
 export async function createOrderAction(
   shippingDetails: {
@@ -152,8 +155,11 @@ export async function createOrderAction(
         success: true,
         orderId: order.id,
         authorizationUrl: paystackRes.authorizationUrl,
+        accessCode: paystackRes.accessCode,
+        reference: paystackRes.reference || order.id,
       }
     }
+
   }
 
   return { success: true, orderId: order.id }
