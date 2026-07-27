@@ -1,3 +1,4 @@
+import { getStoreSettingsAction } from '@/app/(admin)/admin/settings/actions'
 import {
   ensureCustomerProfile,
   getCustomerAddresses,
@@ -13,6 +14,7 @@ export default async function CheckoutPage() {
     data: { user },
   } = await supabase.auth.getUser()
 
+  const settings = await getStoreSettingsAction()
   let initialProfile: CustomerProfile | null = null
   let initialAddresses: CustomerAddress[] = []
 
@@ -29,6 +31,7 @@ export default async function CheckoutPage() {
     <CheckoutForm
       initialProfile={initialProfile}
       initialAddresses={initialAddresses}
+      settings={settings}
     />
   )
 }

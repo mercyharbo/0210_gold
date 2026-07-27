@@ -9,7 +9,7 @@ export function CheckoutPromoBanner({ visible }: CheckoutPromoBannerProps) {
 
   return (
     <div className='bg-gold/10 border border-gold/30 p-4 rounded-none flex items-start gap-3'>
-      <span className='grid size-8 place-items-center bg-gold text-black rounded-none shrink-0 font-bold text-sm'>
+      <span className='grid size-8 place-items-center bg-gold text-white rounded-none shrink-0 font-bold text-sm'>
         🎁
       </span>
       <div className='space-y-1'>

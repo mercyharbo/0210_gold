@@ -35,3 +35,6 @@ export const productLabelOptions = [
   'new in',
   'featured',
 ] as const
+
+export const productKaratOptions = ['18k', '22k', '24k'] as const
+

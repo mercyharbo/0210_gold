@@ -26,8 +26,12 @@ function mapStorefrontProduct(product: AdminProductListItem): StorefrontProduct 
     pricingType: product.pricing_type,
     sizes: product.sizes,
     stock: product.stock,
+    goldWeightGrams: product.gold_weight_grams,
+    goldKarats: product.gold_karats,
+    makingCharge: product.making_charge,
   }
 }
+
 
 function getProductsQuery() {
   return `

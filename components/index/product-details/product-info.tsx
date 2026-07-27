@@ -5,6 +5,7 @@ import {
   getProductLabelClassName,
 } from '@/components/index/shop/shop-data'
 import type { Product } from '@/components/index/shop/shop-data'
+import { getEffectiveProductPrice } from '@/lib/products/gold-pricing'
 import { useProductDetailStore } from '@/stores/hooks/use-product-detail'
 
 type ProductInfoProps = {
@@ -12,7 +13,9 @@ type ProductInfoProps = {
 }
 
 export function ProductInfo({ product }: ProductInfoProps) {
-  const { descriptionOpen, setDescriptionOpen } = useProductDetailStore()
+  const { descriptionOpen, setDescriptionOpen, selectedKarat } = useProductDetailStore()
+
+  const computedPrice = getEffectiveProductPrice(product, selectedKarat)
 
   const descriptionParagraphs = product.description.split('\n\n')
   const descriptionHasMore = descriptionParagraphs.length > 2
@@ -50,11 +53,19 @@ export function ProductInfo({ product }: ProductInfoProps) {
           <h1 className='font-heading text-4xl font-bold leading-tight sm:text-5xl text-black'>
             {product.name}
           </h1>
-          <p className='font-heading text-2xl font-semibold sm:text-3xl text-black'>
-            {formatProductPrice(product)}
-          </p>
+          <div className='flex items-baseline gap-3'>
+            <p className='font-sans text-2xl font-bold sm:text-3xl text-black'>
+              {formatProductPrice(product, computedPrice)}
+            </p>
+            {selectedKarat ? (
+              <span className='rounded-full bg-gold px-2.5 py-0.5 text-xs font-semibold text-white uppercase'>
+                {selectedKarat} Gold
+              </span>
+            ) : null}
+          </div>
         </div>
       </div>
+
       <div className='flex max-w-xl flex-col gap-3 text-sm leading-6 text-muted-foreground'>
         {visibleDescriptionParagraphs.map((paragraph) => (
           <p key={paragraph} className='whitespace-pre-line'>

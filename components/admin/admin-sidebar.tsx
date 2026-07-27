@@ -80,22 +80,22 @@ export function AdminSidebar() {
 
   return (
     <Sidebar collapsible='icon' className='border-r border-gold bg-gold font-sans'>
-      <SidebarHeader className='flex h-16 items-center justify-between px-6 bg-gold text-white'>
+      <SidebarHeader className='flex h-16 items-center justify-between px-6 bg-gold text-white group-data-[collapsible=icon]:px-0 group-data-[collapsible=icon]:justify-center'>
         <Link
           href='/admin'
           className='flex items-center gap-2.5 text-lg font-bold text-white group-data-[collapsible=icon]:hidden'
         >
           <span>FM</span> LUXE Admin
         </Link>
-        <div className='hidden h-8 w-8 items-center justify-center rounded-lg bg-white text-gold group-data-[collapsible=icon]:flex font-bold'>
+        <div className='hidden h-9 w-9 items-center justify-center rounded-lg bg-white text-gold group-data-[collapsible=icon]:flex font-bold text-sm shadow-sm shrink-0'>
           G
         </div>
       </SidebarHeader>
 
-      <SidebarContent className='bg-gold py-4 text-white'>
-        <SidebarGroup>
-          <SidebarGroupContent className=''>
-            <SidebarMenu className='gap-1 px-2'>
+      <SidebarContent className='bg-gold py-4 text-white no-scrollbar'>
+        <SidebarGroup className='group-data-[collapsible=icon]:px-0'>
+          <SidebarGroupContent>
+            <SidebarMenu className='gap-1.5 px-2 group-data-[collapsible=icon]:px-0 group-data-[collapsible=icon]:items-center'>
               {navItems.map((item) => {
                 const isActive =
                   item.href === '/admin'
@@ -103,12 +103,12 @@ export function AdminSidebar() {
                     : pathname.startsWith(item.href)
 
                 return (
-                  <SidebarMenuItem key={item.title}>
+                  <SidebarMenuItem key={item.title} className='group-data-[collapsible=icon]:flex group-data-[collapsible=icon]:justify-center'>
                     <SidebarMenuButton
                       asChild
                       isActive={isActive}
                       tooltip={item.title}
-                      className={`h-10 px-3 transition-colors ${
+                      className={`h-10 px-3 transition-colors group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-0 ${
                         isActive
                           ? 'bg-white/20 text-white hover:bg-white/90 hover:text-black'
                           : 'text-white hover:bg-white/15 hover:text-white'
@@ -116,9 +116,9 @@ export function AdminSidebar() {
                     >
                       <Link
                         href={item.href}
-                        className='flex items-center gap-3'
+                        className='flex items-center justify-start group-data-[collapsible=icon]:justify-center gap-3 w-full'
                       >
-                        <item.icon className='size-4' />
+                        <item.icon className='size-4 shrink-0' />
                         <span className='font-medium group-data-[collapsible=icon]:hidden'>
                           {item.title}
                         </span>
@@ -132,16 +132,16 @@ export function AdminSidebar() {
         </SidebarGroup>
       </SidebarContent>
 
-      <SidebarFooter className='border-t border-white/25 bg-gold p-4 group-data-[collapsible=icon]:p-2'>
-        <SidebarMenu>
-          <SidebarMenuItem>
+      <SidebarFooter className='border-t border-white/25 bg-gold p-4 group-data-[collapsible=icon]:px-0 group-data-[collapsible=icon]:py-3 group-data-[collapsible=icon]:flex group-data-[collapsible=icon]:justify-center'>
+        <SidebarMenu className='group-data-[collapsible=icon]:items-center'>
+          <SidebarMenuItem className='group-data-[collapsible=icon]:flex group-data-[collapsible=icon]:justify-center'>
             <SidebarMenuButton
               asChild
               tooltip='View Store'
-              className='h-10 px-3 text-white hover:bg-white/15 hover:text-white'
+              className='h-10 px-3 text-white hover:bg-white/15 hover:text-white group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-0'
             >
-              <Link href='/' className='flex items-center gap-3'>
-                <Store className='size-4 text-white' />
+              <Link href='/' className='flex items-center justify-start group-data-[collapsible=icon]:justify-center gap-3 w-full'>
+                <Store className='size-4 text-white shrink-0' />
                 <span className='font-medium group-data-[collapsible=icon]:hidden'>
                   Back to Store
                 </span>

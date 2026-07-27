@@ -142,7 +142,7 @@ export function ProfileReviews({ reviews, readyForReview }: ProfileReviewsProps)
                           onClick={() => handleSubmit(item.id)}
                           disabled={isPending}
                           size='xs'
-                          className='rounded-none h-8 px-4 bg-black text-white hover:bg-gold hover:text-black gap-1 cursor-pointer'
+                          className='rounded-none h-8 px-4 bg-black text-white hover:bg-gold hover:text-white gap-1 cursor-pointer'
                         >
                           {isPending && <Spinner className='size-3 text-current' />}
                           Submit

@@ -5,9 +5,10 @@ import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { Bell, ExternalLink } from "lucide-react"
 
-import { SidebarTrigger } from "@/components/ui/sidebar"
-import { Button } from "@/components/ui/button"
+import { AdminNotificationsPopover } from "./admin-notifications-popover"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
+import { Button } from "@/components/ui/button"
+import { SidebarTrigger } from "@/components/ui/sidebar"
 
 export function AdminHeader() {
   const pathname = usePathname()
@@ -75,13 +76,7 @@ export function AdminHeader() {
           </Link>
         </Button>
 
-        <Button
-          variant="ghost"
-          size="icon"
-          className="h-9 w-9 text-gold hover:bg-gold/10 hover:text-gold"
-        >
-          <Bell className="size-4" />
-        </Button>
+        <AdminNotificationsPopover />
 
         <div className="h-8 w-px bg-gold/30" />
 

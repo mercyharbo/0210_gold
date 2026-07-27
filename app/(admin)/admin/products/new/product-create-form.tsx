@@ -32,9 +32,11 @@ import { Spinner } from '@/components/ui/spinner'
 import { Textarea } from '@/components/ui/textarea'
 import {
   productColorOptions,
+  productKaratOptions,
   productLabelOptions,
   productSizeOptions,
 } from '@/lib/products/product-options'
+
 import { cn } from '@/lib/utils'
 import type { CategoryOption } from '@/types/category'
 import { createProductAction } from '../actions'
@@ -192,15 +194,14 @@ export function ProductCreateForm({ categories }: ProductCreateFormProps) {
                 Pricing and Stock
               </CardTitle>
               <CardDescription className='text-sm'>
-                Use exact pricing, starting-from pricing, or leave pricing on
-                request.
+                Use exact pricing, dynamic gold karat calculation, or leave pricing on request.
               </CardDescription>
             </CardHeader>
             <CardContent>
               <FieldGroup>
                 <div className='grid gap-4 md:grid-cols-2'>
                   <Field>
-                    <FieldLabel htmlFor='price'>Price in Naira</FieldLabel>
+                    <FieldLabel htmlFor='price'>Base Price in Naira</FieldLabel>
                     <Input
                       id='price'
                       name='price'
@@ -209,8 +210,7 @@ export function ProductCreateForm({ categories }: ProductCreateFormProps) {
                       placeholder='50000'
                     />
                     <FieldDescription>
-                      Required for exact and starting-from pricing. Leave empty
-                      for price on request.
+                      Used for fixed pricing or fallback when gold weight is empty.
                     </FieldDescription>
                   </Field>
                   <Field>
@@ -229,6 +229,65 @@ export function ProductCreateForm({ categories }: ProductCreateFormProps) {
               </FieldGroup>
             </CardContent>
           </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle className='font-sans text-base font-semibold'>
+                Gold Jewelry Pricing Attributes
+              </CardTitle>
+              <CardDescription className='text-sm'>
+                Enable dynamic pricing per gram based on gold karat (18k, 22k, 24k).
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <FieldGroup>
+                <div className='grid gap-4 md:grid-cols-2'>
+                  <Field>
+                    <FieldLabel htmlFor='goldWeightGrams'>Gold Weight (Grams)</FieldLabel>
+                    <Input
+                      id='goldWeightGrams'
+                      name='goldWeightGrams'
+                      type='number'
+                      step='0.01'
+                      min='0'
+                      className='h-11'
+                      placeholder='e.g. 5.50'
+                    />
+                    <FieldDescription>
+                      Total gold weight per piece.
+                    </FieldDescription>
+                  </Field>
+                  <Field>
+                    <FieldLabel htmlFor='makingCharge'>Making Charge / Workmanship (₦)</FieldLabel>
+                    <Input
+                      id='makingCharge'
+                      name='makingCharge'
+                      type='number'
+                      min='0'
+                      className='h-11'
+                      placeholder='e.g. 10000'
+                    />
+                    <FieldDescription>
+                      Fixed labor markup fee added to total price.
+                    </FieldDescription>
+                  </Field>
+                </div>
+                <Field>
+                  <FieldLabel>Supported Gold Karats</FieldLabel>
+                  <ProductOptionMultiSelect
+                    name='goldKarats'
+                    options={productKaratOptions}
+                    placeholder='Select gold karats'
+                    defaultValue={['18k', '22k', '24k']}
+                  />
+                  <FieldDescription>
+                    Select which gold purities are available for this item.
+                  </FieldDescription>
+                </Field>
+              </FieldGroup>
+            </CardContent>
+          </Card>
+
 
           <Card>
             <CardHeader>

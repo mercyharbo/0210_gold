@@ -104,7 +104,7 @@ export function ProductOptionMultiSelect({
           {selectedOptions.map((option) => (
             <span
               key={option}
-              className="rounded-md bg-gold/10 px-2.5 py-1 text-sm font-medium text-foreground"
+              className="rounded-md bg-gold px-2.5 py-1 text-sm font-medium text-white"
             >
               {formatOptionLabel(option)}
             </span>

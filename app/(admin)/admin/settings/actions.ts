@@ -3,6 +3,7 @@
 import { revalidatePath } from 'next/cache'
 
 import { requireAdmin } from '@/lib/auth/session'
+import { syncGoldRatesFromAPI } from '@/lib/gold/gold-rate-sync'
 import { defaultStoreSettings, type StoreSettingsRecord } from '@/lib/settings/types'
 import { createSupabaseAdminClient } from '@/lib/supabase/server'
 
@@ -36,6 +37,10 @@ export async function getStoreSettingsAction(): Promise<StoreSettingsRecord> {
         low_stock_alerts: Boolean(data.low_stock_alerts ?? true),
         session_expiry_days: Number(data.session_expiry_days ?? 7),
         mfa_required: Boolean(data.mfa_required ?? false),
+        gold_rate_18k: Number(data.gold_rate_18k ?? defaultStoreSettings.gold_rate_18k),
+        gold_rate_22k: Number(data.gold_rate_22k ?? defaultStoreSettings.gold_rate_22k),
+        gold_rate_24k: Number(data.gold_rate_24k ?? defaultStoreSettings.gold_rate_24k),
+        last_gold_rate_update: data.last_gold_rate_update || null,
       }
     }
   } catch (error) {
@@ -66,3 +71,16 @@ export async function updateStoreSettingsAction(settings: Partial<StoreSettingsR
   revalidatePath('/')
   return { success: true }
 }
+
+export async function syncGoldRatesAction() {
+  await requireAdmin()
+  const result = await syncGoldRatesFromAPI()
+
+  if (result.success) {
+    revalidatePath('/admin/settings')
+    revalidatePath('/')
+  }
+
+  return result
+}
+

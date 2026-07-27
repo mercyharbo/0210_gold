@@ -49,6 +49,16 @@ function parseListLowercase(value: unknown) {
   return parseList(value).map((item) => item.toLowerCase())
 }
 
+function parseFloatNumber(value: unknown) {
+  if (typeof value !== 'string') {
+    return value
+  }
+
+  const cleaned = value.replace(/,/g, '').trim()
+
+  return cleaned ? Number(cleaned) : undefined
+}
+
 export const createProductSchema = z
   .object({
     name: z.string().trim().min(1, 'enter the product name.'),
@@ -94,18 +104,34 @@ export const createProductSchema = z
       z.array(z.enum(productColorOptions)).default([]),
     ),
     details: z.preprocess(parseList, z.array(z.string()).default([])),
+    goldWeightGrams: z.preprocess(
+      parseFloatNumber,
+      z.number().min(0, 'gold weight cannot be negative.').optional(),
+    ),
+    goldKarats: z.preprocess(
+      parseListLowercase,
+      z.array(z.string()).default([]),
+    ),
+    makingCharge: z.preprocess(
+      parseFloatNumber,
+      z.number().min(0, 'making charge cannot be negative.').optional(),
+    ),
   })
   .transform((product) => ({
     ...product,
     label: product.label ?? null,
     price: product.pricingType === 'price_on_request' ? null : product.price ?? null,
+    goldWeightGrams: product.goldWeightGrams ?? null,
+    goldKarats: product.goldKarats ?? [],
+    makingCharge: product.makingCharge ?? 0,
   }))
   .superRefine((product, context) => {
-    if (product.pricingType !== 'price_on_request' && product.price === null) {
+    if (product.pricingType !== 'price_on_request' && product.price === null && !product.goldWeightGrams) {
       context.addIssue({
         code: 'custom',
         path: ['price'],
-        message: 'enter a price for fixed or starting-from pricing.',
+        message: 'enter a fixed price or gold weight in grams.',
       })
     }
   })
+

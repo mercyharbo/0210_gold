@@ -1,17 +1,19 @@
 'use client'
 
 import { useState, useTransition } from 'react'
+
 import {
   Bell,
   Building,
   CreditCard,
   Globe,
+  RefreshCw,
   Save,
   Shield,
   Sliders,
 } from 'lucide-react'
 
-import { updateStoreSettingsAction } from '@/app/(admin)/admin/settings/actions'
+import { syncGoldRatesAction, updateStoreSettingsAction } from '@/app/(admin)/admin/settings/actions'
 import { Button } from '@/components/ui/button'
 import { Spinner } from '@/components/ui/spinner'
 import type { StoreSettingsRecord } from '@/lib/settings/types'
@@ -27,10 +29,34 @@ export function SettingsClient({ initialSettings }: SettingsClientProps) {
   const [activeTab, setActiveTab] = useState<TabKey>('general')
   const [formData, setFormData] = useState<StoreSettingsRecord>(initialSettings)
   const [isPending, startTransition] = useTransition()
+  const [isSyncingGold, setIsSyncingGold] = useState(false)
   const { toast } = useToast()
 
   const handleInputChange = (field: keyof StoreSettingsRecord, value: any) => {
     setFormData((prev) => ({ ...prev, [field]: value }))
+  }
+
+  const handleSyncGoldRates = async () => {
+    setIsSyncingGold(true)
+    try {
+      const res = await syncGoldRatesAction()
+      if (res.success && res.rates) {
+        setFormData((prev) => ({
+          ...prev,
+          gold_rate_18k: res.rates!['18k'],
+          gold_rate_22k: res.rates!['22k'],
+          gold_rate_24k: res.rates!['24k'],
+          last_gold_rate_update: new Date().toISOString(),
+        }))
+        toast('Gold market rates synced successfully from live market API.', 'success')
+      } else {
+        toast(res.message || 'Failed to sync live gold rates. You can edit rates manually below.', 'error')
+      }
+    } catch {
+      toast('Failed to sync gold rates.', 'error')
+    } finally {
+      setIsSyncingGold(false)
+    }
   }
 
   const handleSubmit = (e?: React.FormEvent) => {
@@ -48,7 +74,7 @@ export function SettingsClient({ initialSettings }: SettingsClientProps) {
 
   const tabs: Array<{ id: TabKey; label: string; icon: any }> = [
     { id: 'general', label: 'General Info', icon: Building },
-    { id: 'currency', label: 'Currency & Sourcing', icon: Globe },
+    { id: 'currency', label: 'Currency & Gold Rates', icon: Globe },
     { id: 'shipping', label: 'Shipping & Delivery', icon: Sliders },
     { id: 'payments', label: 'Payment Gateway', icon: CreditCard },
     { id: 'notifications', label: 'Notifications', icon: Bell },
@@ -85,7 +111,7 @@ export function SettingsClient({ initialSettings }: SettingsClientProps) {
         <Button
           type='submit'
           disabled={isPending}
-          className='bg-black text-white hover:bg-gold hover:text-black h-9 mb-2.5 px-5 text-xs font-semibold gap-2 rounded-none cursor-pointer shrink-0'
+          className='bg-black text-white hover:bg-gold hover:text-white h-9 mb-2.5 px-5 text-xs font-semibold gap-2 rounded-none cursor-pointer shrink-0'
         >
           {isPending ? <Spinner className='size-4' /> : <Save className='size-4' />}
           Save Configurations
@@ -161,14 +187,74 @@ export function SettingsClient({ initialSettings }: SettingsClientProps) {
         {/* Tab 2: Currency & Sourcing Rates */}
         {activeTab === 'currency' && (
           <div className='space-y-6 animate-in fade-in duration-150'>
-            <div className='border-b border-border/60 pb-3'>
-              <h2 className='text-base font-bold text-foreground font-sans'>Currency & Sourcing Exchange Rates</h2>
-              <p className='text-xs text-muted-foreground'>
-                Configure primary storefront currency and international sourcing conversion multipliers.
-              </p>
+            <div className='flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-border/60 pb-3'>
+              <div>
+                <h2 className='text-base font-bold text-foreground font-sans'>Gold Market Rates & Currency Conversions</h2>
+                <p className='text-xs text-muted-foreground'>
+                  Configure per-gram gold rates (18k, 22k, 24k) and currency exchange rates.
+                </p>
+              </div>
+              <Button
+                type='button'
+                onClick={handleSyncGoldRates}
+                disabled={isSyncingGold}
+                variant='outline'
+                className='h-9 text-xs font-semibold gap-2 border-black/20 hover:border-black cursor-pointer'
+              >
+                {isSyncingGold ? <Spinner className='size-3.5' /> : <RefreshCw className='size-3.5 text-gold' />}
+                {isSyncingGold ? 'Syncing Live Rates...' : 'Sync Gold Rates Now'}
+              </Button>
             </div>
 
-            <div className='grid sm:grid-cols-2 gap-5 text-xs'>
+            {/* Gold Per Gram Market Rates */}
+            <div className='p-4 bg-amber-50/50 border border-amber-200/60 rounded-lg space-y-4'>
+              <div className='flex items-center justify-between'>
+                <h3 className='text-xs font-bold uppercase tracking-wider text-amber-950'>
+                  Active Gold Per-Gram Rates (NGN ₦/g)
+                </h3>
+                {formData.last_gold_rate_update && (
+                  <span className='text-3xs text-muted-foreground'>
+                    Last updated: {new Date(formData.last_gold_rate_update).toLocaleString()}
+                  </span>
+                )}
+              </div>
+              <div className='grid sm:grid-cols-3 gap-4 text-xs'>
+                <div className='space-y-1.5'>
+                  <label className='font-bold text-foreground block'>18K Gold Rate (₦ / gram)</label>
+                  <input
+                    type='number'
+                    value={formData.gold_rate_18k}
+                    onChange={(e) => handleInputChange('gold_rate_18k', Number(e.target.value))}
+                    className='w-full h-10 px-3 bg-white border border-border rounded-md outline-none focus:border-gold font-bold text-foreground'
+                  />
+                  <span className='text-3xs text-muted-foreground'>Default: ₦133,700/g</span>
+                </div>
+
+                <div className='space-y-1.5'>
+                  <label className='font-bold text-foreground block'>22K Gold Rate (₦ / gram)</label>
+                  <input
+                    type='number'
+                    value={formData.gold_rate_22k}
+                    onChange={(e) => handleInputChange('gold_rate_22k', Number(e.target.value))}
+                    className='w-full h-10 px-3 bg-white border border-border rounded-md outline-none focus:border-gold font-bold text-foreground'
+                  />
+                  <span className='text-3xs text-muted-foreground'>Default: ₦163,400/g</span>
+                </div>
+
+                <div className='space-y-1.5'>
+                  <label className='font-bold text-foreground block'>24K Gold Rate (₦ / gram)</label>
+                  <input
+                    type='number'
+                    value={formData.gold_rate_24k}
+                    onChange={(e) => handleInputChange('gold_rate_24k', Number(e.target.value))}
+                    className='w-full h-10 px-3 bg-white border border-border rounded-md outline-none focus:border-gold font-bold text-foreground'
+                  />
+                  <span className='text-3xs text-muted-foreground'>Default: ₦178,300/g</span>
+                </div>
+              </div>
+            </div>
+
+            <div className='grid sm:grid-cols-2 gap-5 text-xs pt-2'>
               <div className='space-y-1.5'>
                 <label className='font-semibold text-foreground block'>Primary Base Currency</label>
                 <input
@@ -190,7 +276,7 @@ export function SettingsClient({ initialSettings }: SettingsClientProps) {
                 <span className='text-3xs text-muted-foreground'>Used to calculate UK luxury sourcing item prices in Naira.</span>
               </div>
 
-              <div className='space-y-1.5'>
+              <div className='space-y-1.5 sm:col-span-2'>
                 <label className='font-semibold text-foreground block'>USD Sourcing Rate ($1 = ₦)</label>
                 <input
                   type='number'
@@ -203,6 +289,7 @@ export function SettingsClient({ initialSettings }: SettingsClientProps) {
             </div>
           </div>
         )}
+
 
         {/* Tab 3: Shipping & Delivery */}
         {activeTab === 'shipping' && (

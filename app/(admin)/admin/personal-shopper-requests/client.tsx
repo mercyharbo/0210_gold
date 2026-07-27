@@ -263,7 +263,7 @@ export function PersonalShopperRequestsClient({ initialRequests }: ClientProps) 
                   <Button
                     type='button'
                     size='sm'
-                    className='h-10 px-6 bg-black text-white hover:bg-gold hover:text-black text-xs font-semibold cursor-pointer'
+                    className='h-10 px-6 bg-black text-white hover:bg-gold hover:text-white text-xs font-semibold cursor-pointer'
                   >
                     Apply Filters
                   </Button>
@@ -481,7 +481,7 @@ export function PersonalShopperRequestsClient({ initialRequests }: ClientProps) 
                 size='sm'
                 disabled={isPending}
                 onClick={handleUpdate}
-                className='h-10 text-xs gap-2 bg-black text-white hover:bg-gold hover:text-black cursor-pointer'
+                className='h-10 text-xs gap-2 bg-black text-white hover:bg-gold hover:text-white cursor-pointer'
               >
                 {isPending ? <Loader2 className='size-3.5 animate-spin' /> : 'Save Changes'}
               </Button>

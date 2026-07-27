@@ -106,7 +106,7 @@ export function CategoryPreferencesMultiSelect({
           {selectedCategories.map((category) => (
             <span
               key={category.id}
-              className='bg-gold/10 px-3 py-1 text-xs font-semibold text-black'
+              className='bg-gold px-3 py-1 text-xs font-semibold text-white'
             >
               {category.name}
             </span>

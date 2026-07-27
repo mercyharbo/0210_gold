@@ -243,7 +243,7 @@ export function ProfileSidebarTabs({
                 </div>
                 <Link
                   href='/make-a-request'
-                  className='inline-flex h-10 items-center justify-center bg-black px-4 text-xs font-semibold uppercase text-white transition-colors hover:bg-gold hover:text-black rounded-none shrink-0'
+                  className='inline-flex h-10 items-center justify-center bg-black px-4 text-xs font-semibold uppercase text-white transition-colors hover:bg-gold hover:text-white rounded-none shrink-0'
                 >
                   New Request
                 </Link>

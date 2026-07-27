@@ -59,13 +59,17 @@ function getProductImageUploadErrorMessage(message: string) {
 function getProductWriteErrorMessage(error: { code?: string; message: string }) {
   const normalizedMessage = error.message.toLowerCase()
 
+  if (normalizedMessage.includes('gold_') || normalizedMessage.includes('making_charge')) {
+    return 'gold karat pricing columns are missing. run supabase/16-gold-karat-pricing.sql in Supabase SQL editor.'
+  }
+
   if (
     error.code === 'PGRST204' ||
     error.code === '42703' ||
     normalizedMessage.includes('image_urls') ||
     normalizedMessage.includes('schema cache')
   ) {
-    return 'product image gallery storage is not ready. run supabase/08-product-image-gallery.sql, then refresh the supabase schema cache and try again.'
+    return 'product schema columns are not synchronized. run migrations in supabase/ directory, then refresh schema cache.'
   }
 
   if (error.code === '23505') {
@@ -74,6 +78,7 @@ function getProductWriteErrorMessage(error: { code?: string; message: string }) 
 
   return `unable to save product: ${error.message}`
 }
+
 
 function getProductImageStoragePath(pathOrUrl: string) {
   if (!pathOrUrl.startsWith('http')) {
@@ -284,6 +289,9 @@ export async function createProduct(input: CreateProductInput) {
     sizes: input.sizes,
     colors: input.colors,
     details: input.details,
+    gold_weight_grams: input.goldWeightGrams,
+    gold_karats: input.goldKarats,
+    making_charge: input.makingCharge,
   })
 
   if (error) {
@@ -319,6 +327,9 @@ export async function updateProduct(
       sizes: input.sizes,
       colors: input.colors,
       details: input.details,
+      gold_weight_grams: input.goldWeightGrams,
+      gold_karats: input.goldKarats,
+      making_charge: input.makingCharge,
     })
     .eq('id', productId)
 

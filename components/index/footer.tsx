@@ -1,6 +1,12 @@
-import { Send } from 'lucide-react'
+import { Clock, Mail, MapPin, Phone, Send } from 'lucide-react'
 import Link from 'next/link'
 import type { SVGProps } from 'react'
+
+import { defaultStoreSettings, type StoreSettingsRecord } from '@/lib/settings/types'
+
+type IndexFooterProps = {
+  settings?: StoreSettingsRecord
+}
 
 const footerGroups = [
   {
@@ -9,7 +15,7 @@ const footerGroups = [
       { href: '/shop', label: 'New Arrivals' },
       { href: '/shop', label: 'Best Sellers' },
       { href: '/categories', label: 'All Collections' },
-      { href: '/shop', label: 'Gift Cards' },
+      { href: '/personal-shopper-request', label: 'UK Personal Shopping' },
     ],
   },
   {
@@ -25,16 +31,8 @@ const footerGroups = [
     title: 'About',
     links: [
       { href: '/about', label: 'Our Story' },
-      { href: '/about', label: 'Quality' },
+      { href: '/about', label: 'Quality & Craftsmanship' },
       { href: '/contact', label: 'Terms & Conditions' },
-    ],
-  },
-  {
-    title: 'Contact',
-    links: [
-      { href: '/contact', label: 'Email Us' },
-      { href: '/contact', label: 'Store Locations' },
-      { href: '/contact', label: 'Social Media' },
     ],
   },
 ]
@@ -79,18 +77,21 @@ const socialLinks = [
   { href: '#', label: 'TikTok', Icon: TiktokIcon },
 ]
 
-export function IndexFooter() {
+export function IndexFooter({ settings = defaultStoreSettings }: IndexFooterProps) {
+  const cleanPhone = settings.support_phone.replace(/[^0-9+]/g, '')
+  const whatsappUrl = `https://wa.me/${cleanPhone.replace('+', '')}`
+
   return (
-    <footer className='bg-black text-white'>
+    <footer className='bg-black text-white font-sans'>
       <div className='mx-auto w-full px-5 py-10 sm:px-8 lg:px-12'>
         <div className='grid gap-10 border-b border-white/15 pb-10 lg:grid-cols-[1.2fr_2fr]'>
+          {/* Newsletter Section */}
           <div className='flex flex-col gap-5'>
             <h2 className='font-heading text-xl font-semibold'>
               Join Our Newsletter
             </h2>
             <p className='max-w-sm text-sm leading-6 text-muted-foreground'>
-              Be the first to know about new arrivals, exclusive offers and
-              style inspiration.
+              Be the first to know about new arrivals, gold price updates, and exclusive personal shopping sourcing.
             </p>
             <form className='flex max-w-md items-center border-b border-white/45'>
               <label htmlFor='newsletter-email' className='sr-only'>
@@ -104,7 +105,7 @@ export function IndexFooter() {
               />
               <button
                 type='submit'
-                className='inline-flex h-11 items-center gap-2 text-xs font-medium'
+                className='inline-flex h-11 items-center gap-2 text-xs font-medium hover:text-gold transition-colors cursor-pointer'
               >
                 Subscribe
                 <Send className='size-4 stroke-[1.6]' />
@@ -112,7 +113,8 @@ export function IndexFooter() {
             </form>
           </div>
 
-          <div className='grid grid-cols-2 gap-8 sm:grid-cols-4'>
+          {/* Nav Groups + Contact Details Column */}
+          <div className='grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4'>
             {footerGroups.map((group) => (
               <div key={group.title} className='flex flex-col gap-5'>
                 <h3 className='font-heading text-sm font-semibold'>
@@ -132,16 +134,65 @@ export function IndexFooter() {
                 </ul>
               </div>
             ))}
+
+            {/* Dynamic Store & Boutique Info Column */}
+            <div className='flex flex-col gap-4 text-xs'>
+              <h3 className='font-heading text-sm font-semibold text-white'>
+                Boutique & Contact
+              </h3>
+              
+              <div className='space-y-3 text-muted-foreground'>
+                {settings.store_address && (
+                  <div className='flex items-start gap-2.5'>
+                    <MapPin className='size-4 text-gold shrink-0 mt-0.5' />
+                    <span className='leading-relaxed'>{settings.store_address}</span>
+                  </div>
+                )}
+
+                {settings.support_phone && (
+                  <div className='flex items-center gap-2.5'>
+                    <Phone className='size-4 text-gold shrink-0' />
+                    <a
+                      href={whatsappUrl}
+                      target='_blank'
+                      rel='noopener noreferrer'
+                      className='hover:text-white transition-colors underline-offset-2 hover:underline'
+                    >
+                      {settings.support_phone} (WhatsApp)
+                    </a>
+                  </div>
+                )}
+
+                {settings.support_email && (
+                  <div className='flex items-center gap-2.5'>
+                    <Mail className='size-4 text-gold shrink-0' />
+                    <a
+                      href={`mailto:${settings.support_email}`}
+                      className='hover:text-white transition-colors underline-offset-2 hover:underline truncate'
+                    >
+                      {settings.support_email}
+                    </a>
+                  </div>
+                )}
+
+                {settings.business_hours && (
+                  <div className='flex items-start gap-2.5'>
+                    <Clock className='size-4 text-gold shrink-0 mt-0.5' />
+                    <span className='leading-relaxed'>{settings.business_hours}</span>
+                  </div>
+                )}
+              </div>
+            </div>
           </div>
         </div>
 
         <div className='grid gap-8 pt-8 lg:grid-cols-[1fr_auto] lg:items-end'>
           <div className='flex flex-col gap-4'>
-            <p className='font-heading text-[clamp(4rem,15vw,12rem)] font-bold leading-none text-white'>
-              FM LUXE
+            <p className='font-heading text-[clamp(3.5rem,12vw,10rem)] font-bold leading-none text-white tracking-tight'>
+              {settings.store_name?.toUpperCase() || 'FM LUXE'}
             </p>
             <p className='text-xs text-muted-foreground'>
-              &copy; 2026 FM LUXE. All Rights Reserved.
+              &copy; {new Date().getFullYear()} {settings.store_name || 'FM LUXE'}. All Rights Reserved.
             </p>
           </div>
 
@@ -164,3 +215,4 @@ export function IndexFooter() {
     </footer>
   )
 }
+

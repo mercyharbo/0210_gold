@@ -72,6 +72,9 @@ export async function createProductAction(
     sizes: formData.getAll('sizes'),
     colors: formData.getAll('colors'),
     details: formData.get('details'),
+    goldWeightGrams: formData.get('goldWeightGrams'),
+    goldKarats: formData.getAll('goldKarats'),
+    makingCharge: formData.get('makingCharge'),
   })
 
   if (!parsed.success) {
@@ -166,6 +169,9 @@ export async function updateProductAction(
     sizes: formData.getAll('sizes'),
     colors: formData.getAll('colors'),
     details: formData.get('details'),
+    goldWeightGrams: formData.get('goldWeightGrams'),
+    goldKarats: formData.getAll('goldKarats'),
+    makingCharge: formData.get('makingCharge'),
   })
 
   if (!parsed.success) {

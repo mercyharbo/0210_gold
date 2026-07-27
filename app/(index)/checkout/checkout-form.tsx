@@ -36,14 +36,18 @@ function loadPaystackScript(): Promise<boolean> {
   })
 }
 
+import type { StoreSettingsRecord } from '@/lib/settings/types'
+
 export type CheckoutFormProps = {
   initialProfile: CustomerProfile | null
   initialAddresses: CustomerAddress[]
+  settings?: StoreSettingsRecord
 }
 
 export function CheckoutForm({
   initialProfile,
   initialAddresses,
+  settings,
 }: CheckoutFormProps) {
   const router = useRouter()
   const { items: cartItems, subtotal, clearCart, isHydrated } = useCart()
@@ -327,6 +331,7 @@ export function CheckoutForm({
               cartItems={cartItems}
               subtotal={subtotal}
               isPending={isPending}
+              settings={settings}
             />
           </div>
         </form>

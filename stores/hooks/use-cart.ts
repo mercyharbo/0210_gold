@@ -11,6 +11,8 @@ export type CartItem = {
   quantity: number
   selectedSize?: string
   selectedColor?: string
+  selectedKarat?: string
+  unitPrice?: number
 }
 
 type CartState = {
@@ -19,14 +21,17 @@ type CartState = {
     product: Product,
     quantity: number,
     size?: string,
-    color?: string
+    color?: string,
+    karat?: string,
+    unitPrice?: number
   ) => void
-  removeItem: (productId: string, size?: string, color?: string) => void
+  removeItem: (productId: string, size?: string, color?: string, karat?: string) => void
   updateQuantity: (
     productId: string,
     quantity: number,
     size?: string,
-    color?: string
+    color?: string,
+    karat?: string
   ) => void
   clearCart: () => void
 }
@@ -35,13 +40,15 @@ export const useCartStore = create<CartState>()(
   persist(
     (set) => ({
       items: [],
-      addItem: (product, quantity, size, color) =>
+      addItem: (product, quantity, size, color, karat, unitPrice) =>
         set((state) => {
+          const effectivePrice = unitPrice ?? product.price ?? 0
           const existingIndex = state.items.findIndex(
             (item) =>
               item.product.id === product.id &&
               item.selectedSize === size &&
-              item.selectedColor === color
+              item.selectedColor === color &&
+              item.selectedKarat === karat
           )
 
           if (existingIndex > -1) {
@@ -49,6 +56,7 @@ export const useCartStore = create<CartState>()(
             updatedItems[existingIndex] = {
               ...updatedItems[existingIndex],
               quantity: updatedItems[existingIndex].quantity + quantity,
+              unitPrice: effectivePrice,
             }
             return { items: updatedItems }
           }
@@ -61,27 +69,31 @@ export const useCartStore = create<CartState>()(
                 quantity,
                 selectedSize: size,
                 selectedColor: color,
+                selectedKarat: karat,
+                unitPrice: effectivePrice,
               },
             ],
           }
         }),
-      removeItem: (productId, size, color) =>
+      removeItem: (productId, size, color, karat) =>
         set((state) => ({
           items: state.items.filter(
             (item) =>
               !(
                 item.product.id === productId &&
                 item.selectedSize === size &&
-                item.selectedColor === color
+                item.selectedColor === color &&
+                item.selectedKarat === karat
               )
           ),
         })),
-      updateQuantity: (productId, quantity, size, color) =>
+      updateQuantity: (productId, quantity, size, color, karat) =>
         set((state) => ({
           items: state.items.map((item) =>
             item.product.id === productId &&
             item.selectedSize === size &&
-            item.selectedColor === color
+            item.selectedColor === color &&
+            item.selectedKarat === karat
               ? { ...item, quantity: Math.max(1, quantity) }
               : item
           ),
@@ -105,7 +117,7 @@ export function useCart() {
   const items = mounted ? store.items : []
   const subtotal = mounted
     ? store.items.reduce(
-        (total, item) => total + (item.product.price ?? 0) * item.quantity,
+        (total, item) => total + (item.unitPrice ?? item.product.price ?? 0) * item.quantity,
         0
       )
     : 0
@@ -124,3 +136,4 @@ export function useCart() {
     isHydrated: mounted,
   }
 }
+

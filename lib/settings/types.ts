@@ -17,6 +17,10 @@ export type StoreSettingsRecord = {
   low_stock_alerts: boolean
   session_expiry_days: number
   mfa_required: boolean
+  gold_rate_18k: number
+  gold_rate_22k: number
+  gold_rate_24k: number
+  last_gold_rate_update?: string | null
 }
 
 export const defaultStoreSettings: StoreSettingsRecord = {
@@ -38,4 +42,9 @@ export const defaultStoreSettings: StoreSettingsRecord = {
   low_stock_alerts: true,
   session_expiry_days: 7,
   mfa_required: false,
+  gold_rate_18k: 133700,
+  gold_rate_22k: 163400,
+  gold_rate_24k: 178300,
+  last_gold_rate_update: null,
 }
+

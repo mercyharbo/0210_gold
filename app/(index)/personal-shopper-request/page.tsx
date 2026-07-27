@@ -148,7 +148,7 @@ export default function PersonalShopperRequestPage() {
               </p>
               <Link
                 href='/contact'
-                className='inline-flex h-11 items-center justify-center gap-2 bg-gold px-6 text-xs font-semibold uppercase tracking-wider text-black transition-colors hover:bg-white'
+                className='inline-flex h-11 items-center justify-center gap-2 bg-gold px-6 text-xs font-semibold uppercase tracking-wider text-white transition-colors hover:bg-white hover:text-black'
               >
                 Contact Concierge
                 <ArrowRight className='size-3.5' />
@@ -349,7 +349,7 @@ export default function PersonalShopperRequestPage() {
                   <button
                     type='submit'
                     disabled={isPending}
-                    className='w-full sm:w-auto inline-flex h-12 items-center justify-center gap-3 bg-black px-8 text-xs font-semibold uppercase tracking-wider text-white transition-colors hover:bg-gold hover:text-black disabled:opacity-50'
+                    className='w-full sm:w-auto inline-flex h-12 items-center justify-center gap-3 bg-black px-8 text-xs font-semibold uppercase tracking-wider text-white transition-colors hover:bg-gold hover:text-white disabled:opacity-50'
                   >
                     {isPending ? (
                       <>

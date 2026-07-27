@@ -1,5 +1,6 @@
 import Image from 'next/image'
 import Link from 'next/link'
+import { getEffectiveProductPrice } from '@/lib/products/gold-pricing'
 import {
   formatProductPrice,
   getProductLabelClassName,
@@ -11,6 +12,8 @@ type ProductCardProps = {
 }
 
 export function ProductCard({ product }: ProductCardProps) {
+  const computedPrice = getEffectiveProductPrice(product)
+
   return (
     <Link href={`/products/${product.slug}`} className='group block text-black'>
       <div className='relative aspect-[4/5] overflow-hidden bg-muted'>
@@ -33,8 +36,9 @@ export function ProductCard({ product }: ProductCardProps) {
 
       <div className='flex flex-col gap-0.5 text-black'>
         <h3 className='font-sans text-[13px] font-medium leading-5'>{product.name}</h3>
-        <p className='text-[12px] font-medium text-muted-foreground'>{formatProductPrice(product)}</p>
+        <p className='text-[12px] font-medium text-muted-foreground'>{formatProductPrice(product, computedPrice)}</p>
       </div>
     </Link>
   )
 }
+

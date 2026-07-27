@@ -4,6 +4,7 @@ import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 
 import { requireUser } from '@/lib/auth/session'
+import { createAdminNotificationAction } from '@/lib/notifications/actions'
 import { createSupabaseServerClient } from '@/lib/supabase/server'
 import { updateProfileCategoryPreferences } from '@/lib/profile/categories'
 import {
@@ -194,6 +195,14 @@ export async function createProductReviewAction(
     console.error('Failed to save product review:', error)
     throw new Error('Failed to save review.')
   }
+
+  // Trigger Admin In-App Notification
+  await createAdminNotificationAction({
+    title: '⭐ New Product Review Submitted',
+    message: `Customer left a ${rating}-star rating: "${comment.trim().slice(0, 60)}${comment.length > 60 ? '...' : ''}"`,
+    type: 'review',
+    link: `/admin/reviews`,
+  })
 
   revalidatePath('/profile')
 }

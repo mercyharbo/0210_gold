@@ -1,5 +1,7 @@
 'use server'
 
+import { createAdminNotificationAction } from '@/lib/notifications/actions'
+import { getStoreSettingsAction } from '@/app/(admin)/admin/settings/actions'
 import { initializePaystackTransaction } from '@/lib/payment/paystack'
 import {
   createSupabaseAdminClient,
@@ -73,14 +75,17 @@ export async function createOrderAction(
     }
   }
 
-  // Calculate amounts
+  // Calculate amounts with dynamic store settings
+  const settings = await getStoreSettingsAction()
   const subtotal = cartItems.reduce(
-    (total, item) => total + (item.product.price ?? 0) * item.quantity,
+    (total, item) => total + (item.unitPrice ?? item.product.price ?? 0) * item.quantity,
     0
   )
   const isOsogbo =
     shippingDetails.shippingCity.trim().toLowerCase() === 'osogbo'
-  const delivery = isOsogbo ? 2000 : 5000
+  const baseDelivery = isOsogbo ? 2000 : (settings.local_shipping_fee ?? 5000)
+  const isFreeShipping = settings.free_shipping_threshold > 0 && subtotal >= settings.free_shipping_threshold
+  const delivery = isFreeShipping ? 0 : baseDelivery
   const total = subtotal + delivery
 
   // Create order via admin client to bypass RLS for guest insertions
@@ -111,16 +116,26 @@ export async function createOrderAction(
     return { success: false, error: 'Failed to place order. Please try again.' }
   }
 
+  // Trigger Admin In-App Notification
+  await createAdminNotificationAction({
+    title: '🛍️ New Order Placed',
+    message: `Order #${order.id.slice(0, 8).toUpperCase()} placed by ${shippingDetails.customerName} for ₦${total.toLocaleString()}`,
+    type: 'order',
+    link: `/admin/orders/${order.id}`,
+  })
+
   // Insert Order Items
   const orderItemsData = cartItems.map((item) => ({
     order_id: order.id,
     product_id: item.product.id,
     product_name: item.product.name,
     quantity: item.quantity,
-    price: item.product.price ?? 0,
+    price: item.unitPrice ?? item.product.price ?? 0,
     selected_color: item.selectedColor || null,
     selected_size: item.selectedSize || null,
+    selected_karat: item.selectedKarat || null,
   }))
+
 
   const { error: itemsError } = await adminSupabase
     .from('order_items')

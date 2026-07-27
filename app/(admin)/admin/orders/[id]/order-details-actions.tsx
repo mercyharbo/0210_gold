@@ -52,7 +52,7 @@ export function OrderDetailsActions({
       <Button
         size='sm'
         onClick={() => setIsStatusOpen(true)}
-        className='h-9 cursor-pointer rounded-none bg-black px-4 text-xs font-semibold text-white hover:bg-gold hover:text-black'
+        className='h-9 cursor-pointer rounded-none bg-black px-4 text-xs font-semibold text-white hover:bg-gold hover:text-white'
       >
         Update Status
       </Button>

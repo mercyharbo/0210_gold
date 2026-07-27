@@ -144,7 +144,7 @@ export function ProductsClient({ products }: ProductsClientProps) {
           />
         </div>
 
-        <Button asChild size='sm' className='bg-black text-white hover:bg-gold hover:text-black gap-2 cursor-pointer h-10 px-4 rounded-none text-xs font-semibold'>
+        <Button asChild size='sm' className='bg-black text-white hover:bg-gold hover:text-white gap-2 cursor-pointer h-10 px-4 rounded-none text-xs font-semibold'>
           <Link href='/admin/products/new'>
             <Plus className='size-4' />
             Add New Product

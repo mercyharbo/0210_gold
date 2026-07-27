@@ -201,7 +201,7 @@ export default async function OrderSuccessPage({
         <div className='flex flex-col sm:flex-row gap-4'>
           <Link
             href='/shop'
-            className='flex-1 inline-flex h-12 items-center justify-center gap-2 bg-black px-6 text-xs font-semibold uppercase tracking-wider text-white transition-colors hover:bg-gold hover:text-black text-center'
+            className='flex-1 inline-flex h-12 items-center justify-center gap-2 bg-black px-6 text-xs font-semibold uppercase tracking-wider text-white transition-colors hover:bg-gold hover:text-white text-center'
           >
             Continue Shopping
             <ArrowRight className='size-4' strokeWidth={1.8} />

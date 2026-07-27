@@ -6,6 +6,7 @@ import { useEffect } from 'react'
 
 import { toggleWishlistItemAction } from '@/app/(index)/profile/actions'
 import type { Product } from '@/components/index/shop/shop-data'
+import { calculateGoldKaratUnitPrice, getEffectiveProductPrice } from '@/lib/products/gold-pricing'
 import { cn } from '@/lib/utils'
 import { useCart } from '@/stores/hooks/use-cart'
 import { useProductDetailStore } from '@/stores/hooks/use-product-detail'
@@ -27,17 +28,35 @@ export function ProductOptions({ product }: ProductOptionsProps) {
     setSelectedSize,
     selectedColor,
     setSelectedColor,
+    selectedKarat,
+    setSelectedKarat,
     isWishlisted,
     setIsWishlisted,
     wishlistPending,
     setWishlistPending,
   } = useProductDetailStore()
 
+  const availableKarats = product.goldKarats && product.goldKarats.length > 0
+    ? product.goldKarats
+    : product.goldWeightGrams
+    ? ['18k', '22k', '24k']
+    : []
+
+  // Initialize selectedKarat if available and not yet set
+  useEffect(() => {
+    if (availableKarats.length > 0 && !selectedKarat) {
+      setSelectedKarat(availableKarats[0])
+    }
+  }, [availableKarats, selectedKarat, setSelectedKarat])
+
+  const currentUnitPrice = getEffectiveProductPrice(product, selectedKarat) ?? product.price ?? 0
+
   const cartItem = cartItems.find(
     (item) =>
       item.product.id === product.id &&
       item.selectedSize === (selectedSize || undefined) &&
-      item.selectedColor === (selectedColor || undefined)
+      item.selectedColor === (selectedColor || undefined) &&
+      item.selectedKarat === (selectedKarat || undefined)
   )
 
   const isAlreadyInCart = !!cartItem
@@ -53,7 +72,7 @@ export function ProductOptions({ product }: ProductOptionsProps) {
     } else {
       setQuantity(1)
     }
-  }, [selectedSize, selectedColor, cartItem, setQuantity])
+  }, [selectedSize, selectedColor, selectedKarat, cartItem, setQuantity])
 
   const handleToggleWishlist = async () => {
     if (wishlistPending) return
@@ -83,7 +102,9 @@ export function ProductOptions({ product }: ProductOptionsProps) {
       product,
       quantity,
       selectedSize || undefined,
-      selectedColor || undefined
+      selectedColor || undefined,
+      selectedKarat || undefined,
+      currentUnitPrice,
     )
     toast(`"${product.name}" added to your shopping cart.`, 'success')
   }
@@ -96,7 +117,8 @@ export function ProductOptions({ product }: ProductOptionsProps) {
         product.id,
         nextQty,
         selectedSize || undefined,
-        selectedColor || undefined
+        selectedColor || undefined,
+        selectedKarat || undefined,
       )
     }
   }
@@ -109,13 +131,44 @@ export function ProductOptions({ product }: ProductOptionsProps) {
         product.id,
         nextQty,
         selectedSize || undefined,
-        selectedColor || undefined
+        selectedColor || undefined,
+        selectedKarat || undefined,
       )
     }
   }
 
   return (
     <div className='flex flex-col gap-6 py-6'>
+      {/* Gold Karat Section */}
+      {availableKarats.length > 0 && (
+        <div className='flex flex-col gap-3'>
+          <p className='text-xs font-medium text-muted-foreground uppercase'>
+            Gold Karat Purity
+          </p>
+          <div className='flex flex-wrap gap-2'>
+            {availableKarats.map((karat) => {
+              const isActive = selectedKarat === karat
+              const karatLabel = karat.toUpperCase()
+              return (
+                <button
+                  key={karat}
+                  type='button'
+                  onClick={() => setSelectedKarat(karat)}
+                  className={cn(
+                    'h-10 min-w-16 border px-4 text-sm font-medium transition-colors cursor-pointer rounded-none',
+                    isActive
+                      ? 'bg-black text-white border-black'
+                      : 'border-black/15 text-black hover:border-black'
+                  )}
+                >
+                  {karatLabel}
+                </button>
+              )
+            })}
+          </div>
+        </div>
+      )}
+
       {/* Sizes Section */}
       {product.sizes.length > 0 && (
         <div className='flex flex-col gap-3'>

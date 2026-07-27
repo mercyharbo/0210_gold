@@ -119,7 +119,7 @@ export function OrderStatusDialog({
             type='button'
             onClick={handleSave}
             disabled={isPending}
-            className='rounded-none h-10 bg-black text-white hover:bg-gold hover:text-black gap-2 cursor-pointer'
+            className='rounded-none h-10 bg-black text-white hover:bg-gold hover:text-white gap-2 cursor-pointer'
           >
             {isPending && <Spinner className='size-3.5 text-current' />}
             Save Changes

@@ -172,7 +172,7 @@ export function TrackOrderClient() {
                 <button
                   type='submit'
                   disabled={isPending}
-                  className='inline-flex h-12 w-full items-center justify-center gap-2 bg-black px-6 text-xs font-semibold uppercase text-white transition-colors hover:bg-gold hover:text-black disabled:opacity-50 cursor-pointer'
+                  className='inline-flex h-12 w-full items-center justify-center gap-2 bg-black px-6 text-xs font-semibold uppercase text-white transition-colors hover:bg-gold hover:text-white disabled:opacity-50 cursor-pointer'
                 >
                   {isPending ? (
                     <>
@@ -201,7 +201,7 @@ export function TrackOrderClient() {
               <div className='flex flex-wrap gap-3 pt-2'>
                 <Link
                   href='/contact'
-                  className='inline-flex h-10 items-center justify-center bg-black px-5 text-xs font-semibold uppercase text-white transition-colors hover:bg-gold hover:text-black'
+                  className='inline-flex h-10 items-center justify-center bg-black px-5 text-xs font-semibold uppercase text-white transition-colors hover:bg-gold hover:text-white'
                 >
                   Contact Support
                 </Link>

@@ -19,6 +19,9 @@ export type Product = {
   sizes: string[]
   colors: string[]
   details: string[]
+  gold_weight_grams?: number | null
+  gold_karats?: string[]
+  making_charge?: number | null
   created_at: string
   updated_at: string
 }
@@ -46,6 +49,10 @@ export type CreateProductInput = {
   sizes: string[]
   colors: string[]
   details: string[]
+  goldWeightGrams?: number | null
+  goldKarats?: string[]
+  makingCharge?: number | null
 }
 
 export type UpdateProductInput = CreateProductInput
+

@@ -184,7 +184,7 @@ export function ShopContent({
               </p>
               <button
                 onClick={handleResetFilters}
-                className='h-10 px-6 bg-black text-white text-xs font-semibold uppercase tracking-wider hover:bg-gold hover:text-black transition-colors'
+                className='h-10 px-6 bg-black text-white text-xs font-semibold uppercase tracking-wider hover:bg-gold hover:text-white transition-colors'
               >
                 Clear All Filters
               </button>

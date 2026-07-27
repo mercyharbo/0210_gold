@@ -395,7 +395,7 @@ export function ReviewsClient({ initialReviews }: ReviewsClientProps) {
                   <Button
                     type='button'
                     size='sm'
-                    className='h-10 px-6 bg-black text-white hover:bg-gold hover:text-black text-xs font-semibold cursor-pointer'
+                    className='h-10 px-6 bg-black text-white hover:bg-gold hover:text-white text-xs font-semibold cursor-pointer'
                   >
                     Apply Filters
                   </Button>

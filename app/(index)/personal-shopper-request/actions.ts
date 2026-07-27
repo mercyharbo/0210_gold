@@ -1,5 +1,6 @@
 'use server'
 
+import { createAdminNotificationAction } from '@/lib/notifications/actions'
 import {
   createSupabaseAdminClient,
   createSupabaseServerClient,
@@ -64,6 +65,14 @@ export async function submitPersonalShopperRequestAction(
     console.error('Personal shopper request creation failed:', error)
     return { success: false, error: 'Failed to submit your request. Please try again.' }
   }
+
+  // Trigger Admin In-App Notification
+  await createAdminNotificationAction({
+    title: '✨ Personal Shopper Request',
+    message: `New ${payload.category} sourcing request submitted by ${payload.fullName.trim()}`,
+    type: 'personal_shopper',
+    link: `/admin/personal-shopper-requests`,
+  })
 
   return { success: true, requestId: request.id }
 }

@@ -90,7 +90,8 @@ export default function CartPage() {
               <div className='divide-y divide-black/10'>
                 {cartItems.map((item) => {
                   const product = item.product
-                  const itemKey = `${product.id}-${item.selectedSize || ''}-${item.selectedColor || ''}`
+                  const effectivePrice = item.unitPrice ?? product.price ?? 0
+                  const itemKey = `${product.id}-${item.selectedKarat || ''}-${item.selectedSize || ''}-${item.selectedColor || ''}`
                   return (
                     <article
                       key={itemKey}
@@ -121,15 +122,19 @@ export default function CartPage() {
                             >
                               {product.name}
                             </Link>
-                            {item.selectedColor || item.selectedSize ? (
+                            {item.selectedKarat || item.selectedColor || item.selectedSize ? (
                               <p className='text-sm text-muted-foreground mt-1'>
-                                {[item.selectedColor, item.selectedSize]
+                                {[
+                                  item.selectedKarat ? `${item.selectedKarat.toUpperCase()} Gold` : null,
+                                  item.selectedColor,
+                                  item.selectedSize,
+                                ]
                                   .filter(Boolean)
                                   .join(' / ')}
                               </p>
                             ) : null}
                             <p className='text-sm font-semibold md:hidden mt-2'>
-                              {formatNaira(product.price ?? 0)}
+                              {formatNaira(effectivePrice)}
                             </p>
                           </div>
 
@@ -139,7 +144,8 @@ export default function CartPage() {
                               removeItem(
                                 product.id,
                                 item.selectedSize,
-                                item.selectedColor
+                                item.selectedColor,
+                                item.selectedKarat
                               )
                               toast(`"${product.name}" removed from your cart.`, 'success')
                             }}
@@ -160,7 +166,8 @@ export default function CartPage() {
                               product.id,
                               item.quantity - 1,
                               item.selectedSize,
-                              item.selectedColor
+                              item.selectedColor,
+                              item.selectedKarat
                             )
                           }
                           disabled={item.quantity <= 1}
@@ -179,7 +186,8 @@ export default function CartPage() {
                               product.id,
                               item.quantity + 1,
                               item.selectedSize,
-                              item.selectedColor
+                              item.selectedColor,
+                              item.selectedKarat
                             )
                           }
                           className='grid size-10 place-items-center transition-colors hover:bg-black hover:text-white'
@@ -189,7 +197,7 @@ export default function CartPage() {
                       </div>
 
                       <p className='hidden text-right text-sm font-semibold md:block'>
-                        {formatNaira((product.price ?? 0) * item.quantity)}
+                        {formatNaira(effectivePrice * item.quantity)}
                       </p>
                     </article>
                   )
@@ -232,7 +240,7 @@ export default function CartPage() {
 
               <Link
                 href='/checkout'
-                className='inline-flex h-12 w-full items-center justify-center gap-2 bg-black px-6 text-sm font-semibold text-white transition-colors hover:bg-gold hover:text-black'
+                className='inline-flex h-12 w-full items-center justify-center gap-2 bg-black px-6 text-sm font-semibold text-white transition-colors hover:bg-gold hover:text-white'
               >
                 Proceed to checkout
                 <ArrowRight className='size-4' strokeWidth={1.8} />

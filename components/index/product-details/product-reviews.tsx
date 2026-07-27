@@ -89,7 +89,7 @@ export function ProductReviews({
         <Button
           type='button'
           onClick={() => setIsFormOpen(!isFormOpen)}
-          className='bg-black text-white hover:bg-gold hover:text-black text-xs font-semibold h-10 px-5 rounded-none cursor-pointer'
+          className='bg-black text-white hover:bg-gold hover:text-white text-xs font-semibold h-10 px-5 rounded-none cursor-pointer'
         >
           {isFormOpen ? 'Cancel' : 'Write a Review'}
         </Button>
@@ -189,7 +189,7 @@ export function ProductReviews({
           <Button
             type='submit'
             disabled={isPending}
-            className='bg-black text-white hover:bg-gold hover:text-black text-xs font-semibold h-11 px-6 gap-2 rounded-none cursor-pointer'
+            className='bg-black text-white hover:bg-gold hover:text-white text-xs font-semibold h-11 px-6 gap-2 rounded-none cursor-pointer'
           >
             {isPending ? (
               <>
