@@ -292,6 +292,8 @@ export async function createProduct(input: CreateProductInput) {
     gold_weight_grams: input.goldWeightGrams,
     gold_karats: input.goldKarats,
     making_charge: input.makingCharge,
+    note: input.note || null,
+    is_gold_karat_priced: Boolean(input.isGoldKaratPriced),
   })
 
   if (error) {
@@ -330,6 +332,8 @@ export async function updateProduct(
       gold_weight_grams: input.goldWeightGrams,
       gold_karats: input.goldKarats,
       making_charge: input.makingCharge,
+      note: input.note || null,
+      is_gold_karat_priced: Boolean(input.isGoldKaratPriced),
     })
     .eq('id', productId)
 

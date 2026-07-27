@@ -116,6 +116,11 @@ export const createProductSchema = z
       parseFloatNumber,
       z.number().min(0, 'making charge cannot be negative.').optional(),
     ),
+    note: z.preprocess(optionalText, z.string().optional()),
+    isGoldKaratPriced: z.preprocess(
+      (value) => value === 'true' || value === true || value === 'on',
+      z.boolean().default(false),
+    ),
   })
   .transform((product) => ({
     ...product,
@@ -124,6 +129,8 @@ export const createProductSchema = z
     goldWeightGrams: product.goldWeightGrams ?? null,
     goldKarats: product.goldKarats ?? [],
     makingCharge: product.makingCharge ?? 0,
+    note: product.note ?? null,
+    isGoldKaratPriced: product.isGoldKaratPriced ?? false,
   }))
   .superRefine((product, context) => {
     if (product.pricingType !== 'price_on_request' && product.price === null && !product.goldWeightGrams) {

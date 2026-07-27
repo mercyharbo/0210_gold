@@ -23,6 +23,8 @@ export type Product = {
   goldWeightGrams?: number | null
   goldKarats?: string[]
   makingCharge?: number | null
+  note?: string | null
+  isGoldKaratPriced?: boolean
 }
 
 const priceFormatter = new Intl.NumberFormat('en-NG', {

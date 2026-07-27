@@ -20,6 +20,7 @@ export default async function AdminProductsPage() {
     category_name: p.categories?.name,
     image_src: p.image_src || (p.image_urls?.[0] ?? '/images/placeholder.jpg'),
     created_at: p.created_at,
+    making_charge: p.making_charge,
   }))
 
   return (

@@ -22,6 +22,8 @@ export type Product = {
   gold_weight_grams?: number | null
   gold_karats?: string[]
   making_charge?: number | null
+  note?: string | null
+  is_gold_karat_priced?: boolean
   created_at: string
   updated_at: string
 }
@@ -52,6 +54,8 @@ export type CreateProductInput = {
   goldWeightGrams?: number | null
   goldKarats?: string[]
   makingCharge?: number | null
+  note?: string | null
+  isGoldKaratPriced?: boolean
 }
 
 export type UpdateProductInput = CreateProductInput

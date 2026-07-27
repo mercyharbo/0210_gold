@@ -29,6 +29,7 @@ type ProductsClientProps = {
     category_name?: string
     image_src: string
     created_at: string
+    making_charge?: number | null
   }>
 }
 
@@ -258,8 +259,19 @@ export function ProductsClient({ products }: ProductsClientProps) {
                       <td className='px-4 py-3 text-xs text-muted-foreground'>
                         {p.category_name || 'Uncategorized'}
                       </td>
-                      <td className='px-4 py-3 text-xs font-bold text-foreground'>
-                        {p.price !== null ? formatNaira(p.price) : 'On Demand'}
+                      <td className='px-4 py-3 text-xs'>
+                        <div className='flex flex-col space-y-0.5'>
+                          <span className='font-bold text-foreground'>
+                            {p.price !== null ? formatNaira(p.price + (p.making_charge || 0)) : 'On Demand'}
+                          </span>
+                          {p.making_charge && p.making_charge > 0 ? (
+                            <span className='text-3xs text-muted-foreground'>
+                              Base: {formatNaira(p.price || 0)} | Workmanship: {formatNaira(p.making_charge)}
+                            </span>
+                          ) : (
+                            <span className='text-3xs text-muted-foreground italic'>Fixed retail price</span>
+                          )}
+                        </div>
                       </td>
                       <td className='px-4 py-3 text-center text-xs font-medium text-foreground'>
                         {p.stock ?? 0}

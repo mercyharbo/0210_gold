@@ -81,7 +81,7 @@ export function getEffectiveProductPrice(
   selectedKarat?: string | null,
   rates: GoldRates = DEFAULT_GOLD_RATES,
 ): number | null {
-  // If a specific karat is selected and the product has gold weight, calculate that karat's price
+  // If a specific karat is selected by the user and the product has gold weight
   if (selectedKarat && product.goldWeightGrams && product.goldWeightGrams > 0) {
     const calculated = calculateGoldKaratUnitPrice(
       product.goldWeightGrams,
@@ -92,8 +92,8 @@ export function getEffectiveProductPrice(
     if (calculated > 0) return calculated
   }
 
-  // If product has gold weight and default karats exist, use first available karat price
-  if (product.goldWeightGrams && product.goldWeightGrams > 0) {
+  // Only calculate dynamic per-gram market pricing if explicitly enabled for this product
+  if (product.isGoldKaratPriced && product.goldWeightGrams && product.goldWeightGrams > 0) {
     const karats = product.goldKarats && product.goldKarats.length > 0
       ? product.goldKarats
       : ['18k', '22k', '24k']
@@ -109,6 +109,6 @@ export function getEffectiveProductPrice(
     }
   }
 
-  // Fallback to product.price (for fixed price items or items without gold weight)
+  // Default to exact admin-set product.price
   return product.price
 }

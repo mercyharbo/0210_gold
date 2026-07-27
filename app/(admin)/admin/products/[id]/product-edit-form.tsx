@@ -359,6 +359,7 @@ export function ProductEditForm({
                     </FieldDescription>
                   </Field>
                 </div>
+
                 <Field>
                   <FieldLabel>Supported Gold Karats</FieldLabel>
                   <ProductOptionMultiSelect
@@ -371,6 +372,34 @@ export function ProductEditForm({
                     Select which gold purities are available for this item.
                   </FieldDescription>
                 </Field>
+
+                <Field>
+                  <FieldLabel htmlFor='note'>Product Note / Pricing Notice</FieldLabel>
+                  <Textarea
+                    id='note'
+                    name='note'
+                    rows={3}
+                    defaultValue={product.note ?? ''}
+                    placeholder='e.g. Pricing Notice: The product price is calculated according to gold market rates and weight...'
+                  />
+                  <FieldDescription>
+                    Dedicated notice displayed in a clean box on the product details page.
+                  </FieldDescription>
+                </Field>
+
+                <div className='flex items-center gap-3 rounded-lg border border-border p-3.5 bg-muted/30'>
+                  <input
+                    type='checkbox'
+                    id='isGoldKaratPriced'
+                    name='isGoldKaratPriced'
+                    value='true'
+                    defaultChecked={Boolean(product.is_gold_karat_priced)}
+                    className='size-4 rounded border-gray-300 text-gold focus:ring-gold cursor-pointer'
+                  />
+                  <label htmlFor='isGoldKaratPriced' className='text-sm font-medium text-foreground cursor-pointer'>
+                    Enable Dynamic Gold Karat Market Pricing (Calculate price per gram from live gold rates)
+                  </label>
+                </div>
               </FieldGroup>
             </CardContent>
           </Card>

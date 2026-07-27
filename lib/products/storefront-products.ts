@@ -29,6 +29,8 @@ function mapStorefrontProduct(product: AdminProductListItem): StorefrontProduct 
     goldWeightGrams: product.gold_weight_grams,
     goldKarats: product.gold_karats,
     makingCharge: product.making_charge,
+    note: product.note || null,
+    isGoldKaratPriced: Boolean(product.is_gold_karat_priced),
   }
 }
 

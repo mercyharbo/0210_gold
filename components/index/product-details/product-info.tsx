@@ -49,18 +49,44 @@ export function ProductInfo({ product }: ProductInfoProps) {
         <p className='text-sm font-medium text-muted-foreground'>
           {product.category}
         </p>
-        <div className='flex flex-col gap-2'>
+        <div className='flex flex-col gap-2.5'>
           <h1 className='font-heading text-4xl font-bold leading-tight sm:text-5xl text-black'>
             {product.name}
           </h1>
-          <div className='flex items-baseline gap-3'>
+
+          {/* Karat Badge positioned below product title */}
+          {selectedKarat ? (
+            <div className='flex items-center gap-2 pt-0.5'>
+              <span className='inline-flex rounded-full bg-gold px-3 py-0.5 text-xs font-semibold text-white uppercase tracking-wider'>
+                {selectedKarat} Gold
+              </span>
+              {product.goldWeightGrams && product.goldWeightGrams > 0 ? (
+                <span className='text-xs font-medium text-muted-foreground'>
+                  ({product.goldWeightGrams}g)
+                </span>
+              ) : null}
+            </div>
+          ) : product.goldKarats && product.goldKarats.length > 0 ? (
+            <div className='flex items-center gap-2 pt-0.5'>
+              <span className='inline-flex rounded-full bg-gold px-3 py-0.5 text-xs font-semibold text-white uppercase tracking-wider'>
+                {product.goldKarats[0]} Gold
+              </span>
+              {product.goldWeightGrams && product.goldWeightGrams > 0 ? (
+                <span className='text-xs font-medium text-muted-foreground'>
+                  ({product.goldWeightGrams}g)
+                </span>
+              ) : null}
+            </div>
+          ) : null}
+
+          <div className='flex flex-col gap-1 pt-1'>
             <p className='font-sans text-2xl font-bold sm:text-3xl text-black'>
               {formatProductPrice(product, computedPrice)}
             </p>
-            {selectedKarat ? (
-              <span className='rounded-full bg-gold px-2.5 py-0.5 text-xs font-semibold text-white uppercase'>
-                {selectedKarat} Gold
-              </span>
+            {product.makingCharge && product.makingCharge > 0 ? (
+              <p className='text-xs text-muted-foreground'>
+                Includes craftsmanship & workmanship fee
+              </p>
             ) : null}
           </div>
         </div>

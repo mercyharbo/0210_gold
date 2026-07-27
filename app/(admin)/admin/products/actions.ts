@@ -75,6 +75,8 @@ export async function createProductAction(
     goldWeightGrams: formData.get('goldWeightGrams'),
     goldKarats: formData.getAll('goldKarats'),
     makingCharge: formData.get('makingCharge'),
+    note: formData.get('note'),
+    isGoldKaratPriced: formData.get('isGoldKaratPriced'),
   })
 
   if (!parsed.success) {
@@ -172,6 +174,8 @@ export async function updateProductAction(
     goldWeightGrams: formData.get('goldWeightGrams'),
     goldKarats: formData.getAll('goldKarats'),
     makingCharge: formData.get('makingCharge'),
+    note: formData.get('note'),
+    isGoldKaratPriced: formData.get('isGoldKaratPriced'),
   })
 
   if (!parsed.success) {

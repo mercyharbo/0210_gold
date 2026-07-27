@@ -1,6 +1,6 @@
 'use client'
 
-import { ArrowLeft, ChevronLeft, ChevronRight, X } from 'lucide-react'
+import { ArrowLeft, ChevronLeft, ChevronRight, Info, X } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useEffect } from 'react'
@@ -113,6 +113,19 @@ export function ProductDetailView({
                   ))}
                 </ul>
               </div>
+
+              {/* Dedicated Product Note / Pricing Notice */}
+              {product.note ? (
+                <div className='mb-6 rounded-lg border border-gold/40 bg-gold/5 p-4 text-sm leading-relaxed text-black/80'>
+                  <div className='flex items-center gap-2 font-semibold text-gold pb-1.5'>
+                    <Info className='size-4 text-gold shrink-0' />
+                    <span>Important Note & Pricing Notice</span>
+                  </div>
+                  <p className='whitespace-pre-line text-xs font-normal text-muted-foreground'>
+                    {product.note}
+                  </p>
+                </div>
+              ) : null}
 
               {/* Product Customer Reviews */}
               <ProductReviews
