@@ -13,6 +13,7 @@ import { AdminPlaceholderCard } from '@/components/admin/admin-placeholder-card'
 import { BulkActionsBar } from '@/components/admin/bulk-actions-bar'
 import { ConfirmDialog } from '@/components/admin/confirm-dialog'
 import { formatNaira } from '@/components/index/shop/shop-data'
+import { getEffectiveProductPrice } from '@/lib/products/gold-pricing'
 import { Button } from '@/components/ui/button'
 import { Spinner } from '@/components/ui/spinner'
 import { StatusBadge } from '@/components/ui/status-badge'
@@ -30,6 +31,10 @@ type ProductsClientProps = {
     image_src: string
     created_at: string
     making_charge?: number | null
+    is_gold_karat_priced?: boolean
+    gold_weight_grams?: number | null
+    gold_karats?: string[]
+    pricing_type?: string
   }>
 }
 
@@ -260,18 +265,50 @@ export function ProductsClient({ products }: ProductsClientProps) {
                         {p.category_name || 'Uncategorized'}
                       </td>
                       <td className='px-4 py-3 text-xs'>
-                        <div className='flex flex-col space-y-0.5'>
-                          <span className='font-bold text-foreground'>
-                            {p.price !== null ? formatNaira(p.price + (p.making_charge || 0)) : 'On Demand'}
-                          </span>
-                          {p.making_charge && p.making_charge > 0 ? (
-                            <span className='text-3xs text-muted-foreground'>
-                              Base: {formatNaira(p.price || 0)} | Workmanship: {formatNaira(p.making_charge)}
-                            </span>
-                          ) : (
-                            <span className='text-3xs text-muted-foreground italic'>Fixed retail price</span>
-                          )}
-                        </div>
+                        {(() => {
+                          const displayPrice = getEffectiveProductPrice({
+                            id: p.id,
+                            slug: p.slug,
+                            name: p.name,
+                            category: p.category_name || '',
+                            categorySlug: null,
+                            colors: [],
+                            createdAt: p.created_at,
+                            details: [],
+                            description: '',
+                            imageAlt: p.name,
+                            imageSrc: p.image_src,
+                            imageUrls: [p.image_src],
+                            label: null,
+                            price: p.price,
+                            pricingType: (p.pricing_type as any) || 'fixed',
+                            sizes: [],
+                            stock: p.stock ?? 0,
+                            goldWeightGrams: p.gold_weight_grams,
+                            goldKarats: p.gold_karats,
+                            makingCharge: p.making_charge,
+                            isGoldKaratPriced: p.is_gold_karat_priced,
+                          })
+
+                          return (
+                            <div className='flex flex-col space-y-0.5'>
+                              <span className='font-bold text-foreground'>
+                                {displayPrice !== null ? formatNaira(displayPrice) : 'On Demand'}
+                              </span>
+                              {p.is_gold_karat_priced ? (
+                                <span className='text-3xs font-medium text-gold'>
+                                  Dynamic Gold Market Rate | Workmanship: {formatNaira(p.making_charge || 0)}
+                                </span>
+                              ) : p.making_charge && p.making_charge > 0 ? (
+                                <span className='text-3xs text-muted-foreground'>
+                                  Base: {formatNaira(p.price || 0)} | Workmanship: {formatNaira(p.making_charge)}
+                                </span>
+                              ) : (
+                                <span className='text-3xs text-muted-foreground italic'>Fixed retail price</span>
+                              )}
+                            </div>
+                          )
+                        })()}
                       </td>
                       <td className='px-4 py-3 text-center text-xs font-medium text-foreground'>
                         {p.stock ?? 0}

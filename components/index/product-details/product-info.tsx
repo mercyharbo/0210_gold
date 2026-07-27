@@ -13,9 +13,10 @@ type ProductInfoProps = {
 }
 
 export function ProductInfo({ product }: ProductInfoProps) {
-  const { descriptionOpen, setDescriptionOpen, selectedKarat } = useProductDetailStore()
+  const { descriptionOpen, setDescriptionOpen, selectedKarat, selectedWeightGrams } = useProductDetailStore()
 
-  const computedPrice = getEffectiveProductPrice(product, selectedKarat)
+  const activeWeight = selectedWeightGrams ?? product.goldWeightGrams ?? 1
+  const computedPrice = getEffectiveProductPrice(product, selectedKarat, undefined, activeWeight)
 
   const descriptionParagraphs = product.description.split('\n\n')
   const descriptionHasMore = descriptionParagraphs.length > 2
@@ -60,22 +61,18 @@ export function ProductInfo({ product }: ProductInfoProps) {
               <span className='inline-flex rounded-full bg-gold px-3 py-0.5 text-xs font-semibold text-white uppercase tracking-wider'>
                 {selectedKarat} Gold
               </span>
-              {product.goldWeightGrams && product.goldWeightGrams > 0 ? (
-                <span className='text-xs font-medium text-muted-foreground'>
-                  ({product.goldWeightGrams}g)
-                </span>
-              ) : null}
+              <span className='text-xs font-medium text-muted-foreground'>
+                ({activeWeight}g)
+              </span>
             </div>
           ) : product.goldKarats && product.goldKarats.length > 0 ? (
             <div className='flex items-center gap-2 pt-0.5'>
               <span className='inline-flex rounded-full bg-gold px-3 py-0.5 text-xs font-semibold text-white uppercase tracking-wider'>
                 {product.goldKarats[0]} Gold
               </span>
-              {product.goldWeightGrams && product.goldWeightGrams > 0 ? (
-                <span className='text-xs font-medium text-muted-foreground'>
-                  ({product.goldWeightGrams}g)
-                </span>
-              ) : null}
+              <span className='text-xs font-medium text-muted-foreground'>
+                ({activeWeight}g)
+              </span>
             </div>
           ) : null}
 
@@ -83,11 +80,6 @@ export function ProductInfo({ product }: ProductInfoProps) {
             <p className='font-sans text-2xl font-bold sm:text-3xl text-black'>
               {formatProductPrice(product, computedPrice)}
             </p>
-            {product.makingCharge && product.makingCharge > 0 ? (
-              <p className='text-xs text-muted-foreground'>
-                Includes craftsmanship & workmanship fee
-              </p>
-            ) : null}
           </div>
         </div>
       </div>

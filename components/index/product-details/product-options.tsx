@@ -30,6 +30,8 @@ export function ProductOptions({ product }: ProductOptionsProps) {
     setSelectedColor,
     selectedKarat,
     setSelectedKarat,
+    selectedWeightGrams,
+    setSelectedWeightGrams,
     isWishlisted,
     setIsWishlisted,
     wishlistPending,
@@ -42,14 +44,20 @@ export function ProductOptions({ product }: ProductOptionsProps) {
     ? ['18k', '22k', '24k']
     : []
 
-  // Initialize selectedKarat if available and not yet set
+  const gramWeightOptions = [0.5, 1.0, 1.5, 2.0, 2.5, 3.0, 5.0]
+  const activeWeight = selectedWeightGrams ?? product.goldWeightGrams ?? 1.0
+
+  // Initialize selectedKarat and selectedWeightGrams if not set
   useEffect(() => {
     if (availableKarats.length > 0 && !selectedKarat) {
       setSelectedKarat(availableKarats[0])
     }
-  }, [availableKarats, selectedKarat, setSelectedKarat])
+    if (selectedWeightGrams === null) {
+      setSelectedWeightGrams(product.goldWeightGrams || 1.0)
+    }
+  }, [availableKarats, selectedKarat, setSelectedKarat, selectedWeightGrams, setSelectedWeightGrams, product.goldWeightGrams])
 
-  const currentUnitPrice = getEffectiveProductPrice(product, selectedKarat) ?? product.price ?? 0
+  const currentUnitPrice = getEffectiveProductPrice(product, selectedKarat, undefined, activeWeight) ?? product.price ?? 0
 
   const cartItem = cartItems.find(
     (item) =>
@@ -139,10 +147,39 @@ export function ProductOptions({ product }: ProductOptionsProps) {
 
   return (
     <div className='flex flex-col gap-6 py-6'>
+      {/* Gold Weight Gram Selector */}
+      {(product.goldWeightGrams || product.goldKarats?.length || product.isGoldKaratPriced) ? (
+        <div className='flex flex-col gap-3'>
+          <p className='text-xs font-medium text-muted-foreground uppercase tracking-wider'>
+            Select Gram Weight
+          </p>
+          <div className='flex flex-wrap gap-2'>
+            {gramWeightOptions.map((w) => {
+              const isActive = activeWeight === w
+              return (
+                <button
+                  key={w}
+                  type='button'
+                  onClick={() => setSelectedWeightGrams(w)}
+                  className={cn(
+                    'h-10 min-w-14 border px-3 text-sm font-medium transition-colors cursor-pointer rounded-none',
+                    isActive
+                      ? 'bg-black text-white border-black'
+                      : 'border-black/15 text-black hover:border-black'
+                  )}
+                >
+                  {w}g
+                </button>
+              )
+            })}
+          </div>
+        </div>
+      ) : null}
+
       {/* Gold Karat Section */}
       {availableKarats.length > 0 && (
         <div className='flex flex-col gap-3'>
-          <p className='text-xs font-medium text-muted-foreground uppercase'>
+          <p className='text-xs font-medium text-muted-foreground uppercase tracking-wider'>
             Gold Karat Purity
           </p>
           <div className='flex flex-wrap gap-2'>

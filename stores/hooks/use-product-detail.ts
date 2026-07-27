@@ -10,6 +10,7 @@ type ProductDetailState = {
   selectedSize: string | null
   selectedColor: string | null
   selectedKarat: string | null
+  selectedWeightGrams: number | null
   isWishlisted: boolean
   wishlistPending: boolean
 
@@ -20,6 +21,7 @@ type ProductDetailState = {
   setSelectedSize: (val: string | null) => void
   setSelectedColor: (val: string | null) => void
   setSelectedKarat: (val: string | null) => void
+  setSelectedWeightGrams: (val: number | null) => void
   setIsWishlisted: (val: boolean) => void
   setWishlistPending: (val: boolean) => void
   resetStore: () => void
@@ -33,6 +35,7 @@ export const useProductDetailStore = create<ProductDetailState>((set) => ({
   selectedSize: null,
   selectedColor: null,
   selectedKarat: null,
+  selectedWeightGrams: null,
   isWishlisted: false,
   wishlistPending: false,
 
@@ -43,6 +46,7 @@ export const useProductDetailStore = create<ProductDetailState>((set) => ({
   setSelectedSize: (selectedSize) => set({ selectedSize }),
   setSelectedColor: (selectedColor) => set({ selectedColor }),
   setSelectedKarat: (selectedKarat) => set({ selectedKarat }),
+  setSelectedWeightGrams: (selectedWeightGrams) => set({ selectedWeightGrams }),
   setIsWishlisted: (isWishlisted) => set({ isWishlisted }),
   setWishlistPending: (wishlistPending) => set({ wishlistPending }),
   resetStore: () =>
@@ -54,6 +58,7 @@ export const useProductDetailStore = create<ProductDetailState>((set) => ({
       selectedSize: null,
       selectedColor: null,
       selectedKarat: null,
+      selectedWeightGrams: null,
       isWishlisted: false,
       wishlistPending: false,
     }),

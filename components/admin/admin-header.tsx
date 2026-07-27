@@ -3,7 +3,7 @@
 import * as React from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { Bell, ExternalLink } from "lucide-react"
+import { Bell, Coins, ExternalLink } from "lucide-react"
 
 import { AdminNotificationsPopover } from "./admin-notifications-popover"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
@@ -63,7 +63,19 @@ export function AdminHeader() {
         </nav>
       </div>
 
-      <div className="flex items-center gap-4">
+      <div className="flex items-center gap-3">
+        <div className="hidden lg:flex items-center gap-2 rounded-full border border-gold/40 bg-gold/5 px-3 py-1 text-xs text-foreground">
+          <span className="flex items-center gap-1 font-semibold text-gold">
+            <Coins className="size-3.5 text-gold shrink-0" />
+            <span>Today's Gold:</span>
+          </span>
+          <span className="text-muted-foreground">18K <strong className="text-foreground">₦133,700</strong></span>
+          <span className="text-gold/40">•</span>
+          <span className="text-muted-foreground">22K <strong className="text-foreground">₦163,400</strong></span>
+          <span className="text-gold/40">•</span>
+          <span className="text-muted-foreground">24K <strong className="text-foreground">₦178,300</strong></span>
+        </div>
+
         <Button
           variant="outline"
           size="xs"

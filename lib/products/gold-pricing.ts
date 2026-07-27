@@ -80,11 +80,16 @@ export function getEffectiveProductPrice(
   product: Product,
   selectedKarat?: string | null,
   rates: GoldRates = DEFAULT_GOLD_RATES,
+  overrideWeightGrams?: number | null,
 ): number | null {
+  const weight = overrideWeightGrams && overrideWeightGrams > 0
+    ? overrideWeightGrams
+    : (product.goldWeightGrams && product.goldWeightGrams > 0 ? product.goldWeightGrams : 1)
+
   // If a specific karat is selected by the user and the product has gold weight
-  if (selectedKarat && product.goldWeightGrams && product.goldWeightGrams > 0) {
+  if (selectedKarat && weight > 0) {
     const calculated = calculateGoldKaratUnitPrice(
-      product.goldWeightGrams,
+      weight,
       selectedKarat,
       rates,
       product.makingCharge ?? 0,
@@ -93,14 +98,14 @@ export function getEffectiveProductPrice(
   }
 
   // Only calculate dynamic per-gram market pricing if explicitly enabled for this product
-  if (product.isGoldKaratPriced && product.goldWeightGrams && product.goldWeightGrams > 0) {
+  if (product.isGoldKaratPriced && weight > 0) {
     const karats = product.goldKarats && product.goldKarats.length > 0
       ? product.goldKarats
       : ['18k', '22k', '24k']
     const firstKarat = karats[0]
     if (firstKarat) {
       const calculated = calculateGoldKaratUnitPrice(
-        product.goldWeightGrams,
+        weight,
         firstKarat,
         rates,
         product.makingCharge ?? 0,
@@ -109,7 +114,10 @@ export function getEffectiveProductPrice(
     }
   }
 
-  // Default to exact admin-set base price + workmanship fee
+  // Default to exact admin-set base price (scaled to gram weight) + workmanship fee
   if (product.price === null) return null
-  return Math.round(product.price + (product.makingCharge || 0))
+  const basePricePerGram = product.goldWeightGrams && product.goldWeightGrams > 0
+    ? product.price / product.goldWeightGrams
+    : product.price
+  return Math.round((basePricePerGram * weight) + (product.makingCharge || 0))
 }

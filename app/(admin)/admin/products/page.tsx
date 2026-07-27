@@ -21,6 +21,10 @@ export default async function AdminProductsPage() {
     image_src: p.image_src || (p.image_urls?.[0] ?? '/images/placeholder.jpg'),
     created_at: p.created_at,
     making_charge: p.making_charge,
+    is_gold_karat_priced: p.is_gold_karat_priced,
+    gold_weight_grams: p.gold_weight_grams,
+    gold_karats: p.gold_karats,
+    pricing_type: p.pricing_type,
   }))
 
   return (
