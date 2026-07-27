@@ -36,7 +36,11 @@ export function formatNaira(price: number) {
 }
 
 export function formatProductPrice(product: Product, computedPrice?: number | null) {
-  const activePrice = computedPrice ?? product.price
+  const activePrice =
+    computedPrice ??
+    (product.price !== null && product.price !== undefined
+      ? product.price + (product.makingCharge || 0)
+      : null)
 
   if (product.pricingType === 'price_on_request' || activePrice === null || activePrice === undefined) {
     return 'Price on Request'

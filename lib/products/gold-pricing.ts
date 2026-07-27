@@ -109,6 +109,7 @@ export function getEffectiveProductPrice(
     }
   }
 
-  // Default to exact admin-set product.price
-  return product.price
+  // Default to exact admin-set base price + workmanship fee
+  if (product.price === null) return null
+  return Math.round(product.price + (product.makingCharge || 0))
 }
