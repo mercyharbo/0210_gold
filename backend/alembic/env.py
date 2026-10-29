@@ -7,6 +7,8 @@ from sqlalchemy.ext.asyncio import async_engine_from_config
 
 from app.core.config import get_settings
 from app.db.base import Base
+from app import models  # noqa: F401 -- register application metadata
+from app.core.event_loop import new_event_loop
 
 config = context.config
 
@@ -60,7 +62,7 @@ async def run_async_migrations() -> None:
 
 
 def run_migrations_online() -> None:
-    asyncio.run(run_async_migrations())
+    asyncio.run(run_async_migrations(), loop_factory=new_event_loop)
 
 
 if context.is_offline_mode():

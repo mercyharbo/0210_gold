@@ -21,6 +21,66 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/auth/bootstrap": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Initialize the signed-in customer's application profile
+         * @description Requires a verified Neon identity. Creates one profile per subject; retries return the existing profile. Never updates an existing role or profile. Initial admin email is server configuration only. Send {} when no optional names are available.
+         */
+        post: operations["bootstrapProfile"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/auth/me": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Read your profile and current database role
+         * @description No body or query parameters. Identity is taken exclusively from the bearer token. Never returns another user's profile.
+         */
+        get: operations["getCurrentProfile"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/auth-check": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Verify administrator access
+         * @description Requires a verified identity and an admin or super_admin application role.
+         */
+        get: operations["checkAdminAccess"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -51,6 +111,45 @@ export interface components {
             /** Message */
             message?: string | null;
         };
+        /** ApiSuccess[ProfileData] */
+        ApiSuccess_ProfileData_: {
+            /**
+             * Success
+             * @default true
+             * @constant
+             */
+            success: true;
+            /** Status */
+            status: number;
+            data: components["schemas"]["ProfileData"];
+            /** Message */
+            message?: string | null;
+        };
+        /**
+         * BootstrapBody
+         * @example {
+         *       "first_name": "Ada",
+         *       "last_name": "James",
+         *       "phone": "+2348012345678"
+         *     }
+         */
+        BootstrapBody: {
+            /**
+             * First Name
+             * @description Optional initial given name; ignored for an existing profile.
+             */
+            first_name?: string | null;
+            /**
+             * Last Name
+             * @description Optional initial family name.
+             */
+            last_name?: string | null;
+            /**
+             * Phone
+             * @description Optional contact phone; not an authentication credential.
+             */
+            phone?: string | null;
+        };
         /** DatabaseHealth */
         DatabaseHealth: {
             /**
@@ -61,11 +160,20 @@ export interface components {
         };
         /** ErrorDetail */
         ErrorDetail: {
-            /** Code */
+            /**
+             * Code
+             * @description Stable machine-readable error code, such as INVALID_TOKEN or FORBIDDEN.
+             */
             code: string;
-            /** Message */
+            /**
+             * Message
+             * @description Safe human-readable explanation. Never includes credentials or internal traces.
+             */
             message: string;
-            /** Fielderrors */
+            /**
+             * Fielderrors
+             * @description Optional mapping of invalid field paths to validation messages.
+             */
             fieldErrors?: {
                 [key: string]: string[];
             } | null;
@@ -79,6 +187,57 @@ export interface components {
             /** Environment */
             environment: string;
             database: components["schemas"]["DatabaseHealth"];
+        };
+        /** ProfileData */
+        ProfileData: {
+            /**
+             * Id
+             * @description Neon identity subject. Treat as an opaque string.
+             */
+            id: string;
+            /**
+             * Email
+             * @description Verified identity email read from Neon, never from the request body.
+             */
+            email: string;
+            /**
+             * Name
+             * @description Display name supplied by the managed identity provider.
+             */
+            name: string;
+            /**
+             * First Name
+             * @description Optional initial given name; null if none was supplied.
+             */
+            first_name: string | null;
+            /**
+             * Last Name
+             * @description Optional initial family name; null if none was supplied.
+             */
+            last_name: string | null;
+            /**
+             * Phone
+             * @description Optional contact number; null if none was supplied.
+             */
+            phone: string | null;
+            /**
+             * Role
+             * @description Application database role; clients cannot set it.
+             * @enum {string}
+             */
+            role: "customer" | "admin" | "super_admin";
+            /**
+             * Created At
+             * Format: date-time
+             * @description UTC creation timestamp, ISO 8601.
+             */
+            created_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             * @description UTC last update timestamp, ISO 8601.
+             */
+            updated_at: string;
         };
     };
     responses: never;
@@ -113,6 +272,408 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+        };
+    };
+    bootstrapProfile: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["BootstrapBody"];
+            };
+        };
+        responses: {
+            /** @description Current application profile. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": true,
+                     *       "status": 200,
+                     *       "data": {
+                     *         "id": "identity-example",
+                     *         "email": "customer@example.com",
+                     *         "name": "Ada James",
+                     *         "first_name": "Ada",
+                     *         "last_name": "James",
+                     *         "role": "customer",
+                     *         "created_at": "2026-10-30T10:00:00Z",
+                     *         "updated_at": "2026-10-30T10:00:00Z"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiSuccess_ProfileData_"];
+                };
+            };
+            /** @description Missing, invalid, expired, or wrong-branch token; or deleted identity. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 401,
+                     *       "error": {
+                     *         "code": "UNAUTHENTICATED",
+                     *         "message": "Missing, invalid, expired, or wrong-branch token; or deleted identity."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Email must be verified; admin checks also require an admin or super_admin role. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 403,
+                     *       "error": {
+                     *         "code": "FORBIDDEN",
+                     *         "message": "Email must be verified; admin checks also require an admin or super_admin role."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description The request contains invalid fields. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 422,
+                     *       "error": {
+                     *         "code": "VALIDATION_ERROR",
+                     *         "message": "The request contains invalid fields.",
+                     *         "fieldErrors": {
+                     *           "phone": [
+                     *             "String should have at most 40 characters"
+                     *           ]
+                     *         }
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description The request could not be completed. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 500,
+                     *       "error": {
+                     *         "code": "INTERNAL_SERVER_ERROR",
+                     *         "message": "The request could not be completed."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Authentication configuration, JWKS service, or database unavailable. */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 503,
+                     *       "error": {
+                     *         "code": "AUTH_UNAVAILABLE",
+                     *         "message": "Authentication configuration, JWKS service, or database unavailable."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+        };
+    };
+    getCurrentProfile: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Current application profile. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": true,
+                     *       "status": 200,
+                     *       "data": {
+                     *         "id": "identity-example",
+                     *         "email": "customer@example.com",
+                     *         "name": "Ada James",
+                     *         "first_name": "Ada",
+                     *         "last_name": "James",
+                     *         "role": "customer",
+                     *         "created_at": "2026-10-30T10:00:00Z",
+                     *         "updated_at": "2026-10-30T10:00:00Z"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiSuccess_ProfileData_"];
+                };
+            };
+            /** @description Missing, invalid, expired, or wrong-branch token; or deleted identity. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 401,
+                     *       "error": {
+                     *         "code": "UNAUTHENTICATED",
+                     *         "message": "Missing, invalid, expired, or wrong-branch token; or deleted identity."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Email must be verified; admin checks also require an admin or super_admin role. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 403,
+                     *       "error": {
+                     *         "code": "FORBIDDEN",
+                     *         "message": "Email must be verified; admin checks also require an admin or super_admin role."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Initialize your profile using POST /v1/auth/bootstrap. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 409,
+                     *       "error": {
+                     *         "code": "PROFILE_NOT_INITIALIZED",
+                     *         "message": "Initialize your profile using POST /v1/auth/bootstrap."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description The request could not be completed. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 500,
+                     *       "error": {
+                     *         "code": "INTERNAL_SERVER_ERROR",
+                     *         "message": "The request could not be completed."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Authentication configuration, JWKS service, or database unavailable. */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 503,
+                     *       "error": {
+                     *         "code": "AUTH_UNAVAILABLE",
+                     *         "message": "Authentication configuration, JWKS service, or database unavailable."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+        };
+    };
+    checkAdminAccess: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Verified administrator profile. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": true,
+                     *       "status": 200,
+                     *       "data": {
+                     *         "id": "identity-example",
+                     *         "email": "customer@example.com",
+                     *         "name": "Ada James",
+                     *         "first_name": "Ada",
+                     *         "last_name": "James",
+                     *         "role": "super_admin",
+                     *         "created_at": "2026-10-30T10:00:00Z",
+                     *         "updated_at": "2026-10-30T10:00:00Z"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiSuccess_ProfileData_"];
+                };
+            };
+            /** @description Missing, invalid, expired, or wrong-branch token; or deleted identity. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 401,
+                     *       "error": {
+                     *         "code": "UNAUTHENTICATED",
+                     *         "message": "Missing, invalid, expired, or wrong-branch token; or deleted identity."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Email must be verified; admin checks also require an admin or super_admin role. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 403,
+                     *       "error": {
+                     *         "code": "FORBIDDEN",
+                     *         "message": "Email must be verified; admin checks also require an admin or super_admin role."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Initialize your profile using POST /v1/auth/bootstrap. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 409,
+                     *       "error": {
+                     *         "code": "PROFILE_NOT_INITIALIZED",
+                     *         "message": "Initialize your profile using POST /v1/auth/bootstrap."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description The request could not be completed. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 500,
+                     *       "error": {
+                     *         "code": "INTERNAL_SERVER_ERROR",
+                     *         "message": "The request could not be completed."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Authentication configuration, JWKS service, or database unavailable. */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 503,
+                     *       "error": {
+                     *         "code": "AUTH_UNAVAILABLE",
+                     *         "message": "Authentication configuration, JWKS service, or database unavailable."
+                     *       }
+                     *     }
+                     */
                     "application/json": components["schemas"]["ApiFailure"];
                 };
             };

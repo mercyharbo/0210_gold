@@ -1,6 +1,9 @@
 import { ArrowLeft, ShieldCheck } from 'lucide-react'
 import Link from 'next/link'
 
+// Provider selection and managed callbacks must be evaluated per request.
+export const dynamic = 'force-dynamic'
+
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
   return (
     <main className='min-h-dvh bg-muted text-black'>
@@ -15,7 +18,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
           </Link>
 
           <div className='flex flex-col gap-6 py-16 lg:py-24'>
-            <p className='text-xs font-semibold uppercase text-gold'>
+            <p className='text-xs font-semibold text-gold'>
               FM LUXE account
             </p>
             <h1 className='max-w-xl font-sans text-5xl font-semibold leading-[0.95] sm:text-6xl'>

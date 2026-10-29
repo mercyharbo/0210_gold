@@ -1,12 +1,26 @@
 import { jsonResponse } from './response'
 import type { ApiMethod } from './types'
+import { getIdentityHeaders } from '@/lib/auth/backend-headers'
 
 const methodsWithBody = new Set<ApiMethod>(['POST', 'PUT', 'PATCH', 'DELETE'])
-const forwardedRequestHeaders = ['accept', 'authorization', 'content-type'] as const
-const forwardedResponseHeaders = ['cache-control', 'content-type', 'location'] as const
+const forwardedRequestHeaders = [
+  'accept',
+  'authorization',
+  'content-type',
+] as const
+const forwardedResponseHeaders = [
+  'cache-control',
+  'content-type',
+  'location',
+] as const
 
 const backendRoutes: Partial<Record<ApiMethod, ReadonlyMap<string, string>>> = {
-  GET: new Map([['health', '/v1/health']]),
+  GET: new Map([
+    ['health', '/v1/health'],
+    ['identity/me', '/v1/auth/me'],
+    ['admin/auth-check', '/v1/admin/auth-check'],
+  ]),
+  POST: new Map([['identity/bootstrap', '/v1/auth/bootstrap']]),
 }
 
 export function getBackendPath(method: ApiMethod, endpoint: string) {
@@ -34,10 +48,10 @@ function getBackendOrigin() {
 }
 
 function getTimeoutMs() {
-  const configuredTimeout = Number(process.env.BACKEND_PROXY_TIMEOUT_MS ?? 8000)
+  const configuredTimeout = Number(process.env.BACKEND_PROXY_TIMEOUT_MS ?? 30000)
 
   if (!Number.isFinite(configuredTimeout)) {
-    return 8000
+    return 30000
   }
 
   return Math.min(Math.max(configuredTimeout, 1000), 30000)
@@ -68,6 +82,7 @@ function buildClientHeaders(upstream: Response) {
     }
   }
 
+  headers.set('Cache-Control', 'private, no-store')
   return headers
 }
 
@@ -97,10 +112,38 @@ export async function proxyBackendRequest(
   const timeout = setTimeout(() => controller.abort(), getTimeoutMs())
 
   try {
-    const body = methodsWithBody.has(method) ? await request.arrayBuffer() : undefined
+    const headers = buildUpstreamHeaders(request)
+    if (backendPath !== '/v1/health') {
+      if (
+        methodsWithBody.has(method) &&
+        request.headers.get('origin') !== incomingUrl.origin
+      ) {
+        return jsonResponse({
+          success: false,
+          status: 403,
+          error: {
+            code: 'INVALID_ORIGIN',
+            message: 'Request origin is not allowed.',
+          },
+        })
+      }
+      const identityHeaders = await getIdentityHeaders()
+      if (!identityHeaders) {
+        return jsonResponse({
+          success: false,
+          status: 401,
+          error: { code: 'UNAUTHENTICATED', message: 'Sign in to continue.' },
+        })
+      }
+      // Never accept an arbitrary browser-supplied identity token at the BFF boundary.
+      headers.set('Authorization', identityHeaders.Authorization)
+    }
+    const body = methodsWithBody.has(method)
+      ? await request.arrayBuffer()
+      : undefined
     const upstream = await fetch(upstreamUrl, {
       method,
-      headers: buildUpstreamHeaders(request),
+      headers,
       body: body && body.byteLength > 0 ? body : undefined,
       cache: 'no-store',
       redirect: 'manual',

@@ -1,6 +1,8 @@
 import { NextResponse, type NextRequest } from 'next/server'
 
 import { createSupabaseProxyClient } from '@/lib/supabase/proxy'
+import { getAuthProvider } from '@/lib/auth/provider'
+import { neonProxy } from '@/lib/auth/neon-proxy'
 
 const authRequiredRoutes = ['/profile', '/admin']
 const guestOnlyRoutes = ['/login', '/signup', '/register', '/forgot-password']
@@ -27,6 +29,7 @@ function redirectTo(
 }
 
 export async function proxy(request: NextRequest) {
+  if (getAuthProvider() === 'neon') return neonProxy(request)
   const pathname = request.nextUrl.pathname
 
   const { supabase, getResponse } = createSupabaseProxyClient(request)
@@ -36,7 +39,7 @@ export async function proxy(request: NextRequest) {
   const response = getResponse()
   const isAuthenticated = Boolean(user)
 
-  if (matchesRoute(pathname, authRequiredRoutes) && !isAuthenticated && process.env.NODE_ENV !== 'development') {
+  if (matchesRoute(pathname, authRequiredRoutes) && !isAuthenticated) {
     return redirectTo(request, '/login?error=Sign in to continue.', response)
   }
 
@@ -57,6 +60,7 @@ export async function proxy(request: NextRequest) {
 
 export const config = {
   matcher: [
+    '/auth/preview/:path*',
     '/profile/:path*',
     '/checkout/:path*',
     '/admin/:path*',

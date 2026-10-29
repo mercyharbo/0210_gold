@@ -1,4 +1,6 @@
 import Link from 'next/link'
+import { getAuthProvider } from '@/lib/auth/provider'
+import { RecoveryForm } from '@/components/auth/neon/recovery-form'
 import { redirect } from 'next/navigation'
 
 import {
@@ -12,6 +14,7 @@ import { createSupabaseServerClient } from '@/lib/supabase/server'
 import { changePassword } from '../actions'
 
 export default async function ChangePasswordPage() {
+  if (getAuthProvider() === 'neon') return <RecoveryForm reset />
   const supabase = await createSupabaseServerClient()
   const { data: claimsData } = await supabase.auth.getClaims()
 

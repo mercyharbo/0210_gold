@@ -1,6 +1,7 @@
 'use server'
 
 import { revalidatePath } from 'next/cache'
+import { requireAdmin } from '@/lib/auth/session'
 
 import { createSupabaseAdminClient } from '@/lib/supabase/server'
 
@@ -8,6 +9,7 @@ export async function updateRequestStatusAction(
   requestId: string,
   status: string
 ): Promise<{ success: boolean; error?: string }> {
+  await requireAdmin()
   if (!requestId || !status) {
     return { success: false, error: 'Request ID and status are required.' }
   }
@@ -20,7 +22,6 @@ export async function updateRequestStatusAction(
     .eq('id', requestId)
 
   if (error) {
-    console.error('Failed to update request status:', error)
     return { success: false, error: 'Failed to update request status.' }
   }
 
@@ -33,6 +34,7 @@ export async function updateAdminNotesAction(
   requestId: string,
   adminNotes: string
 ): Promise<{ success: boolean; error?: string }> {
+  await requireAdmin()
   if (!requestId) {
     return { success: false, error: 'Request ID is required.' }
   }
@@ -45,7 +47,6 @@ export async function updateAdminNotesAction(
     .eq('id', requestId)
 
   if (error) {
-    console.error('Failed to update admin notes:', error)
     return { success: false, error: 'Failed to update admin notes.' }
   }
 

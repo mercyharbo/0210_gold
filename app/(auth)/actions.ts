@@ -1,6 +1,7 @@
 'use server'
 
 import { redirect } from 'next/navigation'
+import { assertLegacyAuthEnabled } from '@/lib/auth/provider'
 
 import { getSiteUrl } from '@/lib/site-url'
 import { createSupabaseServerClient } from '@/lib/supabase/server'
@@ -27,6 +28,7 @@ function redirectWithMessage(path: string, message: string): never {
 }
 
 export async function login(formData: FormData) {
+  assertLegacyAuthEnabled()
   const parsed = loginSchema.safeParse({
     email: getFormString(formData, 'email'),
     password: getFormString(formData, 'password'),
@@ -50,6 +52,7 @@ export async function login(formData: FormData) {
 }
 
 export async function signup(formData: FormData) {
+  assertLegacyAuthEnabled()
   const parsed = signupSchema.safeParse({
     firstName: getFormString(formData, 'firstName'),
     lastName: getFormString(formData, 'lastName'),
@@ -93,6 +96,7 @@ export async function signup(formData: FormData) {
 }
 
 export async function forgotPassword(formData: FormData) {
+  assertLegacyAuthEnabled()
   const parsed = forgotPasswordSchema.safeParse({
     email: getFormString(formData, 'email'),
   })
@@ -120,6 +124,7 @@ export async function forgotPassword(formData: FormData) {
 }
 
 export async function changePassword(formData: FormData) {
+  assertLegacyAuthEnabled()
   const parsed = changePasswordSchema.safeParse({
     password: getFormString(formData, 'password'),
     confirmPassword: getFormString(formData, 'confirmPassword'),
@@ -145,6 +150,7 @@ export async function changePassword(formData: FormData) {
 }
 
 export async function logout() {
+  assertLegacyAuthEnabled()
   const supabase = await createSupabaseServerClient()
   const { error } = await supabase.auth.signOut()
 

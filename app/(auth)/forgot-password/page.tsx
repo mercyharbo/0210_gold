@@ -1,4 +1,6 @@
 import Link from 'next/link'
+import { getAuthProvider } from '@/lib/auth/provider'
+import { RecoveryForm } from '@/components/auth/neon/recovery-form'
 
 import {
   authInputClassName,
@@ -9,6 +11,7 @@ import { AuthSubmitButton } from '@/components/auth/auth-submit-button'
 import { forgotPassword } from '../actions'
 
 export default function ForgotPasswordPage() {
+  if (getAuthProvider() === 'neon') return <RecoveryForm />
   return (
     <div className='flex flex-col gap-8'>
       <div className='space-y-2'>

@@ -5,6 +5,7 @@ from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
+from sqlalchemy.exc import SQLAlchemyError
 
 from app.api.router import api_router
 from app.core.config import get_settings
@@ -46,6 +47,11 @@ def create_app() -> FastAPI:
         allow_headers=["Authorization", "Content-Type"],
     )
     app.include_router(api_router, prefix=settings.api_v1_prefix)
+
+    @app.exception_handler(SQLAlchemyError)
+    async def handle_database_error(_: Request, exc: SQLAlchemyError) -> JSONResponse:
+        logger.error("Database request failed: %s", type(exc).__name__)
+        return error_response(ErrorDetail(code="DATABASE_UNAVAILABLE", message="The database is currently unavailable."), 503)
 
     @app.exception_handler(AppError)
     async def handle_app_error(_: Request, exc: AppError) -> JSONResponse:

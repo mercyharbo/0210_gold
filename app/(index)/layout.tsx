@@ -3,12 +3,15 @@ import { getStoreSettingsAction } from "@/app/(admin)/admin/settings/actions";
 import { IndexFooter } from "@/components/index/footer";
 import { IndexHeader } from "@/components/index/header";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { getAuthProvider } from '@/lib/auth/provider'
+import { ShoppingUnavailable } from '@/components/auth/neon/shopping-unavailable'
 
 export default async function IndexLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  if (getAuthProvider() === 'neon') return <ShoppingUnavailable />
   const supabase = await createSupabaseServerClient()
   const {
     data: { user },

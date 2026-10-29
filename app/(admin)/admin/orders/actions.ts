@@ -2,7 +2,7 @@
 
 import { revalidatePath } from 'next/cache'
 
-import { requireUser } from '@/lib/auth/session'
+import { requireAdmin } from '@/lib/auth/session'
 import { createSupabaseAdminClient, createSupabaseServerClient } from '@/lib/supabase/server'
 
 export async function updateOrderStatusAction(
@@ -10,23 +10,9 @@ export async function updateOrderStatusAction(
   status: string,
   paymentStatus: string
 ) {
-  const user = await requireUser('/login?error=Sign in to continue.')
-  if (!user) {
-    throw new Error('Unauthorized: Authentication required.')
-  }
+  await requireAdmin()
 
   const supabase = await createSupabaseServerClient()
-
-  // Verify user role is admin or super_admin
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('role')
-    .eq('id', user.id)
-    .single()
-
-  if (process.env.NODE_ENV !== 'development' && (!profile || !['admin', 'super_admin'].includes(profile.role))) {
-    throw new Error('Unauthorized: Admin access required.')
-  }
 
   const { error } = await supabase
     .from('orders')
@@ -38,7 +24,6 @@ export async function updateOrderStatusAction(
     .eq('id', orderId)
 
   if (error) {
-    console.error('Failed to update order status:', error)
     throw new Error(error.message || 'Failed to update order.')
   }
 
@@ -51,14 +36,11 @@ export async function bulkUpdateOrdersAction(
   orderIds: string[],
   updates: { status?: string; paymentStatus?: string }
 ) {
-  const user = await requireUser('/login?error=Sign in to continue.')
-  if (!user) {
-    throw new Error('Unauthorized: Authentication required.')
-  }
+  await requireAdmin()
 
   const supabase = createSupabaseAdminClient()
 
-  const payload: Record<string, any> = {
+  const payload: Record<string, string> = {
     updated_at: new Date().toISOString(),
   }
 

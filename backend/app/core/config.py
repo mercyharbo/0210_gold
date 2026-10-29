@@ -25,6 +25,9 @@ class Settings(BaseSettings):
     database_url_unpooled: str | None = None
     cors_origins: str = "http://localhost:4000"
     log_level: str = "INFO"
+    neon_auth_base_url: str | None = None
+    neon_auth_jwks_url: str | None = None
+    initial_admin_email: str | None = None
 
     @property
     def cors_origin_list(self) -> list[str]:

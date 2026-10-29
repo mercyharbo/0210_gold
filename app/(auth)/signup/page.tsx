@@ -1,4 +1,6 @@
 import Link from 'next/link'
+import { getAuthProvider } from '@/lib/auth/provider'
+import { CredentialsForm } from '@/components/auth/neon/credentials-form'
 
 import {
   authInputClassName,
@@ -10,6 +12,7 @@ import { PasswordInput } from '@/components/auth/password-input'
 import { signup } from '../actions'
 
 export default function SignupPage() {
+  if (getAuthProvider() === 'neon') return <CredentialsForm signup />
   return (
     <div className='flex flex-col gap-8'>
       <div className='space-y-2'>
