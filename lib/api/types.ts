@@ -1,10 +1,16 @@
 export type ApiMethod = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE'
 
+export type ApiErrorDetail = {
+  code: string
+  message: string
+  fieldErrors?: Record<string, string[]>
+}
+
 export type ApiResponse<TData = unknown> = {
   success: boolean
   status: number
   data?: TData
-  error?: string
+  error?: string | ApiErrorDetail
   message?: string
 }
 

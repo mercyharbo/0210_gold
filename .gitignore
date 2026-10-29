@@ -2,6 +2,11 @@
 
 # dependencies
 /node_modules
+/backend/.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
 /.pnp
 .pnp.*
 .yarn/*
@@ -19,6 +24,8 @@
 
 # production
 /build
+/backend/.coverage
+/backend/htmlcov/
 
 # misc
 .DS_Store
@@ -40,3 +47,4 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+.neon

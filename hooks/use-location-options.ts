@@ -2,7 +2,7 @@
 
 import useSWR from 'swr'
 
-import { GET } from '@/hooks/use-api-request'
+import { apiFetcher } from '@/lib/api/client'
 import type {
   CityOption,
   CountryOption,
@@ -10,18 +10,14 @@ import type {
 } from '@/types/location'
 
 async function locationFetcher<TOption>(endpoint: string) {
-  const response = await GET<TOption[]>(endpoint)
-
-  if (!response.success) {
-    throw new Error(response.error ?? 'Unable to load location options.')
-  }
+  const response = await apiFetcher<TOption[]>(endpoint)
 
   return response.data ?? []
 }
 
 export function useCountries() {
   const { data, error, isLoading } = useSWR(
-    '/countries',
+    '/api/countries',
     locationFetcher<CountryOption>,
   )
 
@@ -34,7 +30,7 @@ export function useCountries() {
 
 export function useStates(country?: string) {
   const endpoint = country
-    ? `/states?country=${encodeURIComponent(country)}`
+    ? `/api/states?country=${encodeURIComponent(country)}`
     : null
   const { data, error, isLoading } = useSWR(
     endpoint,
@@ -51,7 +47,7 @@ export function useStates(country?: string) {
 export function useCities(country?: string, state?: string) {
   const endpoint =
     country && state
-      ? `/cities?country=${encodeURIComponent(country)}&state=${encodeURIComponent(state)}`
+      ? `/api/cities?country=${encodeURIComponent(country)}&state=${encodeURIComponent(state)}`
       : null
   const { data, error, isLoading } = useSWR(
     endpoint,

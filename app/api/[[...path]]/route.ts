@@ -1,5 +1,6 @@
 import type { NextRequest } from 'next/server'
 
+import { getBackendPath, proxyBackendRequest } from '@/lib/api/backend-proxy'
 import { dispatchApiRequest } from '@/lib/api/dispatch'
 import type { ApiMethod } from '@/lib/api/types'
 
@@ -15,6 +16,15 @@ async function handleApiRequest(
   context: ApiRouteContext,
 ) {
   const { path = [] } = await context.params
+  const endpoint = path
+    .map((segment) => segment.trim())
+    .filter(Boolean)
+    .join('/')
+  const backendPath = getBackendPath(method, endpoint)
+
+  if (backendPath) {
+    return proxyBackendRequest(request, method, backendPath)
+  }
 
   return dispatchApiRequest(request, method, path)
 }
