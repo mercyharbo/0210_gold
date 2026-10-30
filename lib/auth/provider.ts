@@ -1,5 +1,5 @@
 export function getAuthProvider(): 'supabase' | 'neon' {
-  const value = process.env.AUTH_PROVIDER ?? 'supabase'
+  const value = process.env.AUTH_PROVIDER ?? 'neon'
   if (value !== 'supabase' && value !== 'neon') {
     throw new Error('AUTH_PROVIDER must be supabase or neon.')
   }

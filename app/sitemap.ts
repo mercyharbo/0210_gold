@@ -1,9 +1,23 @@
 import type { MetadataRoute } from 'next'
 import { createSupabaseServerClient } from '@/lib/supabase/server'
+import { getAuthProvider } from '@/lib/auth/provider'
+import { readCatalog } from '@/lib/catalog/server'
+import type { CatalogPage } from '@/types/catalog'
 
 const siteUrl = process.env.SITE_URL ?? 'https://fm-luxe.vercel.app'
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  if (getAuthProvider() === 'neon') {
+    const routes: MetadataRoute.Sitemap = ['/', '/shop', '/categories', '/about', '/contact'].map((path) => ({ url: `${siteUrl}${path}` }))
+    let page = 1
+    let result: CatalogPage
+    do {
+      result = await readCatalog<CatalogPage>(`products?page=${page}&page_size=100`)
+      routes.push(...result.items.map((item) => ({ url: `${siteUrl}/products/${item.slug}`, lastModified: new Date(item.updated_at) })))
+      page += 1
+    } while ((page - 1) * result.page_size < result.total)
+    return routes
+  }
   const staticRoutes: MetadataRoute.Sitemap = [
     {
       url: `${siteUrl}`,

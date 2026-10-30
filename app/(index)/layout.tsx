@@ -4,14 +4,14 @@ import { IndexFooter } from "@/components/index/footer";
 import { IndexHeader } from "@/components/index/header";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { getAuthProvider } from '@/lib/auth/provider'
-import { ShoppingUnavailable } from '@/components/auth/neon/shopping-unavailable'
+import { CatalogStoreShell } from '@/components/catalog/store-shell'
 
 export default async function IndexLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  if (getAuthProvider() === 'neon') return <ShoppingUnavailable />
+  if (getAuthProvider() === 'neon') return <CatalogStoreShell>{children}</CatalogStoreShell>
   const supabase = await createSupabaseServerClient()
   const {
     data: { user },

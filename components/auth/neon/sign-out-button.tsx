@@ -5,6 +5,7 @@ import { useForm } from 'react-hook-form'
 import { useSWRConfig } from 'swr'
 import { Button } from '@/components/ui/button'
 import { neonAuthClient } from '@/lib/auth/neon-client'
+import { useCatalogSelection } from '@/stores/catalog-ui'
 import { AuthFeedback } from './auth-feedback'
 
 export function SignOutButton() {
@@ -23,6 +24,7 @@ export function SignOutButton() {
         setError('root', { message: error.message })
         return
       }
+      useCatalogSelection.getState().reset()
       await mutate(() => true, undefined, { revalidate: false })
       router.replace('/login')
       router.refresh()

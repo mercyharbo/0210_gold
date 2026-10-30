@@ -24,6 +24,18 @@ const backendRoutes: Partial<Record<ApiMethod, ReadonlyMap<string, string>>> = {
 }
 
 export function getBackendPath(method: ApiMethod, endpoint: string) {
+  const uuid = '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}'
+  const publicRead = /^catalog\/(products(?:\/[a-z0-9]+(?:-[a-z0-9]+)*(?:\/price)?)?|categories|banners|settings|gold-rates)$/
+  if (method === 'GET' && publicRead.test(endpoint)) return `/v1/${endpoint}`
+  if (new RegExp(`^admin/(products|categories|banners)(/${uuid})?$`).test(endpoint)) {
+    const detail = endpoint.split('/').length === 3
+    if (method === 'GET' || (!detail && method === 'POST') ||
+      (detail && (method === 'PUT' || method === 'DELETE'))) return `/v1/${endpoint}`
+  }
+  if (method === 'PUT' && /^admin\/(settings|gold-rates)$/.test(endpoint)) return `/v1/${endpoint}`
+  if (method === 'POST' && (/^admin\/media\/(uploads|cleanup)$/.test(endpoint) ||
+    new RegExp(`^admin/media/${uuid}/complete$`).test(endpoint))) return `/v1/${endpoint}`
+  if (method === 'DELETE' && new RegExp(`^admin/media/${uuid}$`).test(endpoint)) return `/v1/${endpoint}`
   return backendRoutes[method]?.get(endpoint) ?? null
 }
 
@@ -113,7 +125,7 @@ export async function proxyBackendRequest(
 
   try {
     const headers = buildUpstreamHeaders(request)
-    if (backendPath !== '/v1/health') {
+    if (backendPath !== '/v1/health' && !backendPath.startsWith('/v1/catalog/')) {
       if (
         methodsWithBody.has(method) &&
         request.headers.get('origin') !== incomingUrl.origin

@@ -28,6 +28,11 @@ class Settings(BaseSettings):
     neon_auth_base_url: str | None = None
     neon_auth_jwks_url: str | None = None
     initial_admin_email: str | None = None
+    aws_access_key_id: str | None = None
+    aws_secret_access_key: str | None = None
+    aws_endpoint_url_s3: str | None = None
+    aws_region: str = "us-east-2"
+    catalog_bucket: str = "catalog-images"
 
     @property
     def cors_origin_list(self) -> list[str]:

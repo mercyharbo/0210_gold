@@ -121,7 +121,7 @@ export function LocationSelectFields({
       </Field>
 
       <Field>
-        <FieldLabel htmlFor={cityId}>City</FieldLabel>
+        <FieldLabel htmlFor={cityId}>Local government area</FieldLabel>
         <div className='relative w-full'>
           <Select
             name='city'
@@ -135,7 +135,7 @@ export function LocationSelectFields({
               size='lg'
               className={selectTriggerClassName}
             >
-              <SelectValue placeholder='Select city' />
+              <SelectValue placeholder='Select local government area' />
             </SelectTrigger>
             <SelectContent>
               {citiesQuery.cities.map((option, idx) => (

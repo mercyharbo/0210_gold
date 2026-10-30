@@ -3,7 +3,6 @@
 import { revalidatePath } from 'next/cache'
 
 import { requireAdmin } from '@/lib/auth/session'
-import { syncGoldRatesFromAPI } from '@/lib/gold/gold-rate-sync'
 import { defaultStoreSettings, type StoreSettingsRecord } from '@/lib/settings/types'
 import { createSupabaseAdminClient } from '@/lib/supabase/server'
 
@@ -11,11 +10,7 @@ export async function getStoreSettingsAction(): Promise<StoreSettingsRecord> {
   const supabase = createSupabaseAdminClient()
 
   try {
-    const { data } = await supabase
-      .from('store_settings')
-      .select('*')
-      .limit(1)
-      .maybeSingle()
+    const { data } = await supabase.from('store_settings').select('*').limit(1).maybeSingle()
 
     if (data) {
       return {
@@ -29,8 +24,12 @@ export async function getStoreSettingsAction(): Promise<StoreSettingsRecord> {
         gbp_rate: Number(data.gbp_rate ?? defaultStoreSettings.gbp_rate),
         usd_rate: Number(data.usd_rate ?? defaultStoreSettings.usd_rate),
         local_shipping_fee: Number(data.local_shipping_fee ?? defaultStoreSettings.local_shipping_fee),
-        uk_shipping_rate_per_kg: Number(data.uk_shipping_rate_per_kg ?? defaultStoreSettings.uk_shipping_rate_per_kg),
-        free_shipping_threshold: Number(data.free_shipping_threshold ?? defaultStoreSettings.free_shipping_threshold),
+        uk_shipping_rate_per_kg: Number(
+          data.uk_shipping_rate_per_kg ?? defaultStoreSettings.uk_shipping_rate_per_kg,
+        ),
+        free_shipping_threshold: Number(
+          data.free_shipping_threshold ?? defaultStoreSettings.free_shipping_threshold,
+        ),
         paystack_mode: data.paystack_mode || defaultStoreSettings.paystack_mode,
         order_email_notifications: Boolean(data.order_email_notifications ?? true),
         request_email_notifications: Boolean(data.request_email_notifications ?? true),
@@ -43,8 +42,8 @@ export async function getStoreSettingsAction(): Promise<StoreSettingsRecord> {
         last_gold_rate_update: data.last_gold_rate_update || null,
       }
     }
-  } catch (error) {
-    console.warn('Could not fetch store settings:', error)
+  } catch {
+    /* Legacy settings remain available only for workflows awaiting migration. */
   }
 
   return defaultStoreSettings
@@ -54,16 +53,13 @@ export async function updateStoreSettingsAction(settings: Partial<StoreSettingsR
   await requireAdmin()
   const supabase = createSupabaseAdminClient()
 
-  const { error } = await supabase
-    .from('store_settings')
-    .upsert({
-      id: settings.id || defaultStoreSettings.id,
-      ...settings,
-      updated_at: new Date().toISOString(),
-    })
+  const { error } = await supabase.from('store_settings').upsert({
+    id: settings.id || defaultStoreSettings.id,
+    ...settings,
+    updated_at: new Date().toISOString(),
+  })
 
   if (error) {
-    console.error('Failed to update store settings:', error)
     return { success: false, error: error.message }
   }
 
@@ -71,16 +67,3 @@ export async function updateStoreSettingsAction(settings: Partial<StoreSettingsR
   revalidatePath('/')
   return { success: true }
 }
-
-export async function syncGoldRatesAction() {
-  await requireAdmin()
-  const result = await syncGoldRatesFromAPI()
-
-  if (result.success) {
-    revalidatePath('/admin/settings')
-    revalidatePath('/')
-  }
-
-  return result
-}
-

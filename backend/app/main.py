@@ -12,6 +12,7 @@ from app.core.config import get_settings
 from app.core.errors import AppError
 from app.core.logging import configure_logging, get_logger
 from app.schemas.envelope import ApiFailure, ErrorDetail
+from app.api.catalog_examples import add_catalog_examples
 
 logger = get_logger(__name__)
 
@@ -47,6 +48,12 @@ def create_app() -> FastAPI:
         allow_headers=["Authorization", "Content-Type"],
     )
     app.include_router(api_router, prefix=settings.api_v1_prefix)
+    original_openapi = app.openapi
+
+    def documented_openapi():
+        return add_catalog_examples(original_openapi())
+
+    app.openapi = documented_openapi
 
     @app.exception_handler(SQLAlchemyError)
     async def handle_database_error(_: Request, exc: SQLAlchemyError) -> JSONResponse:

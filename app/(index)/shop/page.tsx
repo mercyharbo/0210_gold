@@ -1,57 +1,39 @@
 import type { Metadata } from 'next'
-import { ShopContent, ShopHero } from '@/components/index/shop'
-import {
-  getStorefrontCategories,
-  getStorefrontProducts,
-} from '@/lib/products/storefront-products'
+import { CatalogBrowse, type BrowseQuery } from '@/components/catalog/browse'
+import { readCatalog } from '@/lib/catalog/server'
+import type { CatalogCategory, CatalogPage } from '@/types/catalog'
 
 export const metadata: Metadata = {
-  title: 'Shop Gold Jewellery & Accessories',
-  description:
-    'Browse our curated collection of authentic 18k gold jewellery, gold necklaces, rings, earrings, bracelets, and luxury fashion accessories at FM LUXE.',
-  alternates: {
-    canonical: '/shop',
-  },
-  openGraph: {
-    title: 'Shop Gold Jewellery & Luxury Accessories | FM LUXE',
-    description:
-      'Browse our curated collection of authentic 18k gold jewellery, gold necklaces, rings, earrings, bracelets, and luxury fashion accessories.',
-    url: '/shop',
-  },
+  title: 'Shop jewellery & fashion | FM LUXE',
+  description: 'Explore fine gold jewellery and carefully selected fashion at FM LUXE.',
+  alternates: { canonical: '/shop' },
 }
-
-type ShopPageProps = {
-  searchParams: Promise<{
-    category?: string | string[]
-    q?: string | string[]
-    sort?: string | string[]
-  }>
-}
-
-export default async function ShopPage({ searchParams }: ShopPageProps) {
-  const queryParams = await searchParams
-  const initialQuery = Array.isArray(queryParams.q)
-    ? queryParams.q[0] ?? ''
-    : queryParams.q ?? ''
-  const initialSort = Array.isArray(queryParams.sort)
-    ? queryParams.sort[0] ?? ''
-    : queryParams.sort ?? ''
-  const initialCategorySlug = Array.isArray(queryParams.category)
-    ? queryParams.category[0] ?? ''
-    : queryParams.category ?? ''
-  const products = await getStorefrontProducts()
-  const categories = getStorefrontCategories(products)
-
+export default async function ShopPage({
+  searchParams,
+}: {
+  searchParams: Promise<Record<string, string | string[] | undefined>>
+}) {
+  const params = await searchParams
+  const value = (key: string) => (typeof params[key] === 'string' ? (params[key] as string) : '')
+  const sort = ['newest', 'price_asc', 'price_desc', 'name'].includes(value('sort'))
+    ? value('sort')
+    : 'newest'
+  const query: BrowseQuery = {
+    q: value('q').slice(0, 100),
+    category: value('category').slice(0, 180),
+    sort,
+    page: /^[1-9]\d*$/.test(value('page')) ? value('page') : '1',
+  }
+  const [initial, categories] = await Promise.all([
+    readCatalog<CatalogPage>(`products?${new URLSearchParams(query)}`),
+    readCatalog<CatalogCategory[]>('categories'),
+  ])
   return (
-    <div className='bg-white text-black'>
-      <ShopHero />
-      <ShopContent
-        categories={categories}
-        initialCategorySlug={initialCategorySlug}
-        initialQuery={initialQuery}
-        initialSort={initialSort}
-        products={products}
-      />
-    </div>
+    <CatalogBrowse
+      key={new URLSearchParams(query).toString()}
+      initial={initial}
+      categories={categories}
+      query={query}
+    />
   )
 }

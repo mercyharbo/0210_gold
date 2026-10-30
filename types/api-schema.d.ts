@@ -81,6 +81,422 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/catalog/products": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Search published products
+         * @description Public. Only active products in active categories. Prices are whole NGN; unavailable prices sort last.
+         */
+        get: operations["listPublicProducts"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/catalog/products/{slug}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Read a published product by slug
+         * @description Public. Includes ordered images, selectable options and backend-calculated display price.
+         */
+        get: operations["getPublicProduct"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/catalog/products/{slug}/price": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Calculate a selected-option price
+         * @description Public read. NGN, decimal arithmetic rounded half up to whole naira. Fixed prices ignore karat pricing; no inventory reservation or checkout occurs.
+         */
+        get: operations["previewProductPrice"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/catalog/categories": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Read active categories
+         * @description Public. Ordered by sort order then name. Includes featured-card configuration.
+         */
+        get: operations["listPublicCategories"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/catalog/banners": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Read active hero banners
+         * @description Public. Ordered by sort order and creation date; routes are internal website paths.
+         */
+        get: operations["listPublicBanners"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/products": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List products for administration
+         * @description Requires admin or super_admin. Includes unpublished records.
+         */
+        get: operations["listAdminProducts"];
+        put?: never;
+        /**
+         * Create a product
+         * @description Requires administrator. JSON body; images must reference completed managed uploads. Unique slugs return 409 on conflict.
+         */
+        post: operations["createProduct"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/products/{identifier}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Read a product for editing
+         * @description Requires administrator. Identifier is a catalog UUID.
+         */
+        get: operations["getAdminProduct"];
+        /**
+         * Replace a product
+         * @description Requires administrator. Full replacement including ordered images and options. Previous images remain intact if validation or saving fails.
+         */
+        put: operations["replaceProduct"];
+        post?: never;
+        /**
+         * Delete a product
+         * @description Requires administrator. Referenced categories return 409. Detached images are retained for cleanup after 24 hours.
+         */
+        delete: operations["deleteProduct"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/categories": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List categories for administration
+         * @description Requires admin or super_admin. Includes unpublished records.
+         */
+        get: operations["listAdminCategorys"];
+        put?: never;
+        /**
+         * Create a category
+         * @description Requires administrator. JSON body; images must reference completed managed uploads. Unique slugs return 409 on conflict.
+         */
+        post: operations["createCategory"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/categories/{identifier}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Read a category for editing
+         * @description Requires administrator. Identifier is a catalog UUID.
+         */
+        get: operations["getAdminCategory"];
+        /**
+         * Replace a category
+         * @description Requires administrator. Full replacement including ordered images and options. Previous images remain intact if validation or saving fails.
+         */
+        put: operations["replaceCategory"];
+        post?: never;
+        /**
+         * Delete a category
+         * @description Requires administrator. Referenced categories return 409. Detached images are retained for cleanup after 24 hours.
+         */
+        delete: operations["deleteCategory"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/banners": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List banners for administration
+         * @description Requires admin or super_admin. Includes unpublished records.
+         */
+        get: operations["listAdminBanners"];
+        put?: never;
+        /**
+         * Create a banner
+         * @description Requires administrator. JSON body; images must reference completed managed uploads. Unique slugs return 409 on conflict.
+         */
+        post: operations["createBanner"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/banners/{identifier}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Read a banner for editing
+         * @description Requires administrator. Identifier is a catalog UUID.
+         */
+        get: operations["getAdminBanner"];
+        /**
+         * Replace a banner
+         * @description Requires administrator. Full replacement including ordered images and options. Previous images remain intact if validation or saving fails.
+         */
+        put: operations["replaceBanner"];
+        post?: never;
+        /**
+         * Delete a banner
+         * @description Requires administrator. Referenced categories return 409. Detached images are retained for cleanup after 24 hours.
+         */
+        delete: operations["deleteBanner"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/catalog/settings": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Read safe store configuration
+         * @description Public. Contains store contact information and NGN shipping/currency display configuration only. No secrets or payment/security controls.
+         */
+        get: operations["getStorefrontSettings"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/settings": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Replace store configuration
+         * @description Requires administrator. Full JSON replacement. Amounts are NGN; FX rates are NGN per unit of foreign currency. Does not configure payments, notifications, sessions or MFA.
+         */
+        put: operations["replaceStoreSettings"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/catalog/gold-rates": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Read manually configured per-gram rates
+         * @description Public. Empty until configured; missing karats are unavailable, never replaced with fictional default prices. UTC update timestamps.
+         */
+        get: operations["getGoldRates"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/gold-rates": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Set manual gold rates
+         * @description Requires administrator. Replace all configured rates, NGN per gram, positive decimals. Omitted karats become unavailable. No external pricing service is called.
+         */
+        put: operations["replaceGoldRates"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/media/uploads": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Authorize an image upload
+         * @description Administrator only. Returns a 5-minute presigned PUT URL. Upload the raw file directly with the returned Content-Type header and exact declared byte length. Up to 5 MiB for product/category or 8 MiB for banners; JPEG/PNG/WebP/AVIF only. Completion is required before attaching.
+         */
+        post: operations["authorizeImageUpload"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/media/{identifier}/complete": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Validate and finalize an upload
+         * @description Administrator only. No body. Validates object size, content type and file signature; copies to an immutable public key. Idempotent retries return the existing final image. Invalid files cannot be attached.
+         */
+        post: operations["completeImageUpload"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/media/{identifier}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * Delete an unused managed image
+         * @description Administrator only. Cannot delete an image still referenced by any catalog record (409). Accepts managed media IDs, never arbitrary URLs or keys.
+         */
+        delete: operations["deleteManagedImage"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/media/cleanup": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Clean abandoned images
+         * @description Administrator only. No body. Deletes at most 100 managed uploads older than 24 hours with no catalog references; safe to repeat. Does not delete referenced images.
+         */
+        post: operations["cleanupUnusedImages"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -97,6 +513,62 @@ export interface components {
             status: number;
             error: components["schemas"]["ErrorDetail"];
         };
+        /** ApiSuccess[BannerData] */
+        ApiSuccess_BannerData_: {
+            /**
+             * Success
+             * @default true
+             * @constant
+             */
+            success: true;
+            /** Status */
+            status: number;
+            data: components["schemas"]["BannerData"];
+            /** Message */
+            message?: string | null;
+        };
+        /** ApiSuccess[CategoryData] */
+        ApiSuccess_CategoryData_: {
+            /**
+             * Success
+             * @default true
+             * @constant
+             */
+            success: true;
+            /** Status */
+            status: number;
+            data: components["schemas"]["CategoryData"];
+            /** Message */
+            message?: string | null;
+        };
+        /** ApiSuccess[CleanupData] */
+        ApiSuccess_CleanupData_: {
+            /**
+             * Success
+             * @default true
+             * @constant
+             */
+            success: true;
+            /** Status */
+            status: number;
+            data: components["schemas"]["CleanupData"];
+            /** Message */
+            message?: string | null;
+        };
+        /** ApiSuccess[Deleted] */
+        ApiSuccess_Deleted_: {
+            /**
+             * Success
+             * @default true
+             * @constant
+             */
+            success: true;
+            /** Status */
+            status: number;
+            data: components["schemas"]["Deleted"];
+            /** Message */
+            message?: string | null;
+        };
         /** ApiSuccess[HealthData] */
         ApiSuccess_HealthData_: {
             /**
@@ -108,6 +580,62 @@ export interface components {
             /** Status */
             status: number;
             data: components["schemas"]["HealthData"];
+            /** Message */
+            message?: string | null;
+        };
+        /** ApiSuccess[MediaData] */
+        ApiSuccess_MediaData_: {
+            /**
+             * Success
+             * @default true
+             * @constant
+             */
+            success: true;
+            /** Status */
+            status: number;
+            data: components["schemas"]["MediaData"];
+            /** Message */
+            message?: string | null;
+        };
+        /** ApiSuccess[PriceData] */
+        ApiSuccess_PriceData_: {
+            /**
+             * Success
+             * @default true
+             * @constant
+             */
+            success: true;
+            /** Status */
+            status: number;
+            data: components["schemas"]["PriceData"];
+            /** Message */
+            message?: string | null;
+        };
+        /** ApiSuccess[ProductData] */
+        ApiSuccess_ProductData_: {
+            /**
+             * Success
+             * @default true
+             * @constant
+             */
+            success: true;
+            /** Status */
+            status: number;
+            data: components["schemas"]["ProductData"];
+            /** Message */
+            message?: string | null;
+        };
+        /** ApiSuccess[ProductPage] */
+        ApiSuccess_ProductPage_: {
+            /**
+             * Success
+             * @default true
+             * @constant
+             */
+            success: true;
+            /** Status */
+            status: number;
+            data: components["schemas"]["ProductPage"];
             /** Message */
             message?: string | null;
         };
@@ -124,6 +652,133 @@ export interface components {
             data: components["schemas"]["ProfileData"];
             /** Message */
             message?: string | null;
+        };
+        /** ApiSuccess[SettingsBody] */
+        ApiSuccess_SettingsBody_: {
+            /**
+             * Success
+             * @default true
+             * @constant
+             */
+            success: true;
+            /** Status */
+            status: number;
+            data: components["schemas"]["SettingsBody-Output"];
+            /** Message */
+            message?: string | null;
+        };
+        /** ApiSuccess[UploadData] */
+        ApiSuccess_UploadData_: {
+            /**
+             * Success
+             * @default true
+             * @constant
+             */
+            success: true;
+            /** Status */
+            status: number;
+            data: components["schemas"]["UploadData"];
+            /** Message */
+            message?: string | null;
+        };
+        /** ApiSuccess[list[BannerData]] */
+        ApiSuccess_list_BannerData__: {
+            /**
+             * Success
+             * @default true
+             * @constant
+             */
+            success: true;
+            /** Status */
+            status: number;
+            /** Data */
+            data: components["schemas"]["BannerData"][];
+            /** Message */
+            message?: string | null;
+        };
+        /** ApiSuccess[list[CategoryData]] */
+        ApiSuccess_list_CategoryData__: {
+            /**
+             * Success
+             * @default true
+             * @constant
+             */
+            success: true;
+            /** Status */
+            status: number;
+            /** Data */
+            data: components["schemas"]["CategoryData"][];
+            /** Message */
+            message?: string | null;
+        };
+        /** ApiSuccess[list[RateData]] */
+        ApiSuccess_list_RateData__: {
+            /**
+             * Success
+             * @default true
+             * @constant
+             */
+            success: true;
+            /** Status */
+            status: number;
+            /** Data */
+            data: components["schemas"]["RateData"][];
+            /** Message */
+            message?: string | null;
+        };
+        /** BannerBody */
+        BannerBody: {
+            /** Title */
+            title: string;
+            /** Description */
+            description: string;
+            /** Route */
+            route: string;
+            /**
+             * Is Active
+             * @default true
+             */
+            is_active: boolean;
+            /**
+             * Sort Order
+             * @default 0
+             */
+            sort_order: number;
+            /** Images */
+            images: components["schemas"]["ImageInput"][];
+        };
+        /** BannerData */
+        BannerData: {
+            /** Title */
+            title: string;
+            /** Description */
+            description: string;
+            /** Route */
+            route: string;
+            /**
+             * Is Active
+             * @default true
+             */
+            is_active: boolean;
+            /**
+             * Sort Order
+             * @default 0
+             */
+            sort_order: number;
+            /** Images */
+            images: components["schemas"]["ImageData"][];
+            /** Id */
+            id: string;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
         };
         /**
          * BootstrapBody
@@ -150,6 +805,95 @@ export interface components {
              */
             phone?: string | null;
         };
+        /** CategoryBody */
+        CategoryBody: {
+            /** Name */
+            name: string;
+            /** Slug */
+            slug: string;
+            /**
+             * Category Type
+             * @enum {string}
+             */
+            category_type: "Fashion" | "Gold" | "Accessories" | "Bags" | "Footwear" | "Modest Wear";
+            /** Description */
+            description?: string | null;
+            /**
+             * Is Active
+             * @default true
+             */
+            is_active: boolean;
+            /**
+             * Is Featured
+             * @default false
+             */
+            is_featured: boolean;
+            /**
+             * Sort Order
+             * @default 0
+             */
+            sort_order: number;
+            /**
+             * Featured Sort Order
+             * @default 0
+             */
+            featured_sort_order: number;
+            /** Images */
+            images?: components["schemas"]["ImageInput"][];
+        };
+        /** CategoryData */
+        CategoryData: {
+            /** Name */
+            name: string;
+            /** Slug */
+            slug: string;
+            /**
+             * Category Type
+             * @enum {string}
+             */
+            category_type: "Fashion" | "Gold" | "Accessories" | "Bags" | "Footwear" | "Modest Wear";
+            /** Description */
+            description?: string | null;
+            /**
+             * Is Active
+             * @default true
+             */
+            is_active: boolean;
+            /**
+             * Is Featured
+             * @default false
+             */
+            is_featured: boolean;
+            /**
+             * Sort Order
+             * @default 0
+             */
+            sort_order: number;
+            /**
+             * Featured Sort Order
+             * @default 0
+             */
+            featured_sort_order: number;
+            /** Images */
+            images: components["schemas"]["ImageData"][];
+            /** Id */
+            id: string;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+        };
+        /** CleanupData */
+        CleanupData: {
+            /** Deleted */
+            deleted: number;
+        };
         /** DatabaseHealth */
         DatabaseHealth: {
             /**
@@ -157,6 +901,14 @@ export interface components {
              * @constant
              */
             status: "connected";
+        };
+        /** Deleted */
+        Deleted: {
+            /**
+             * Deleted
+             * @default true
+             */
+            deleted: boolean;
         };
         /** ErrorDetail */
         ErrorDetail: {
@@ -187,6 +939,206 @@ export interface components {
             /** Environment */
             environment: string;
             database: components["schemas"]["DatabaseHealth"];
+        };
+        /** ImageData */
+        ImageData: {
+            /** Media Id */
+            media_id: string;
+            /** Url */
+            url: string;
+            /** Alt */
+            alt: string;
+            /** Position */
+            position: number;
+        };
+        /** ImageInput */
+        ImageInput: {
+            /**
+             * Media Id
+             * Format: uuid
+             * @description ID of a completed managed upload.
+             */
+            media_id: string;
+            /**
+             * Alt
+             * @description Accessible image description.
+             */
+            alt: string;
+        };
+        /** MediaData */
+        MediaData: {
+            /** Media Id */
+            media_id: string;
+            /** Url */
+            url: string;
+        };
+        /** PriceData */
+        PriceData: {
+            /**
+             * Amount
+             * @description Whole NGN, rounded half up; null when on request or rates unavailable.
+             */
+            amount: number | null;
+            /**
+             * Currency
+             * @default NGN
+             * @constant
+             */
+            currency: "NGN";
+            /** Available */
+            available: boolean;
+            /** Reason */
+            reason?: string | null;
+            /** Karat */
+            karat?: ("18k" | "22k" | "24k") | null;
+        };
+        /** ProductBody */
+        ProductBody: {
+            /** Name */
+            name: string;
+            /** Slug */
+            slug: string;
+            /**
+             * Category Id
+             * Format: uuid
+             */
+            category_id: string;
+            /**
+             * Pricing Type
+             * @default fixed
+             * @enum {string}
+             */
+            pricing_type: "fixed" | "starting_from" | "price_on_request";
+            /** Price */
+            price?: (number | string) | null;
+            /**
+             * Stock
+             * @default 0
+             */
+            stock: number;
+            /**
+             * Status
+             * @default draft
+             * @enum {string}
+             */
+            status: "draft" | "active" | "archived";
+            /** Description */
+            description: string;
+            /** Label */
+            label?: ("best seller" | "new in" | "featured") | null;
+            /** Details */
+            details?: string[];
+            /** Sizes */
+            sizes?: ("one size" | "xs" | "s" | "m" | "l" | "xl" | "xxl" | "37" | "38" | "39" | "40" | "41" | "42")[];
+            /** Colors */
+            colors?: ("gold" | "black" | "cream" | "ivory" | "white" | "brown" | "neutral" | "sage" | "blush" | "rose" | "taupe" | "lavender" | "slate")[];
+            /** Gold Karats */
+            gold_karats?: ("18k" | "22k" | "24k")[];
+            /** Gold Weight Grams */
+            gold_weight_grams?: number | string | null;
+            /**
+             * Making Charge
+             * @description NGN amount, not kobo.
+             * @default 0
+             */
+            making_charge: number | string;
+            /** Note */
+            note?: string | null;
+            /**
+             * Is Gold Karat Priced
+             * @default false
+             */
+            is_gold_karat_priced: boolean;
+            /** Images */
+            images?: components["schemas"]["ImageInput"][];
+        };
+        /** ProductData */
+        ProductData: {
+            /** Name */
+            name: string;
+            /** Slug */
+            slug: string;
+            /**
+             * Category Id
+             * Format: uuid
+             */
+            category_id: string;
+            /**
+             * Pricing Type
+             * @default fixed
+             * @enum {string}
+             */
+            pricing_type: "fixed" | "starting_from" | "price_on_request";
+            /** Price */
+            price?: string | null;
+            /**
+             * Stock
+             * @default 0
+             */
+            stock: number;
+            /**
+             * Status
+             * @default draft
+             * @enum {string}
+             */
+            status: "draft" | "active" | "archived";
+            /** Description */
+            description: string;
+            /** Label */
+            label?: ("best seller" | "new in" | "featured") | null;
+            /** Details */
+            details?: string[];
+            /** Sizes */
+            sizes?: ("one size" | "xs" | "s" | "m" | "l" | "xl" | "xxl" | "37" | "38" | "39" | "40" | "41" | "42")[];
+            /** Colors */
+            colors?: ("gold" | "black" | "cream" | "ivory" | "white" | "brown" | "neutral" | "sage" | "blush" | "rose" | "taupe" | "lavender" | "slate")[];
+            /** Gold Karats */
+            gold_karats?: ("18k" | "22k" | "24k")[];
+            /** Gold Weight Grams */
+            gold_weight_grams?: string | null;
+            /**
+             * Making Charge
+             * @description NGN amount, not kobo.
+             * @default 0
+             */
+            making_charge: string;
+            /** Note */
+            note?: string | null;
+            /**
+             * Is Gold Karat Priced
+             * @default false
+             */
+            is_gold_karat_priced: boolean;
+            /** Images */
+            images: components["schemas"]["ImageData"][];
+            /** Id */
+            id: string;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+            /** Category */
+            category: {
+                [key: string]: string;
+            };
+            display_price: components["schemas"]["PriceData"];
+        };
+        /** ProductPage */
+        ProductPage: {
+            /** Items */
+            items: components["schemas"]["ProductData"][];
+            /** Total */
+            total: number;
+            /** Page */
+            page: number;
+            /** Page Size */
+            page_size: number;
         };
         /** ProfileData */
         ProfileData: {
@@ -238,6 +1190,197 @@ export interface components {
              * @description UTC last update timestamp, ISO 8601.
              */
             updated_at: string;
+        };
+        /** RateBody */
+        RateBody: {
+            /**
+             * Rates
+             * @description Positive NGN per gram. Send all configured karats; omitted rates are removed.
+             */
+            rates: {
+                [key: string]: number | string;
+            };
+        };
+        /** RateData */
+        RateData: {
+            /**
+             * Karat
+             * @enum {string}
+             */
+            karat: "18k" | "22k" | "24k";
+            /**
+             * Rate
+             * @description NGN amount, not kobo.
+             */
+            rate: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+        };
+        /** SettingsBody */
+        "SettingsBody-Input": {
+            /**
+             * Store Name
+             * @default FM LUXE
+             */
+            store_name: string;
+            /**
+             * Support Email
+             * @default
+             */
+            support_email: string;
+            /**
+             * Support Phone
+             * @default
+             */
+            support_phone: string;
+            /**
+             * Store Address
+             * @default
+             */
+            store_address: string;
+            /**
+             * Business Hours
+             * @default
+             */
+            business_hours: string;
+            /**
+             * Primary Currency
+             * @default NGN
+             */
+            primary_currency: string;
+            /**
+             * Gbp Rate
+             * @description NGN amount, not kobo.
+             * @default 0
+             */
+            gbp_rate: number | string;
+            /**
+             * Usd Rate
+             * @description NGN amount, not kobo.
+             * @default 0
+             */
+            usd_rate: number | string;
+            /**
+             * Local Shipping Fee
+             * @description NGN amount, not kobo.
+             * @default 0
+             */
+            local_shipping_fee: number | string;
+            /**
+             * Uk Shipping Rate Per Kg
+             * @description NGN amount, not kobo.
+             * @default 0
+             */
+            uk_shipping_rate_per_kg: number | string;
+            /**
+             * Free Shipping Threshold
+             * @description NGN amount, not kobo.
+             * @default 0
+             */
+            free_shipping_threshold: number | string;
+        };
+        /** SettingsBody */
+        "SettingsBody-Output": {
+            /**
+             * Store Name
+             * @default FM LUXE
+             */
+            store_name: string;
+            /**
+             * Support Email
+             * @default
+             */
+            support_email: string;
+            /**
+             * Support Phone
+             * @default
+             */
+            support_phone: string;
+            /**
+             * Store Address
+             * @default
+             */
+            store_address: string;
+            /**
+             * Business Hours
+             * @default
+             */
+            business_hours: string;
+            /**
+             * Primary Currency
+             * @default NGN
+             */
+            primary_currency: string;
+            /**
+             * Gbp Rate
+             * @description NGN amount, not kobo.
+             * @default 0
+             */
+            gbp_rate: string;
+            /**
+             * Usd Rate
+             * @description NGN amount, not kobo.
+             * @default 0
+             */
+            usd_rate: string;
+            /**
+             * Local Shipping Fee
+             * @description NGN amount, not kobo.
+             * @default 0
+             */
+            local_shipping_fee: string;
+            /**
+             * Uk Shipping Rate Per Kg
+             * @description NGN amount, not kobo.
+             * @default 0
+             */
+            uk_shipping_rate_per_kg: string;
+            /**
+             * Free Shipping Threshold
+             * @description NGN amount, not kobo.
+             * @default 0
+             */
+            free_shipping_threshold: string;
+        };
+        /** UploadBody */
+        UploadBody: {
+            /**
+             * Kind
+             * @enum {string}
+             */
+            kind: "product" | "category" | "banner";
+            /**
+             * Content Type
+             * @enum {string}
+             */
+            content_type: "image/jpeg" | "image/png" | "image/webp" | "image/avif";
+            /**
+             * Size
+             * @description Exact file length in bytes; product/category maximum is 5 MiB.
+             */
+            size: number;
+        };
+        /** UploadData */
+        UploadData: {
+            /** Media Id */
+            media_id: string;
+            /**
+             * Upload Url
+             * @description Presigned PUT URL, valid for 5 minutes. Never persist or log this URL.
+             */
+            upload_url: string;
+            /** Headers */
+            headers: {
+                [key: string]: string;
+            };
+            /**
+             * Expires In
+             * @default 300
+             */
+            expires_in: number;
         };
     };
     responses: never;
@@ -671,6 +1814,4737 @@ export interface operations {
                      *       "error": {
                      *         "code": "AUTH_UNAVAILABLE",
                      *         "message": "Authentication configuration, JWKS service, or database unavailable."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+        };
+    };
+    listPublicProducts: {
+        parameters: {
+            query?: {
+                q?: string;
+                category?: string | null;
+                sort?: "newest" | "price_asc" | "price_desc" | "name";
+                page?: number;
+                page_size?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": true,
+                     *       "status": 200,
+                     *       "data": {
+                     *         "items": [
+                     *           {
+                     *             "name": "Gold pendant",
+                     *             "slug": "gold-pendant",
+                     *             "category_id": "00000000-0000-4000-8000-000000000001",
+                     *             "description": "A polished gold pendant.",
+                     *             "pricing_type": "fixed",
+                     *             "price": "120000.00",
+                     *             "stock": 3,
+                     *             "status": "active",
+                     *             "images": [
+                     *               {
+                     *                 "media_id": "00000000-0000-4000-8000-000000000001",
+                     *                 "alt": "Gold pendant on a neutral background",
+                     *                 "url": "https://storage.example.com/catalog-images/product/image.png",
+                     *                 "position": 0
+                     *               }
+                     *             ],
+                     *             "sizes": [
+                     *               "one size"
+                     *             ],
+                     *             "colors": [
+                     *               "gold"
+                     *             ],
+                     *             "gold_karats": [
+                     *               "18k"
+                     *             ],
+                     *             "is_gold_karat_priced": false,
+                     *             "id": "00000000-0000-4000-8000-000000000001",
+                     *             "created_at": "2026-10-30T12:00:00Z",
+                     *             "updated_at": "2026-10-30T12:00:00Z",
+                     *             "category": {
+                     *               "name": "Gold jewellery",
+                     *               "slug": "gold-jewellery"
+                     *             },
+                     *             "display_price": {
+                     *               "amount": 120000,
+                     *               "currency": "NGN",
+                     *               "available": true,
+                     *               "reason": null,
+                     *               "karat": null
+                     *             }
+                     *           }
+                     *         ],
+                     *         "total": 1,
+                     *         "page": 1,
+                     *         "page_size": 24
+                     *       },
+                     *       "message": null
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiSuccess_ProductPage_"];
+                };
+            };
+            /** @description A valid Neon bearer token is required. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 401,
+                     *       "error": {
+                     *         "code": "UNAUTHENTICATED",
+                     *         "message": "A valid Neon bearer token is required."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description An administrator role and verified identity are required. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 403,
+                     *       "error": {
+                     *         "code": "FORBIDDEN",
+                     *         "message": "An administrator role and verified identity are required."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description The catalog record was not found or is not public. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 404,
+                     *       "error": {
+                     *         "code": "NOT_FOUND",
+                     *         "message": "The catalog record was not found or is not public."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description The slug already exists or this record is still in use. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 409,
+                     *       "error": {
+                     *         "code": "CATALOG_CONFLICT",
+                     *         "message": "The slug already exists or this record is still in use."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Invalid fields; error.fieldErrors maps field names to messages. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 422,
+                     *       "error": {
+                     *         "code": "VALIDATION_ERROR",
+                     *         "message": "Invalid fields; error.fieldErrors maps field names to messages.",
+                     *         "fieldErrors": {
+                     *           "name": [
+                     *             "Enter a product name."
+                     *           ],
+                     *           "stock": [
+                     *             "Stock cannot be negative."
+                     *           ]
+                     *         }
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description The database or object storage is unavailable. */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 503,
+                     *       "error": {
+                     *         "code": "DEPENDENCY_UNAVAILABLE",
+                     *         "message": "The database or object storage is unavailable."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+        };
+    };
+    getPublicProduct: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                slug: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": true,
+                     *       "status": 200,
+                     *       "data": {
+                     *         "name": "Gold pendant",
+                     *         "slug": "gold-pendant",
+                     *         "category_id": "00000000-0000-4000-8000-000000000001",
+                     *         "description": "A polished gold pendant.",
+                     *         "pricing_type": "fixed",
+                     *         "price": "120000.00",
+                     *         "stock": 3,
+                     *         "status": "active",
+                     *         "images": [
+                     *           {
+                     *             "media_id": "00000000-0000-4000-8000-000000000001",
+                     *             "alt": "Gold pendant on a neutral background",
+                     *             "url": "https://storage.example.com/catalog-images/product/image.png",
+                     *             "position": 0
+                     *           }
+                     *         ],
+                     *         "sizes": [
+                     *           "one size"
+                     *         ],
+                     *         "colors": [
+                     *           "gold"
+                     *         ],
+                     *         "gold_karats": [
+                     *           "18k"
+                     *         ],
+                     *         "is_gold_karat_priced": false,
+                     *         "id": "00000000-0000-4000-8000-000000000001",
+                     *         "created_at": "2026-10-30T12:00:00Z",
+                     *         "updated_at": "2026-10-30T12:00:00Z",
+                     *         "category": {
+                     *           "name": "Gold jewellery",
+                     *           "slug": "gold-jewellery"
+                     *         },
+                     *         "display_price": {
+                     *           "amount": 120000,
+                     *           "currency": "NGN",
+                     *           "available": true,
+                     *           "reason": null,
+                     *           "karat": null
+                     *         }
+                     *       },
+                     *       "message": null
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiSuccess_ProductData_"];
+                };
+            };
+            /** @description A valid Neon bearer token is required. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 401,
+                     *       "error": {
+                     *         "code": "UNAUTHENTICATED",
+                     *         "message": "A valid Neon bearer token is required."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description An administrator role and verified identity are required. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 403,
+                     *       "error": {
+                     *         "code": "FORBIDDEN",
+                     *         "message": "An administrator role and verified identity are required."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description The catalog record was not found or is not public. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 404,
+                     *       "error": {
+                     *         "code": "NOT_FOUND",
+                     *         "message": "The catalog record was not found or is not public."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description The slug already exists or this record is still in use. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 409,
+                     *       "error": {
+                     *         "code": "CATALOG_CONFLICT",
+                     *         "message": "The slug already exists or this record is still in use."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Invalid fields; error.fieldErrors maps field names to messages. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 422,
+                     *       "error": {
+                     *         "code": "VALIDATION_ERROR",
+                     *         "message": "Invalid fields; error.fieldErrors maps field names to messages.",
+                     *         "fieldErrors": {
+                     *           "name": [
+                     *             "Enter a product name."
+                     *           ],
+                     *           "stock": [
+                     *             "Stock cannot be negative."
+                     *           ]
+                     *         }
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description The database or object storage is unavailable. */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 503,
+                     *       "error": {
+                     *         "code": "DEPENDENCY_UNAVAILABLE",
+                     *         "message": "The database or object storage is unavailable."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+        };
+    };
+    previewProductPrice: {
+        parameters: {
+            query?: {
+                karat?: ("18k" | "22k" | "24k") | null;
+            };
+            header?: never;
+            path: {
+                slug: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": true,
+                     *       "status": 200,
+                     *       "data": {
+                     *         "amount": 120000,
+                     *         "currency": "NGN",
+                     *         "available": true,
+                     *         "reason": null,
+                     *         "karat": null
+                     *       },
+                     *       "message": null
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiSuccess_PriceData_"];
+                };
+            };
+            /** @description A valid Neon bearer token is required. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 401,
+                     *       "error": {
+                     *         "code": "UNAUTHENTICATED",
+                     *         "message": "A valid Neon bearer token is required."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description An administrator role and verified identity are required. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 403,
+                     *       "error": {
+                     *         "code": "FORBIDDEN",
+                     *         "message": "An administrator role and verified identity are required."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description The catalog record was not found or is not public. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 404,
+                     *       "error": {
+                     *         "code": "NOT_FOUND",
+                     *         "message": "The catalog record was not found or is not public."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description The slug already exists or this record is still in use. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 409,
+                     *       "error": {
+                     *         "code": "CATALOG_CONFLICT",
+                     *         "message": "The slug already exists or this record is still in use."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Invalid fields; error.fieldErrors maps field names to messages. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 422,
+                     *       "error": {
+                     *         "code": "VALIDATION_ERROR",
+                     *         "message": "Invalid fields; error.fieldErrors maps field names to messages.",
+                     *         "fieldErrors": {
+                     *           "name": [
+                     *             "Enter a product name."
+                     *           ],
+                     *           "stock": [
+                     *             "Stock cannot be negative."
+                     *           ]
+                     *         }
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description The database or object storage is unavailable. */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 503,
+                     *       "error": {
+                     *         "code": "DEPENDENCY_UNAVAILABLE",
+                     *         "message": "The database or object storage is unavailable."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+        };
+    };
+    listPublicCategories: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": true,
+                     *       "status": 200,
+                     *       "data": [
+                     *         {
+                     *           "name": "Gold jewellery",
+                     *           "slug": "gold-jewellery",
+                     *           "category_type": "Gold",
+                     *           "images": [
+                     *             {
+                     *               "media_id": "00000000-0000-4000-8000-000000000001",
+                     *               "alt": "Gold pendant on a neutral background",
+                     *               "url": "https://storage.example.com/catalog-images/product/image.png",
+                     *               "position": 0
+                     *             }
+                     *           ],
+                     *           "id": "00000000-0000-4000-8000-000000000001",
+                     *           "created_at": "2026-10-30T12:00:00Z",
+                     *           "updated_at": "2026-10-30T12:00:00Z"
+                     *         }
+                     *       ],
+                     *       "message": null
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiSuccess_list_CategoryData__"];
+                };
+            };
+            /** @description A valid Neon bearer token is required. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 401,
+                     *       "error": {
+                     *         "code": "UNAUTHENTICATED",
+                     *         "message": "A valid Neon bearer token is required."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description An administrator role and verified identity are required. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 403,
+                     *       "error": {
+                     *         "code": "FORBIDDEN",
+                     *         "message": "An administrator role and verified identity are required."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description The catalog record was not found or is not public. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 404,
+                     *       "error": {
+                     *         "code": "NOT_FOUND",
+                     *         "message": "The catalog record was not found or is not public."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description The slug already exists or this record is still in use. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 409,
+                     *       "error": {
+                     *         "code": "CATALOG_CONFLICT",
+                     *         "message": "The slug already exists or this record is still in use."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Invalid fields; error.fieldErrors maps field names to messages. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 422,
+                     *       "error": {
+                     *         "code": "VALIDATION_ERROR",
+                     *         "message": "Invalid fields; error.fieldErrors maps field names to messages.",
+                     *         "fieldErrors": {
+                     *           "name": [
+                     *             "Enter a product name."
+                     *           ],
+                     *           "stock": [
+                     *             "Stock cannot be negative."
+                     *           ]
+                     *         }
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description The database or object storage is unavailable. */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 503,
+                     *       "error": {
+                     *         "code": "DEPENDENCY_UNAVAILABLE",
+                     *         "message": "The database or object storage is unavailable."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+        };
+    };
+    listPublicBanners: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": true,
+                     *       "status": 200,
+                     *       "data": [
+                     *         {
+                     *           "title": "Considered details",
+                     *           "description": "Explore our latest collection.",
+                     *           "route": "/shop",
+                     *           "images": [
+                     *             {
+                     *               "media_id": "00000000-0000-4000-8000-000000000001",
+                     *               "alt": "Gold pendant on a neutral background",
+                     *               "url": "https://storage.example.com/catalog-images/product/image.png",
+                     *               "position": 0
+                     *             }
+                     *           ],
+                     *           "id": "00000000-0000-4000-8000-000000000001",
+                     *           "created_at": "2026-10-30T12:00:00Z",
+                     *           "updated_at": "2026-10-30T12:00:00Z"
+                     *         }
+                     *       ],
+                     *       "message": null
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiSuccess_list_BannerData__"];
+                };
+            };
+            /** @description A valid Neon bearer token is required. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 401,
+                     *       "error": {
+                     *         "code": "UNAUTHENTICATED",
+                     *         "message": "A valid Neon bearer token is required."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description An administrator role and verified identity are required. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 403,
+                     *       "error": {
+                     *         "code": "FORBIDDEN",
+                     *         "message": "An administrator role and verified identity are required."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description The catalog record was not found or is not public. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 404,
+                     *       "error": {
+                     *         "code": "NOT_FOUND",
+                     *         "message": "The catalog record was not found or is not public."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description The slug already exists or this record is still in use. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 409,
+                     *       "error": {
+                     *         "code": "CATALOG_CONFLICT",
+                     *         "message": "The slug already exists or this record is still in use."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Invalid fields; error.fieldErrors maps field names to messages. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 422,
+                     *       "error": {
+                     *         "code": "VALIDATION_ERROR",
+                     *         "message": "Invalid fields; error.fieldErrors maps field names to messages.",
+                     *         "fieldErrors": {
+                     *           "name": [
+                     *             "Enter a product name."
+                     *           ],
+                     *           "stock": [
+                     *             "Stock cannot be negative."
+                     *           ]
+                     *         }
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description The database or object storage is unavailable. */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 503,
+                     *       "error": {
+                     *         "code": "DEPENDENCY_UNAVAILABLE",
+                     *         "message": "The database or object storage is unavailable."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+        };
+    };
+    listAdminProducts: {
+        parameters: {
+            query?: {
+                page?: number;
+                page_size?: number;
+                q?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": true,
+                     *       "status": 200,
+                     *       "data": {
+                     *         "items": [
+                     *           {
+                     *             "name": "Gold pendant",
+                     *             "slug": "gold-pendant",
+                     *             "category_id": "00000000-0000-4000-8000-000000000001",
+                     *             "description": "A polished gold pendant.",
+                     *             "pricing_type": "fixed",
+                     *             "price": "120000.00",
+                     *             "stock": 3,
+                     *             "status": "active",
+                     *             "images": [
+                     *               {
+                     *                 "media_id": "00000000-0000-4000-8000-000000000001",
+                     *                 "alt": "Gold pendant on a neutral background",
+                     *                 "url": "https://storage.example.com/catalog-images/product/image.png",
+                     *                 "position": 0
+                     *               }
+                     *             ],
+                     *             "sizes": [
+                     *               "one size"
+                     *             ],
+                     *             "colors": [
+                     *               "gold"
+                     *             ],
+                     *             "gold_karats": [
+                     *               "18k"
+                     *             ],
+                     *             "is_gold_karat_priced": false,
+                     *             "id": "00000000-0000-4000-8000-000000000001",
+                     *             "created_at": "2026-10-30T12:00:00Z",
+                     *             "updated_at": "2026-10-30T12:00:00Z",
+                     *             "category": {
+                     *               "name": "Gold jewellery",
+                     *               "slug": "gold-jewellery"
+                     *             },
+                     *             "display_price": {
+                     *               "amount": 120000,
+                     *               "currency": "NGN",
+                     *               "available": true,
+                     *               "reason": null,
+                     *               "karat": null
+                     *             }
+                     *           }
+                     *         ],
+                     *         "total": 1,
+                     *         "page": 1,
+                     *         "page_size": 24
+                     *       },
+                     *       "message": null
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiSuccess_ProductPage_"];
+                };
+            };
+            /** @description A valid Neon bearer token is required. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 401,
+                     *       "error": {
+                     *         "code": "UNAUTHENTICATED",
+                     *         "message": "A valid Neon bearer token is required."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description An administrator role and verified identity are required. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 403,
+                     *       "error": {
+                     *         "code": "FORBIDDEN",
+                     *         "message": "An administrator role and verified identity are required."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description The catalog record was not found or is not public. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 404,
+                     *       "error": {
+                     *         "code": "NOT_FOUND",
+                     *         "message": "The catalog record was not found or is not public."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description The slug already exists or this record is still in use. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 409,
+                     *       "error": {
+                     *         "code": "CATALOG_CONFLICT",
+                     *         "message": "The slug already exists or this record is still in use."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Invalid fields; error.fieldErrors maps field names to messages. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 422,
+                     *       "error": {
+                     *         "code": "VALIDATION_ERROR",
+                     *         "message": "Invalid fields; error.fieldErrors maps field names to messages.",
+                     *         "fieldErrors": {
+                     *           "name": [
+                     *             "Enter a product name."
+                     *           ],
+                     *           "stock": [
+                     *             "Stock cannot be negative."
+                     *           ]
+                     *         }
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description The database or object storage is unavailable. */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 503,
+                     *       "error": {
+                     *         "code": "DEPENDENCY_UNAVAILABLE",
+                     *         "message": "The database or object storage is unavailable."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+        };
+    };
+    createProduct: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                /**
+                 * @example {
+                 *       "name": "Gold pendant",
+                 *       "slug": "gold-pendant",
+                 *       "category_id": "00000000-0000-4000-8000-000000000001",
+                 *       "description": "A polished gold pendant.",
+                 *       "pricing_type": "fixed",
+                 *       "price": "120000.00",
+                 *       "stock": 3,
+                 *       "status": "active",
+                 *       "images": [
+                 *         {
+                 *           "media_id": "00000000-0000-4000-8000-000000000001",
+                 *           "alt": "Gold pendant on a neutral background"
+                 *         }
+                 *       ],
+                 *       "sizes": [
+                 *         "one size"
+                 *       ],
+                 *       "colors": [
+                 *         "gold"
+                 *       ],
+                 *       "gold_karats": [
+                 *         "18k"
+                 *       ],
+                 *       "is_gold_karat_priced": false
+                 *     }
+                 */
+                "application/json": components["schemas"]["ProductBody"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": true,
+                     *       "status": 201,
+                     *       "data": {
+                     *         "name": "Gold pendant",
+                     *         "slug": "gold-pendant",
+                     *         "category_id": "00000000-0000-4000-8000-000000000001",
+                     *         "description": "A polished gold pendant.",
+                     *         "pricing_type": "fixed",
+                     *         "price": "120000.00",
+                     *         "stock": 3,
+                     *         "status": "active",
+                     *         "images": [
+                     *           {
+                     *             "media_id": "00000000-0000-4000-8000-000000000001",
+                     *             "alt": "Gold pendant on a neutral background",
+                     *             "url": "https://storage.example.com/catalog-images/product/image.png",
+                     *             "position": 0
+                     *           }
+                     *         ],
+                     *         "sizes": [
+                     *           "one size"
+                     *         ],
+                     *         "colors": [
+                     *           "gold"
+                     *         ],
+                     *         "gold_karats": [
+                     *           "18k"
+                     *         ],
+                     *         "is_gold_karat_priced": false,
+                     *         "id": "00000000-0000-4000-8000-000000000001",
+                     *         "created_at": "2026-10-30T12:00:00Z",
+                     *         "updated_at": "2026-10-30T12:00:00Z",
+                     *         "category": {
+                     *           "name": "Gold jewellery",
+                     *           "slug": "gold-jewellery"
+                     *         },
+                     *         "display_price": {
+                     *           "amount": 120000,
+                     *           "currency": "NGN",
+                     *           "available": true,
+                     *           "reason": null,
+                     *           "karat": null
+                     *         }
+                     *       },
+                     *       "message": null
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiSuccess_ProductData_"];
+                };
+            };
+            /** @description A valid Neon bearer token is required. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 401,
+                     *       "error": {
+                     *         "code": "UNAUTHENTICATED",
+                     *         "message": "A valid Neon bearer token is required."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description An administrator role and verified identity are required. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 403,
+                     *       "error": {
+                     *         "code": "FORBIDDEN",
+                     *         "message": "An administrator role and verified identity are required."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description The catalog record was not found or is not public. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 404,
+                     *       "error": {
+                     *         "code": "NOT_FOUND",
+                     *         "message": "The catalog record was not found or is not public."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description The slug already exists or this record is still in use. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 409,
+                     *       "error": {
+                     *         "code": "CATALOG_CONFLICT",
+                     *         "message": "The slug already exists or this record is still in use."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Invalid fields; error.fieldErrors maps field names to messages. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 422,
+                     *       "error": {
+                     *         "code": "VALIDATION_ERROR",
+                     *         "message": "Invalid fields; error.fieldErrors maps field names to messages.",
+                     *         "fieldErrors": {
+                     *           "name": [
+                     *             "Enter a product name."
+                     *           ],
+                     *           "stock": [
+                     *             "Stock cannot be negative."
+                     *           ]
+                     *         }
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description The database or object storage is unavailable. */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 503,
+                     *       "error": {
+                     *         "code": "DEPENDENCY_UNAVAILABLE",
+                     *         "message": "The database or object storage is unavailable."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+        };
+    };
+    getAdminProduct: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                identifier: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": true,
+                     *       "status": 200,
+                     *       "data": {
+                     *         "name": "Gold pendant",
+                     *         "slug": "gold-pendant",
+                     *         "category_id": "00000000-0000-4000-8000-000000000001",
+                     *         "description": "A polished gold pendant.",
+                     *         "pricing_type": "fixed",
+                     *         "price": "120000.00",
+                     *         "stock": 3,
+                     *         "status": "active",
+                     *         "images": [
+                     *           {
+                     *             "media_id": "00000000-0000-4000-8000-000000000001",
+                     *             "alt": "Gold pendant on a neutral background",
+                     *             "url": "https://storage.example.com/catalog-images/product/image.png",
+                     *             "position": 0
+                     *           }
+                     *         ],
+                     *         "sizes": [
+                     *           "one size"
+                     *         ],
+                     *         "colors": [
+                     *           "gold"
+                     *         ],
+                     *         "gold_karats": [
+                     *           "18k"
+                     *         ],
+                     *         "is_gold_karat_priced": false,
+                     *         "id": "00000000-0000-4000-8000-000000000001",
+                     *         "created_at": "2026-10-30T12:00:00Z",
+                     *         "updated_at": "2026-10-30T12:00:00Z",
+                     *         "category": {
+                     *           "name": "Gold jewellery",
+                     *           "slug": "gold-jewellery"
+                     *         },
+                     *         "display_price": {
+                     *           "amount": 120000,
+                     *           "currency": "NGN",
+                     *           "available": true,
+                     *           "reason": null,
+                     *           "karat": null
+                     *         }
+                     *       },
+                     *       "message": null
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiSuccess_ProductData_"];
+                };
+            };
+            /** @description A valid Neon bearer token is required. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 401,
+                     *       "error": {
+                     *         "code": "UNAUTHENTICATED",
+                     *         "message": "A valid Neon bearer token is required."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description An administrator role and verified identity are required. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 403,
+                     *       "error": {
+                     *         "code": "FORBIDDEN",
+                     *         "message": "An administrator role and verified identity are required."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description The catalog record was not found or is not public. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 404,
+                     *       "error": {
+                     *         "code": "NOT_FOUND",
+                     *         "message": "The catalog record was not found or is not public."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description The slug already exists or this record is still in use. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 409,
+                     *       "error": {
+                     *         "code": "CATALOG_CONFLICT",
+                     *         "message": "The slug already exists or this record is still in use."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Invalid fields; error.fieldErrors maps field names to messages. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 422,
+                     *       "error": {
+                     *         "code": "VALIDATION_ERROR",
+                     *         "message": "Invalid fields; error.fieldErrors maps field names to messages.",
+                     *         "fieldErrors": {
+                     *           "name": [
+                     *             "Enter a product name."
+                     *           ],
+                     *           "stock": [
+                     *             "Stock cannot be negative."
+                     *           ]
+                     *         }
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description The database or object storage is unavailable. */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 503,
+                     *       "error": {
+                     *         "code": "DEPENDENCY_UNAVAILABLE",
+                     *         "message": "The database or object storage is unavailable."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+        };
+    };
+    replaceProduct: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                identifier: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                /**
+                 * @example {
+                 *       "name": "Gold pendant",
+                 *       "slug": "gold-pendant",
+                 *       "category_id": "00000000-0000-4000-8000-000000000001",
+                 *       "description": "A polished gold pendant.",
+                 *       "pricing_type": "fixed",
+                 *       "price": "120000.00",
+                 *       "stock": 3,
+                 *       "status": "active",
+                 *       "images": [
+                 *         {
+                 *           "media_id": "00000000-0000-4000-8000-000000000001",
+                 *           "alt": "Gold pendant on a neutral background"
+                 *         }
+                 *       ],
+                 *       "sizes": [
+                 *         "one size"
+                 *       ],
+                 *       "colors": [
+                 *         "gold"
+                 *       ],
+                 *       "gold_karats": [
+                 *         "18k"
+                 *       ],
+                 *       "is_gold_karat_priced": false
+                 *     }
+                 */
+                "application/json": components["schemas"]["ProductBody"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": true,
+                     *       "status": 200,
+                     *       "data": {
+                     *         "name": "Gold pendant",
+                     *         "slug": "gold-pendant",
+                     *         "category_id": "00000000-0000-4000-8000-000000000001",
+                     *         "description": "A polished gold pendant.",
+                     *         "pricing_type": "fixed",
+                     *         "price": "120000.00",
+                     *         "stock": 3,
+                     *         "status": "active",
+                     *         "images": [
+                     *           {
+                     *             "media_id": "00000000-0000-4000-8000-000000000001",
+                     *             "alt": "Gold pendant on a neutral background",
+                     *             "url": "https://storage.example.com/catalog-images/product/image.png",
+                     *             "position": 0
+                     *           }
+                     *         ],
+                     *         "sizes": [
+                     *           "one size"
+                     *         ],
+                     *         "colors": [
+                     *           "gold"
+                     *         ],
+                     *         "gold_karats": [
+                     *           "18k"
+                     *         ],
+                     *         "is_gold_karat_priced": false,
+                     *         "id": "00000000-0000-4000-8000-000000000001",
+                     *         "created_at": "2026-10-30T12:00:00Z",
+                     *         "updated_at": "2026-10-30T12:00:00Z",
+                     *         "category": {
+                     *           "name": "Gold jewellery",
+                     *           "slug": "gold-jewellery"
+                     *         },
+                     *         "display_price": {
+                     *           "amount": 120000,
+                     *           "currency": "NGN",
+                     *           "available": true,
+                     *           "reason": null,
+                     *           "karat": null
+                     *         }
+                     *       },
+                     *       "message": null
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiSuccess_ProductData_"];
+                };
+            };
+            /** @description A valid Neon bearer token is required. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 401,
+                     *       "error": {
+                     *         "code": "UNAUTHENTICATED",
+                     *         "message": "A valid Neon bearer token is required."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description An administrator role and verified identity are required. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 403,
+                     *       "error": {
+                     *         "code": "FORBIDDEN",
+                     *         "message": "An administrator role and verified identity are required."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description The catalog record was not found or is not public. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 404,
+                     *       "error": {
+                     *         "code": "NOT_FOUND",
+                     *         "message": "The catalog record was not found or is not public."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description The slug already exists or this record is still in use. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 409,
+                     *       "error": {
+                     *         "code": "CATALOG_CONFLICT",
+                     *         "message": "The slug already exists or this record is still in use."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Invalid fields; error.fieldErrors maps field names to messages. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 422,
+                     *       "error": {
+                     *         "code": "VALIDATION_ERROR",
+                     *         "message": "Invalid fields; error.fieldErrors maps field names to messages.",
+                     *         "fieldErrors": {
+                     *           "name": [
+                     *             "Enter a product name."
+                     *           ],
+                     *           "stock": [
+                     *             "Stock cannot be negative."
+                     *           ]
+                     *         }
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description The database or object storage is unavailable. */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 503,
+                     *       "error": {
+                     *         "code": "DEPENDENCY_UNAVAILABLE",
+                     *         "message": "The database or object storage is unavailable."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+        };
+    };
+    deleteProduct: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                identifier: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiSuccess_Deleted_"];
+                };
+            };
+            /** @description A valid Neon bearer token is required. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 401,
+                     *       "error": {
+                     *         "code": "UNAUTHENTICATED",
+                     *         "message": "A valid Neon bearer token is required."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description An administrator role and verified identity are required. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 403,
+                     *       "error": {
+                     *         "code": "FORBIDDEN",
+                     *         "message": "An administrator role and verified identity are required."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description The catalog record was not found or is not public. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 404,
+                     *       "error": {
+                     *         "code": "NOT_FOUND",
+                     *         "message": "The catalog record was not found or is not public."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description The slug already exists or this record is still in use. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 409,
+                     *       "error": {
+                     *         "code": "CATALOG_CONFLICT",
+                     *         "message": "The slug already exists or this record is still in use."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Invalid fields; error.fieldErrors maps field names to messages. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 422,
+                     *       "error": {
+                     *         "code": "VALIDATION_ERROR",
+                     *         "message": "Invalid fields; error.fieldErrors maps field names to messages.",
+                     *         "fieldErrors": {
+                     *           "name": [
+                     *             "Enter a product name."
+                     *           ],
+                     *           "stock": [
+                     *             "Stock cannot be negative."
+                     *           ]
+                     *         }
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description The database or object storage is unavailable. */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 503,
+                     *       "error": {
+                     *         "code": "DEPENDENCY_UNAVAILABLE",
+                     *         "message": "The database or object storage is unavailable."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+        };
+    };
+    listAdminCategorys: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": true,
+                     *       "status": 200,
+                     *       "data": [
+                     *         {
+                     *           "name": "Gold jewellery",
+                     *           "slug": "gold-jewellery",
+                     *           "category_type": "Gold",
+                     *           "images": [
+                     *             {
+                     *               "media_id": "00000000-0000-4000-8000-000000000001",
+                     *               "alt": "Gold pendant on a neutral background",
+                     *               "url": "https://storage.example.com/catalog-images/product/image.png",
+                     *               "position": 0
+                     *             }
+                     *           ],
+                     *           "id": "00000000-0000-4000-8000-000000000001",
+                     *           "created_at": "2026-10-30T12:00:00Z",
+                     *           "updated_at": "2026-10-30T12:00:00Z"
+                     *         }
+                     *       ],
+                     *       "message": null
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiSuccess_list_CategoryData__"];
+                };
+            };
+            /** @description A valid Neon bearer token is required. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 401,
+                     *       "error": {
+                     *         "code": "UNAUTHENTICATED",
+                     *         "message": "A valid Neon bearer token is required."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description An administrator role and verified identity are required. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 403,
+                     *       "error": {
+                     *         "code": "FORBIDDEN",
+                     *         "message": "An administrator role and verified identity are required."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description The catalog record was not found or is not public. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 404,
+                     *       "error": {
+                     *         "code": "NOT_FOUND",
+                     *         "message": "The catalog record was not found or is not public."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description The slug already exists or this record is still in use. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 409,
+                     *       "error": {
+                     *         "code": "CATALOG_CONFLICT",
+                     *         "message": "The slug already exists or this record is still in use."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Invalid fields; error.fieldErrors maps field names to messages. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 422,
+                     *       "error": {
+                     *         "code": "VALIDATION_ERROR",
+                     *         "message": "Invalid fields; error.fieldErrors maps field names to messages.",
+                     *         "fieldErrors": {
+                     *           "name": [
+                     *             "Enter a product name."
+                     *           ],
+                     *           "stock": [
+                     *             "Stock cannot be negative."
+                     *           ]
+                     *         }
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description The database or object storage is unavailable. */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 503,
+                     *       "error": {
+                     *         "code": "DEPENDENCY_UNAVAILABLE",
+                     *         "message": "The database or object storage is unavailable."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+        };
+    };
+    createCategory: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                /**
+                 * @example {
+                 *       "name": "Gold jewellery",
+                 *       "slug": "gold-jewellery",
+                 *       "category_type": "Gold",
+                 *       "images": []
+                 *     }
+                 */
+                "application/json": components["schemas"]["CategoryBody"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": true,
+                     *       "status": 201,
+                     *       "data": {
+                     *         "name": "Gold jewellery",
+                     *         "slug": "gold-jewellery",
+                     *         "category_type": "Gold",
+                     *         "images": [
+                     *           {
+                     *             "media_id": "00000000-0000-4000-8000-000000000001",
+                     *             "alt": "Gold pendant on a neutral background",
+                     *             "url": "https://storage.example.com/catalog-images/product/image.png",
+                     *             "position": 0
+                     *           }
+                     *         ],
+                     *         "id": "00000000-0000-4000-8000-000000000001",
+                     *         "created_at": "2026-10-30T12:00:00Z",
+                     *         "updated_at": "2026-10-30T12:00:00Z"
+                     *       },
+                     *       "message": null
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiSuccess_CategoryData_"];
+                };
+            };
+            /** @description A valid Neon bearer token is required. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 401,
+                     *       "error": {
+                     *         "code": "UNAUTHENTICATED",
+                     *         "message": "A valid Neon bearer token is required."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description An administrator role and verified identity are required. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 403,
+                     *       "error": {
+                     *         "code": "FORBIDDEN",
+                     *         "message": "An administrator role and verified identity are required."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description The catalog record was not found or is not public. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 404,
+                     *       "error": {
+                     *         "code": "NOT_FOUND",
+                     *         "message": "The catalog record was not found or is not public."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description The slug already exists or this record is still in use. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 409,
+                     *       "error": {
+                     *         "code": "CATALOG_CONFLICT",
+                     *         "message": "The slug already exists or this record is still in use."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Invalid fields; error.fieldErrors maps field names to messages. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 422,
+                     *       "error": {
+                     *         "code": "VALIDATION_ERROR",
+                     *         "message": "Invalid fields; error.fieldErrors maps field names to messages.",
+                     *         "fieldErrors": {
+                     *           "name": [
+                     *             "Enter a product name."
+                     *           ],
+                     *           "stock": [
+                     *             "Stock cannot be negative."
+                     *           ]
+                     *         }
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description The database or object storage is unavailable. */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 503,
+                     *       "error": {
+                     *         "code": "DEPENDENCY_UNAVAILABLE",
+                     *         "message": "The database or object storage is unavailable."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+        };
+    };
+    getAdminCategory: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                identifier: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": true,
+                     *       "status": 200,
+                     *       "data": {
+                     *         "name": "Gold jewellery",
+                     *         "slug": "gold-jewellery",
+                     *         "category_type": "Gold",
+                     *         "images": [
+                     *           {
+                     *             "media_id": "00000000-0000-4000-8000-000000000001",
+                     *             "alt": "Gold pendant on a neutral background",
+                     *             "url": "https://storage.example.com/catalog-images/product/image.png",
+                     *             "position": 0
+                     *           }
+                     *         ],
+                     *         "id": "00000000-0000-4000-8000-000000000001",
+                     *         "created_at": "2026-10-30T12:00:00Z",
+                     *         "updated_at": "2026-10-30T12:00:00Z"
+                     *       },
+                     *       "message": null
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiSuccess_CategoryData_"];
+                };
+            };
+            /** @description A valid Neon bearer token is required. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 401,
+                     *       "error": {
+                     *         "code": "UNAUTHENTICATED",
+                     *         "message": "A valid Neon bearer token is required."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description An administrator role and verified identity are required. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 403,
+                     *       "error": {
+                     *         "code": "FORBIDDEN",
+                     *         "message": "An administrator role and verified identity are required."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description The catalog record was not found or is not public. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 404,
+                     *       "error": {
+                     *         "code": "NOT_FOUND",
+                     *         "message": "The catalog record was not found or is not public."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description The slug already exists or this record is still in use. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 409,
+                     *       "error": {
+                     *         "code": "CATALOG_CONFLICT",
+                     *         "message": "The slug already exists or this record is still in use."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Invalid fields; error.fieldErrors maps field names to messages. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 422,
+                     *       "error": {
+                     *         "code": "VALIDATION_ERROR",
+                     *         "message": "Invalid fields; error.fieldErrors maps field names to messages.",
+                     *         "fieldErrors": {
+                     *           "name": [
+                     *             "Enter a product name."
+                     *           ],
+                     *           "stock": [
+                     *             "Stock cannot be negative."
+                     *           ]
+                     *         }
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description The database or object storage is unavailable. */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 503,
+                     *       "error": {
+                     *         "code": "DEPENDENCY_UNAVAILABLE",
+                     *         "message": "The database or object storage is unavailable."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+        };
+    };
+    replaceCategory: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                identifier: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                /**
+                 * @example {
+                 *       "name": "Gold jewellery",
+                 *       "slug": "gold-jewellery",
+                 *       "category_type": "Gold",
+                 *       "images": []
+                 *     }
+                 */
+                "application/json": components["schemas"]["CategoryBody"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": true,
+                     *       "status": 200,
+                     *       "data": {
+                     *         "name": "Gold jewellery",
+                     *         "slug": "gold-jewellery",
+                     *         "category_type": "Gold",
+                     *         "images": [
+                     *           {
+                     *             "media_id": "00000000-0000-4000-8000-000000000001",
+                     *             "alt": "Gold pendant on a neutral background",
+                     *             "url": "https://storage.example.com/catalog-images/product/image.png",
+                     *             "position": 0
+                     *           }
+                     *         ],
+                     *         "id": "00000000-0000-4000-8000-000000000001",
+                     *         "created_at": "2026-10-30T12:00:00Z",
+                     *         "updated_at": "2026-10-30T12:00:00Z"
+                     *       },
+                     *       "message": null
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiSuccess_CategoryData_"];
+                };
+            };
+            /** @description A valid Neon bearer token is required. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 401,
+                     *       "error": {
+                     *         "code": "UNAUTHENTICATED",
+                     *         "message": "A valid Neon bearer token is required."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description An administrator role and verified identity are required. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 403,
+                     *       "error": {
+                     *         "code": "FORBIDDEN",
+                     *         "message": "An administrator role and verified identity are required."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description The catalog record was not found or is not public. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 404,
+                     *       "error": {
+                     *         "code": "NOT_FOUND",
+                     *         "message": "The catalog record was not found or is not public."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description The slug already exists or this record is still in use. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 409,
+                     *       "error": {
+                     *         "code": "CATALOG_CONFLICT",
+                     *         "message": "The slug already exists or this record is still in use."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Invalid fields; error.fieldErrors maps field names to messages. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 422,
+                     *       "error": {
+                     *         "code": "VALIDATION_ERROR",
+                     *         "message": "Invalid fields; error.fieldErrors maps field names to messages.",
+                     *         "fieldErrors": {
+                     *           "name": [
+                     *             "Enter a product name."
+                     *           ],
+                     *           "stock": [
+                     *             "Stock cannot be negative."
+                     *           ]
+                     *         }
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description The database or object storage is unavailable. */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 503,
+                     *       "error": {
+                     *         "code": "DEPENDENCY_UNAVAILABLE",
+                     *         "message": "The database or object storage is unavailable."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+        };
+    };
+    deleteCategory: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                identifier: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiSuccess_Deleted_"];
+                };
+            };
+            /** @description A valid Neon bearer token is required. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 401,
+                     *       "error": {
+                     *         "code": "UNAUTHENTICATED",
+                     *         "message": "A valid Neon bearer token is required."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description An administrator role and verified identity are required. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 403,
+                     *       "error": {
+                     *         "code": "FORBIDDEN",
+                     *         "message": "An administrator role and verified identity are required."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description The catalog record was not found or is not public. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 404,
+                     *       "error": {
+                     *         "code": "NOT_FOUND",
+                     *         "message": "The catalog record was not found or is not public."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description The slug already exists or this record is still in use. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 409,
+                     *       "error": {
+                     *         "code": "CATALOG_CONFLICT",
+                     *         "message": "The slug already exists or this record is still in use."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Invalid fields; error.fieldErrors maps field names to messages. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 422,
+                     *       "error": {
+                     *         "code": "VALIDATION_ERROR",
+                     *         "message": "Invalid fields; error.fieldErrors maps field names to messages.",
+                     *         "fieldErrors": {
+                     *           "name": [
+                     *             "Enter a product name."
+                     *           ],
+                     *           "stock": [
+                     *             "Stock cannot be negative."
+                     *           ]
+                     *         }
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description The database or object storage is unavailable. */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 503,
+                     *       "error": {
+                     *         "code": "DEPENDENCY_UNAVAILABLE",
+                     *         "message": "The database or object storage is unavailable."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+        };
+    };
+    listAdminBanners: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": true,
+                     *       "status": 200,
+                     *       "data": [
+                     *         {
+                     *           "title": "Considered details",
+                     *           "description": "Explore our latest collection.",
+                     *           "route": "/shop",
+                     *           "images": [
+                     *             {
+                     *               "media_id": "00000000-0000-4000-8000-000000000001",
+                     *               "alt": "Gold pendant on a neutral background",
+                     *               "url": "https://storage.example.com/catalog-images/product/image.png",
+                     *               "position": 0
+                     *             }
+                     *           ],
+                     *           "id": "00000000-0000-4000-8000-000000000001",
+                     *           "created_at": "2026-10-30T12:00:00Z",
+                     *           "updated_at": "2026-10-30T12:00:00Z"
+                     *         }
+                     *       ],
+                     *       "message": null
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiSuccess_list_BannerData__"];
+                };
+            };
+            /** @description A valid Neon bearer token is required. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 401,
+                     *       "error": {
+                     *         "code": "UNAUTHENTICATED",
+                     *         "message": "A valid Neon bearer token is required."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description An administrator role and verified identity are required. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 403,
+                     *       "error": {
+                     *         "code": "FORBIDDEN",
+                     *         "message": "An administrator role and verified identity are required."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description The catalog record was not found or is not public. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 404,
+                     *       "error": {
+                     *         "code": "NOT_FOUND",
+                     *         "message": "The catalog record was not found or is not public."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description The slug already exists or this record is still in use. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 409,
+                     *       "error": {
+                     *         "code": "CATALOG_CONFLICT",
+                     *         "message": "The slug already exists or this record is still in use."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Invalid fields; error.fieldErrors maps field names to messages. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 422,
+                     *       "error": {
+                     *         "code": "VALIDATION_ERROR",
+                     *         "message": "Invalid fields; error.fieldErrors maps field names to messages.",
+                     *         "fieldErrors": {
+                     *           "name": [
+                     *             "Enter a product name."
+                     *           ],
+                     *           "stock": [
+                     *             "Stock cannot be negative."
+                     *           ]
+                     *         }
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description The database or object storage is unavailable. */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 503,
+                     *       "error": {
+                     *         "code": "DEPENDENCY_UNAVAILABLE",
+                     *         "message": "The database or object storage is unavailable."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+        };
+    };
+    createBanner: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                /**
+                 * @example {
+                 *       "title": "Considered details",
+                 *       "description": "Explore our latest collection.",
+                 *       "route": "/shop",
+                 *       "images": [
+                 *         {
+                 *           "media_id": "00000000-0000-4000-8000-000000000001",
+                 *           "alt": "Gold pendant on a neutral background"
+                 *         }
+                 *       ]
+                 *     }
+                 */
+                "application/json": components["schemas"]["BannerBody"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": true,
+                     *       "status": 201,
+                     *       "data": {
+                     *         "title": "Considered details",
+                     *         "description": "Explore our latest collection.",
+                     *         "route": "/shop",
+                     *         "images": [
+                     *           {
+                     *             "media_id": "00000000-0000-4000-8000-000000000001",
+                     *             "alt": "Gold pendant on a neutral background",
+                     *             "url": "https://storage.example.com/catalog-images/product/image.png",
+                     *             "position": 0
+                     *           }
+                     *         ],
+                     *         "id": "00000000-0000-4000-8000-000000000001",
+                     *         "created_at": "2026-10-30T12:00:00Z",
+                     *         "updated_at": "2026-10-30T12:00:00Z"
+                     *       },
+                     *       "message": null
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiSuccess_BannerData_"];
+                };
+            };
+            /** @description A valid Neon bearer token is required. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 401,
+                     *       "error": {
+                     *         "code": "UNAUTHENTICATED",
+                     *         "message": "A valid Neon bearer token is required."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description An administrator role and verified identity are required. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 403,
+                     *       "error": {
+                     *         "code": "FORBIDDEN",
+                     *         "message": "An administrator role and verified identity are required."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description The catalog record was not found or is not public. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 404,
+                     *       "error": {
+                     *         "code": "NOT_FOUND",
+                     *         "message": "The catalog record was not found or is not public."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description The slug already exists or this record is still in use. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 409,
+                     *       "error": {
+                     *         "code": "CATALOG_CONFLICT",
+                     *         "message": "The slug already exists or this record is still in use."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Invalid fields; error.fieldErrors maps field names to messages. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 422,
+                     *       "error": {
+                     *         "code": "VALIDATION_ERROR",
+                     *         "message": "Invalid fields; error.fieldErrors maps field names to messages.",
+                     *         "fieldErrors": {
+                     *           "name": [
+                     *             "Enter a product name."
+                     *           ],
+                     *           "stock": [
+                     *             "Stock cannot be negative."
+                     *           ]
+                     *         }
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description The database or object storage is unavailable. */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 503,
+                     *       "error": {
+                     *         "code": "DEPENDENCY_UNAVAILABLE",
+                     *         "message": "The database or object storage is unavailable."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+        };
+    };
+    getAdminBanner: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                identifier: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": true,
+                     *       "status": 200,
+                     *       "data": {
+                     *         "title": "Considered details",
+                     *         "description": "Explore our latest collection.",
+                     *         "route": "/shop",
+                     *         "images": [
+                     *           {
+                     *             "media_id": "00000000-0000-4000-8000-000000000001",
+                     *             "alt": "Gold pendant on a neutral background",
+                     *             "url": "https://storage.example.com/catalog-images/product/image.png",
+                     *             "position": 0
+                     *           }
+                     *         ],
+                     *         "id": "00000000-0000-4000-8000-000000000001",
+                     *         "created_at": "2026-10-30T12:00:00Z",
+                     *         "updated_at": "2026-10-30T12:00:00Z"
+                     *       },
+                     *       "message": null
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiSuccess_BannerData_"];
+                };
+            };
+            /** @description A valid Neon bearer token is required. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 401,
+                     *       "error": {
+                     *         "code": "UNAUTHENTICATED",
+                     *         "message": "A valid Neon bearer token is required."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description An administrator role and verified identity are required. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 403,
+                     *       "error": {
+                     *         "code": "FORBIDDEN",
+                     *         "message": "An administrator role and verified identity are required."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description The catalog record was not found or is not public. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 404,
+                     *       "error": {
+                     *         "code": "NOT_FOUND",
+                     *         "message": "The catalog record was not found or is not public."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description The slug already exists or this record is still in use. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 409,
+                     *       "error": {
+                     *         "code": "CATALOG_CONFLICT",
+                     *         "message": "The slug already exists or this record is still in use."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Invalid fields; error.fieldErrors maps field names to messages. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 422,
+                     *       "error": {
+                     *         "code": "VALIDATION_ERROR",
+                     *         "message": "Invalid fields; error.fieldErrors maps field names to messages.",
+                     *         "fieldErrors": {
+                     *           "name": [
+                     *             "Enter a product name."
+                     *           ],
+                     *           "stock": [
+                     *             "Stock cannot be negative."
+                     *           ]
+                     *         }
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description The database or object storage is unavailable. */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 503,
+                     *       "error": {
+                     *         "code": "DEPENDENCY_UNAVAILABLE",
+                     *         "message": "The database or object storage is unavailable."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+        };
+    };
+    replaceBanner: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                identifier: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                /**
+                 * @example {
+                 *       "title": "Considered details",
+                 *       "description": "Explore our latest collection.",
+                 *       "route": "/shop",
+                 *       "images": [
+                 *         {
+                 *           "media_id": "00000000-0000-4000-8000-000000000001",
+                 *           "alt": "Gold pendant on a neutral background"
+                 *         }
+                 *       ]
+                 *     }
+                 */
+                "application/json": components["schemas"]["BannerBody"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": true,
+                     *       "status": 200,
+                     *       "data": {
+                     *         "title": "Considered details",
+                     *         "description": "Explore our latest collection.",
+                     *         "route": "/shop",
+                     *         "images": [
+                     *           {
+                     *             "media_id": "00000000-0000-4000-8000-000000000001",
+                     *             "alt": "Gold pendant on a neutral background",
+                     *             "url": "https://storage.example.com/catalog-images/product/image.png",
+                     *             "position": 0
+                     *           }
+                     *         ],
+                     *         "id": "00000000-0000-4000-8000-000000000001",
+                     *         "created_at": "2026-10-30T12:00:00Z",
+                     *         "updated_at": "2026-10-30T12:00:00Z"
+                     *       },
+                     *       "message": null
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiSuccess_BannerData_"];
+                };
+            };
+            /** @description A valid Neon bearer token is required. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 401,
+                     *       "error": {
+                     *         "code": "UNAUTHENTICATED",
+                     *         "message": "A valid Neon bearer token is required."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description An administrator role and verified identity are required. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 403,
+                     *       "error": {
+                     *         "code": "FORBIDDEN",
+                     *         "message": "An administrator role and verified identity are required."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description The catalog record was not found or is not public. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 404,
+                     *       "error": {
+                     *         "code": "NOT_FOUND",
+                     *         "message": "The catalog record was not found or is not public."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description The slug already exists or this record is still in use. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 409,
+                     *       "error": {
+                     *         "code": "CATALOG_CONFLICT",
+                     *         "message": "The slug already exists or this record is still in use."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Invalid fields; error.fieldErrors maps field names to messages. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 422,
+                     *       "error": {
+                     *         "code": "VALIDATION_ERROR",
+                     *         "message": "Invalid fields; error.fieldErrors maps field names to messages.",
+                     *         "fieldErrors": {
+                     *           "name": [
+                     *             "Enter a product name."
+                     *           ],
+                     *           "stock": [
+                     *             "Stock cannot be negative."
+                     *           ]
+                     *         }
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description The database or object storage is unavailable. */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 503,
+                     *       "error": {
+                     *         "code": "DEPENDENCY_UNAVAILABLE",
+                     *         "message": "The database or object storage is unavailable."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+        };
+    };
+    deleteBanner: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                identifier: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiSuccess_Deleted_"];
+                };
+            };
+            /** @description A valid Neon bearer token is required. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 401,
+                     *       "error": {
+                     *         "code": "UNAUTHENTICATED",
+                     *         "message": "A valid Neon bearer token is required."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description An administrator role and verified identity are required. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 403,
+                     *       "error": {
+                     *         "code": "FORBIDDEN",
+                     *         "message": "An administrator role and verified identity are required."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description The catalog record was not found or is not public. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 404,
+                     *       "error": {
+                     *         "code": "NOT_FOUND",
+                     *         "message": "The catalog record was not found or is not public."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description The slug already exists or this record is still in use. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 409,
+                     *       "error": {
+                     *         "code": "CATALOG_CONFLICT",
+                     *         "message": "The slug already exists or this record is still in use."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Invalid fields; error.fieldErrors maps field names to messages. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 422,
+                     *       "error": {
+                     *         "code": "VALIDATION_ERROR",
+                     *         "message": "Invalid fields; error.fieldErrors maps field names to messages.",
+                     *         "fieldErrors": {
+                     *           "name": [
+                     *             "Enter a product name."
+                     *           ],
+                     *           "stock": [
+                     *             "Stock cannot be negative."
+                     *           ]
+                     *         }
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description The database or object storage is unavailable. */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 503,
+                     *       "error": {
+                     *         "code": "DEPENDENCY_UNAVAILABLE",
+                     *         "message": "The database or object storage is unavailable."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+        };
+    };
+    getStorefrontSettings: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiSuccess_SettingsBody_"];
+                };
+            };
+            /** @description A valid Neon bearer token is required. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 401,
+                     *       "error": {
+                     *         "code": "UNAUTHENTICATED",
+                     *         "message": "A valid Neon bearer token is required."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description An administrator role and verified identity are required. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 403,
+                     *       "error": {
+                     *         "code": "FORBIDDEN",
+                     *         "message": "An administrator role and verified identity are required."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description The catalog record was not found or is not public. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 404,
+                     *       "error": {
+                     *         "code": "NOT_FOUND",
+                     *         "message": "The catalog record was not found or is not public."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description The slug already exists or this record is still in use. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 409,
+                     *       "error": {
+                     *         "code": "CATALOG_CONFLICT",
+                     *         "message": "The slug already exists or this record is still in use."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Invalid fields; error.fieldErrors maps field names to messages. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 422,
+                     *       "error": {
+                     *         "code": "VALIDATION_ERROR",
+                     *         "message": "Invalid fields; error.fieldErrors maps field names to messages.",
+                     *         "fieldErrors": {
+                     *           "name": [
+                     *             "Enter a product name."
+                     *           ],
+                     *           "stock": [
+                     *             "Stock cannot be negative."
+                     *           ]
+                     *         }
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description The database or object storage is unavailable. */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 503,
+                     *       "error": {
+                     *         "code": "DEPENDENCY_UNAVAILABLE",
+                     *         "message": "The database or object storage is unavailable."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+        };
+    };
+    replaceStoreSettings: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                /**
+                 * @example {
+                 *       "store_name": "FM LUXE",
+                 *       "primary_currency": "NGN",
+                 *       "local_shipping_fee": "5000.00"
+                 *     }
+                 */
+                "application/json": components["schemas"]["SettingsBody-Input"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiSuccess_SettingsBody_"];
+                };
+            };
+            /** @description A valid Neon bearer token is required. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 401,
+                     *       "error": {
+                     *         "code": "UNAUTHENTICATED",
+                     *         "message": "A valid Neon bearer token is required."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description An administrator role and verified identity are required. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 403,
+                     *       "error": {
+                     *         "code": "FORBIDDEN",
+                     *         "message": "An administrator role and verified identity are required."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description The catalog record was not found or is not public. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 404,
+                     *       "error": {
+                     *         "code": "NOT_FOUND",
+                     *         "message": "The catalog record was not found or is not public."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description The slug already exists or this record is still in use. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 409,
+                     *       "error": {
+                     *         "code": "CATALOG_CONFLICT",
+                     *         "message": "The slug already exists or this record is still in use."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Invalid fields; error.fieldErrors maps field names to messages. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 422,
+                     *       "error": {
+                     *         "code": "VALIDATION_ERROR",
+                     *         "message": "Invalid fields; error.fieldErrors maps field names to messages.",
+                     *         "fieldErrors": {
+                     *           "name": [
+                     *             "Enter a product name."
+                     *           ],
+                     *           "stock": [
+                     *             "Stock cannot be negative."
+                     *           ]
+                     *         }
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description The database or object storage is unavailable. */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 503,
+                     *       "error": {
+                     *         "code": "DEPENDENCY_UNAVAILABLE",
+                     *         "message": "The database or object storage is unavailable."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+        };
+    };
+    getGoldRates: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiSuccess_list_RateData__"];
+                };
+            };
+            /** @description A valid Neon bearer token is required. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 401,
+                     *       "error": {
+                     *         "code": "UNAUTHENTICATED",
+                     *         "message": "A valid Neon bearer token is required."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description An administrator role and verified identity are required. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 403,
+                     *       "error": {
+                     *         "code": "FORBIDDEN",
+                     *         "message": "An administrator role and verified identity are required."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description The catalog record was not found or is not public. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 404,
+                     *       "error": {
+                     *         "code": "NOT_FOUND",
+                     *         "message": "The catalog record was not found or is not public."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description The slug already exists or this record is still in use. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 409,
+                     *       "error": {
+                     *         "code": "CATALOG_CONFLICT",
+                     *         "message": "The slug already exists or this record is still in use."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Invalid fields; error.fieldErrors maps field names to messages. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 422,
+                     *       "error": {
+                     *         "code": "VALIDATION_ERROR",
+                     *         "message": "Invalid fields; error.fieldErrors maps field names to messages.",
+                     *         "fieldErrors": {
+                     *           "name": [
+                     *             "Enter a product name."
+                     *           ],
+                     *           "stock": [
+                     *             "Stock cannot be negative."
+                     *           ]
+                     *         }
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description The database or object storage is unavailable. */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 503,
+                     *       "error": {
+                     *         "code": "DEPENDENCY_UNAVAILABLE",
+                     *         "message": "The database or object storage is unavailable."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+        };
+    };
+    replaceGoldRates: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                /**
+                 * @example {
+                 *       "rates": {
+                 *         "18k": "133700.00",
+                 *         "22k": "163400.00",
+                 *         "24k": "178300.00"
+                 *       }
+                 *     }
+                 */
+                "application/json": components["schemas"]["RateBody"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiSuccess_list_RateData__"];
+                };
+            };
+            /** @description A valid Neon bearer token is required. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 401,
+                     *       "error": {
+                     *         "code": "UNAUTHENTICATED",
+                     *         "message": "A valid Neon bearer token is required."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description An administrator role and verified identity are required. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 403,
+                     *       "error": {
+                     *         "code": "FORBIDDEN",
+                     *         "message": "An administrator role and verified identity are required."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description The catalog record was not found or is not public. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 404,
+                     *       "error": {
+                     *         "code": "NOT_FOUND",
+                     *         "message": "The catalog record was not found or is not public."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description The slug already exists or this record is still in use. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 409,
+                     *       "error": {
+                     *         "code": "CATALOG_CONFLICT",
+                     *         "message": "The slug already exists or this record is still in use."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Invalid fields; error.fieldErrors maps field names to messages. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 422,
+                     *       "error": {
+                     *         "code": "VALIDATION_ERROR",
+                     *         "message": "Invalid fields; error.fieldErrors maps field names to messages.",
+                     *         "fieldErrors": {
+                     *           "name": [
+                     *             "Enter a product name."
+                     *           ],
+                     *           "stock": [
+                     *             "Stock cannot be negative."
+                     *           ]
+                     *         }
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description The database or object storage is unavailable. */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 503,
+                     *       "error": {
+                     *         "code": "DEPENDENCY_UNAVAILABLE",
+                     *         "message": "The database or object storage is unavailable."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+        };
+    };
+    authorizeImageUpload: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                /**
+                 * @example {
+                 *       "kind": "product",
+                 *       "content_type": "image/png",
+                 *       "size": 102400
+                 *     }
+                 */
+                "application/json": components["schemas"]["UploadBody"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiSuccess_UploadData_"];
+                };
+            };
+            /** @description A valid Neon bearer token is required. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 401,
+                     *       "error": {
+                     *         "code": "UNAUTHENTICATED",
+                     *         "message": "A valid Neon bearer token is required."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description An administrator role and verified identity are required. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 403,
+                     *       "error": {
+                     *         "code": "FORBIDDEN",
+                     *         "message": "An administrator role and verified identity are required."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description The catalog record was not found or is not public. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 404,
+                     *       "error": {
+                     *         "code": "NOT_FOUND",
+                     *         "message": "The catalog record was not found or is not public."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description The slug already exists or this record is still in use. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 409,
+                     *       "error": {
+                     *         "code": "CATALOG_CONFLICT",
+                     *         "message": "The slug already exists or this record is still in use."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Invalid fields; error.fieldErrors maps field names to messages. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 422,
+                     *       "error": {
+                     *         "code": "VALIDATION_ERROR",
+                     *         "message": "Invalid fields; error.fieldErrors maps field names to messages.",
+                     *         "fieldErrors": {
+                     *           "name": [
+                     *             "Enter a product name."
+                     *           ],
+                     *           "stock": [
+                     *             "Stock cannot be negative."
+                     *           ]
+                     *         }
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description The database or object storage is unavailable. */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 503,
+                     *       "error": {
+                     *         "code": "DEPENDENCY_UNAVAILABLE",
+                     *         "message": "The database or object storage is unavailable."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+        };
+    };
+    completeImageUpload: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                identifier: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiSuccess_MediaData_"];
+                };
+            };
+            /** @description A valid Neon bearer token is required. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 401,
+                     *       "error": {
+                     *         "code": "UNAUTHENTICATED",
+                     *         "message": "A valid Neon bearer token is required."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description An administrator role and verified identity are required. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 403,
+                     *       "error": {
+                     *         "code": "FORBIDDEN",
+                     *         "message": "An administrator role and verified identity are required."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description The catalog record was not found or is not public. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 404,
+                     *       "error": {
+                     *         "code": "NOT_FOUND",
+                     *         "message": "The catalog record was not found or is not public."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description The slug already exists or this record is still in use. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 409,
+                     *       "error": {
+                     *         "code": "CATALOG_CONFLICT",
+                     *         "message": "The slug already exists or this record is still in use."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Invalid fields; error.fieldErrors maps field names to messages. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 422,
+                     *       "error": {
+                     *         "code": "VALIDATION_ERROR",
+                     *         "message": "Invalid fields; error.fieldErrors maps field names to messages.",
+                     *         "fieldErrors": {
+                     *           "name": [
+                     *             "Enter a product name."
+                     *           ],
+                     *           "stock": [
+                     *             "Stock cannot be negative."
+                     *           ]
+                     *         }
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description The database or object storage is unavailable. */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 503,
+                     *       "error": {
+                     *         "code": "DEPENDENCY_UNAVAILABLE",
+                     *         "message": "The database or object storage is unavailable."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+        };
+    };
+    deleteManagedImage: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                identifier: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiSuccess_Deleted_"];
+                };
+            };
+            /** @description A valid Neon bearer token is required. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 401,
+                     *       "error": {
+                     *         "code": "UNAUTHENTICATED",
+                     *         "message": "A valid Neon bearer token is required."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description An administrator role and verified identity are required. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 403,
+                     *       "error": {
+                     *         "code": "FORBIDDEN",
+                     *         "message": "An administrator role and verified identity are required."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description The catalog record was not found or is not public. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 404,
+                     *       "error": {
+                     *         "code": "NOT_FOUND",
+                     *         "message": "The catalog record was not found or is not public."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description The slug already exists or this record is still in use. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 409,
+                     *       "error": {
+                     *         "code": "CATALOG_CONFLICT",
+                     *         "message": "The slug already exists or this record is still in use."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Invalid fields; error.fieldErrors maps field names to messages. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 422,
+                     *       "error": {
+                     *         "code": "VALIDATION_ERROR",
+                     *         "message": "Invalid fields; error.fieldErrors maps field names to messages.",
+                     *         "fieldErrors": {
+                     *           "name": [
+                     *             "Enter a product name."
+                     *           ],
+                     *           "stock": [
+                     *             "Stock cannot be negative."
+                     *           ]
+                     *         }
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description The database or object storage is unavailable. */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 503,
+                     *       "error": {
+                     *         "code": "DEPENDENCY_UNAVAILABLE",
+                     *         "message": "The database or object storage is unavailable."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+        };
+    };
+    cleanupUnusedImages: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiSuccess_CleanupData_"];
+                };
+            };
+            /** @description A valid Neon bearer token is required. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 401,
+                     *       "error": {
+                     *         "code": "UNAUTHENTICATED",
+                     *         "message": "A valid Neon bearer token is required."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description An administrator role and verified identity are required. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 403,
+                     *       "error": {
+                     *         "code": "FORBIDDEN",
+                     *         "message": "An administrator role and verified identity are required."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description The catalog record was not found or is not public. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 404,
+                     *       "error": {
+                     *         "code": "NOT_FOUND",
+                     *         "message": "The catalog record was not found or is not public."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description The slug already exists or this record is still in use. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 409,
+                     *       "error": {
+                     *         "code": "CATALOG_CONFLICT",
+                     *         "message": "The slug already exists or this record is still in use."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Invalid fields; error.fieldErrors maps field names to messages. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 422,
+                     *       "error": {
+                     *         "code": "VALIDATION_ERROR",
+                     *         "message": "Invalid fields; error.fieldErrors maps field names to messages.",
+                     *         "fieldErrors": {
+                     *           "name": [
+                     *             "Enter a product name."
+                     *           ],
+                     *           "stock": [
+                     *             "Stock cannot be negative."
+                     *           ]
+                     *         }
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description The database or object storage is unavailable. */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 503,
+                     *       "error": {
+                     *         "code": "DEPENDENCY_UNAVAILABLE",
+                     *         "message": "The database or object storage is unavailable."
                      *       }
                      *     }
                      */

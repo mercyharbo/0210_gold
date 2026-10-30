@@ -13,6 +13,7 @@ function getSupabaseHostname() {
 }
 
 const supabaseHostname = getSupabaseHostname();
+const storageHostname = process.env.AWS_ENDPOINT_URL_S3 ? new URL(process.env.AWS_ENDPOINT_URL_S3).hostname : undefined;
 
 const nextConfig: NextConfig = {
   experimental: {
@@ -22,14 +23,8 @@ const nextConfig: NextConfig = {
   },
   images: {
     unoptimized: true,
-    remotePatterns: supabaseHostname
-      ? [
-          {
-            protocol: "https",
-            hostname: supabaseHostname,
-          },
-        ]
-      : [],
+    remotePatterns: [supabaseHostname, storageHostname].filter((host): host is string => !!host)
+      .map((hostname) => ({ protocol: 'https' as const, hostname })),
   },
 };
 
