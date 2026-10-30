@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { FormProvider, useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
+import { isAuthApiError } from '@neondatabase/auth/next'
 import { Button } from '@/components/ui/button'
 import { FieldGroup } from '@/components/ui/field'
 import { neonAuthClient } from '@/lib/auth/neon-client'
@@ -69,8 +70,13 @@ export function RecoveryForm({ reset = false }: { reset?: boolean }) {
           ? 'Password changed. You can now sign in.'
           : 'If this account exists, a reset code has been sent.',
       })
-    } catch {
-      form.setError('root', { message: 'Unable to connect. Try again.' })
+    } catch (error) {
+      form.setError('root', {
+        message:
+          isAuthApiError(error) && error.status >= 400 && error.status < 500
+            ? error.message
+            : 'Unable to connect. Try again.',
+      })
     }
   })
   return (
