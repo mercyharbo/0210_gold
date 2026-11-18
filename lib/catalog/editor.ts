@@ -48,14 +48,15 @@ export function editorSchema(kind: CatalogKind) {
       if (!draft.category_id) invalid('category_id', 'Choose a category.')
       if (!draft.description.trim()) invalid('description', 'Enter the product description.')
       if (!/^\d+$/.test(draft.stock)) invalid('stock', 'Enter a nonnegative whole stock count.')
-      if (draft.pricing_type !== 'price_on_request') {
-        if (!draft.is_gold_karat_priced && !(Number(draft.price) > 0))
-          invalid('price', 'Enter a price above zero.')
-        if (draft.is_gold_karat_priced && !(Number(draft.gold_weight_grams) > 0))
-          invalid('gold_weight_grams', 'Enter gold weight above zero.')
-        if (draft.is_gold_karat_priced && !draft.gold_karats.trim())
-          invalid('gold_karats', 'Choose at least one karat.')
-      }
+      if (!['fixed', 'starting_from'].includes(draft.pricing_type)) invalid('pricing_type', 'Choose supported product pricing.')
+      if (!draft.is_gold_karat_priced && !(Number(draft.price) > 0))
+        invalid('price', 'Enter a price above zero.')
+      if (draft.is_gold_karat_priced && !(Number(draft.gold_weight_grams) > 0))
+        invalid('gold_weight_grams', 'Enter gold weight above zero.')
+      if (draft.is_gold_karat_priced && !draft.gold_karats.trim())
+        invalid('gold_karats', 'Choose at least one karat.')
+      if (draft.pricing_type === 'starting_from' && (!draft.is_gold_karat_priced || draft.gold_karats.split(',').filter((value) => value.trim()).length < 2))
+        invalid('pricing_type', 'Starting from requires multiple gold karat options.')
       if (draft.status === 'active' && !draft.images.length)
         invalid('images', 'Active products require an image.')
     }

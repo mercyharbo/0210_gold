@@ -33,6 +33,11 @@ class Settings(BaseSettings):
     aws_endpoint_url_s3: str | None = None
     aws_region: str = "us-east-2"
     catalog_bucket: str = "catalog-images"
+    bachs_api_key: str | None = None
+    bachs_organization_id: str | None = None
+    bachs_webhook_secret: str | None = None
+    bachs_success_url: str = "http://localhost:4000/order-success"
+    bachs_cancel_url: str = "http://localhost:4000/checkout"
 
     @property
     def cors_origin_list(self) -> list[str]:

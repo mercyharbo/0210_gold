@@ -12,39 +12,17 @@ import {
 } from '@/lib/profile/customer-profile'
 import { createSupabaseServerClient } from '@/lib/supabase/server'
 
-const shoppingRequests = [
-  {
-    title: 'UK occasion outfit sourcing',
-    status: 'Quote sent',
-    destination: 'Lagos, Nigeria',
-  },
-  {
-    title: 'Beauty and accessories shopping',
-    status: 'Items being checked',
-    destination: 'Abuja, Nigeria',
-  },
-]
 
 function ProfileSetupRequired() {
   return (
     <div className='bg-white text-black'>
       <section className='px-5 py-16 sm:px-8 lg:px-12'>
-        <div className='mx-auto max-w-3xl border border-gold/40 bg-gold/10 p-6 sm:p-8 space-y-5'>
-          <p className='text-xs font-semibold uppercase text-gold'>
-            Supabase setup required
-          </p>
+        <div className='mx-auto max-w-3xl border border-gold/40 bg-gold/10 p-6 sm:p-8 flex flex-col gap-5'>
           <h1 className='font-heading text-4xl font-semibold sm:text-5xl'>
-            Customer profiles are ready in the app, but the database tables
-            are not available yet.
+            Your account details are temporarily unavailable.
           </h1>
           <p className='text-sm leading-6 text-muted-foreground'>
-            Open your Supabase project SQL editor and run the setup script at
-            <span className='font-semibold'>
-              {' '}
-              supabase/profiles-and-addresses.sql
-            </span>
-            . After it runs, refresh this page. If you already ran it, refresh
-            Supabase schema cache or restart the dev server.
+            Please try again later or contact our team for help with your account.
           </p>
         </div>
       </section>
@@ -90,7 +68,7 @@ export default async function ProfilePage() {
 
   const recentOrders = (dbOrders || []).map((order) => {
     const itemsList = order.order_items
-      .map((i: any) => i.product_name)
+      .map((i: { product_name: string }) => i.product_name)
       .join(', ')
     return {
       id: `FML-${order.order_number}`,
@@ -109,7 +87,7 @@ export default async function ProfilePage() {
   const purchasedProducts = new Map<string, string>()
   dbOrders?.forEach((order) => {
     if (order.status !== 'cancelled') {
-      order.order_items?.forEach((item: any) => {
+      order.order_items?.forEach((item: { product_id: string; product_name: string }) => {
         purchasedProducts.set(item.product_id, item.product_name)
       })
     }
@@ -122,7 +100,7 @@ export default async function ProfilePage() {
     .eq('user_id', user.id)
     .order('created_at', { ascending: false })
 
-  const reviewsList = (dbReviews || []).map((r: any) => ({
+  const reviewsList = (dbReviews || []).map((r: { id: string; product_id: string; product: { name: string } | null; rating: number; comment: string }) => ({
     id: r.id,
     productId: r.product_id,
     productName: r.product?.name || 'Unknown Product',
@@ -138,57 +116,21 @@ export default async function ProfilePage() {
     }
   })
 
-  // Fetch real personal shopper / custom sourcing requests
-  let shoppingRequests: {
-    id: string
-    category: string
-    message: string
-    status: string
-    destination: string
-    date: string
-  }[] = []
-
-  try {
-    const { data: dbRequests, error: reqErr } = await supabase
-      .from('personal_shopper_requests')
-      .select('*')
-      .eq('user_id', user.id)
-      .order('created_at', { ascending: false })
-
-    if (dbRequests && !reqErr) {
-      shoppingRequests = dbRequests.map((req: any) => ({
-        id: req.id,
-        category: req.category,
-        message: req.message,
-        status: req.status,
-        destination: req.delivery_city ? `${req.delivery_city}, Nigeria` : 'Nigeria',
-        date: new Date(req.created_at).toLocaleDateString('en-GB', {
-          day: '2-digit',
-          month: 'short',
-          year: 'numeric',
-        }),
-      }))
-    }
-  } catch {
-    shoppingRequests = []
-  }
-
-  // Fetch real wishlist items
   const wishlistItems = await getStorefrontWishlist(user.id)
 
   return (
     <div className='bg-white text-black min-h-screen'>
       {/* Centered Header Banner (Attachment 3 style) */}
-      <section className='border-b border-black/10 bg-neutral-50 px-5 py-14 sm:px-8 lg:px-12 lg:py-16'>
-        <div className='mx-auto max-w-3xl text-center space-y-3'>
-          <p className='text-xs font-semibold uppercase text-gold tracking-wider'>
+      <section className='border-b border-black/10 bg-gray-50 px-5 py-14 sm:px-8 lg:px-12 lg:py-16'>
+        <div className='mx-auto max-w-3xl text-center flex flex-col gap-3'>
+          <p className='text-xs font-semibold  text-gold '>
             Customer Profile
           </p>
           <h1 className='font-heading text-4xl font-semibold leading-tight sm:text-5xl lg:text-6xl'>
             Your shopping history and account details.
           </h1>
           <p className='text-sm leading-relaxed text-muted-foreground max-w-2xl mx-auto'>
-            Manage your personal information, delivery addresses, recent orders, UK to Nigeria shopping requests, and product reviews from one customer profile.
+            Manage your personal information, delivery addresses, recent orders and product reviews from one customer profile.
           </p>
         </div>
       </section>
@@ -205,7 +147,6 @@ export default async function ProfilePage() {
             recentOrders={recentOrders}
             reviewsList={reviewsList}
             readyForReview={readyForReview}
-            shoppingRequests={shoppingRequests}
             wishlistItems={wishlistItems}
           />
         </div>

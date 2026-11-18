@@ -11,7 +11,7 @@ export default function AuthConfirmedPage() {
           </div>
 
           <div className='space-y-5'>
-            <p className='text-xs font-semibold uppercase text-gold'>
+            <p className='text-xs font-semibold text-gold'>
               Email confirmed
             </p>
             <h1 className='mx-auto max-w-xl font-heading text-5xl font-semibold leading-none sm:text-6xl'>
@@ -19,8 +19,7 @@ export default function AuthConfirmedPage() {
             </h1>
             <p className='mx-auto max-w-lg text-sm leading-6 text-muted-foreground'>
               Your email address has been confirmed. You can now sign in and
-              access your customer profile, order history, saved items, and
-              shopping requests.
+              access your customer profile, order history and saved items.
             </p>
           </div>
 

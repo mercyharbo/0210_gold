@@ -1,191 +1,57 @@
 import type { Metadata } from 'next'
-import { ArrowRight, PackageCheck, ShoppingBag, Sparkles } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
+import { ArrowRight, Gem, PackageCheck, Heart } from 'lucide-react'
+import { Button } from '@/components/ui/button'
 
 export const metadata: Metadata = {
-  title: 'About Us | Premium Gold Jewellery & UK Sourcing',
-  description:
-    'Discover the story behind FM LUXE — your trusted luxury brand for authentic 18k gold jewellery, fashion accessories, and bespoke UK to Nigeria personal shopping.',
-  alternates: {
-    canonical: '/about',
-  },
-  openGraph: {
-    title: 'About FM LUXE | Premium Jewellery & Personal Sourcing',
-    description:
-      'Discover the story behind FM LUXE — your trusted luxury brand for authentic 18k gold jewellery, fashion accessories, and bespoke UK to Nigeria personal shopping.',
-    url: '/about',
-  },
+  title: 'About FM LUXE | Gold Jewellery',
+  description: 'Discover FM LUXE and explore our gold jewellery collections, product details and customer support.',
+  alternates: { canonical: '/about' },
 }
 
 const values = [
-  {
-    title: 'Fashion-led selection',
-    description:
-      'We curate gold, accessories, modest fashion, bags, shoes, and clothing around pieces that feel wearable and refined.',
-    Icon: Sparkles,
-  },
-  {
-    title: 'Client-first shopping',
-    description:
-      'Requests are handled around your budget, sizing, preferred stores, and the occasion you are shopping for.',
-    Icon: ShoppingBag,
-  },
-  {
-    title: 'UK to Nigeria delivery',
-    description:
-      'Items are sourced in the UK, checked, packed, and prepared for waybill delivery to Nigeria.',
-    Icon: PackageCheck,
-  },
+  { title: 'A considered collection', description: 'Explore our own selection of gold jewellery, with the available options described on each product page.', Icon: Gem },
+  { title: 'Clear product details', description: 'Find the listed karat, weight, sizing and price before choosing a piece.', Icon: Heart },
+  { title: 'Support for your order', description: 'Contact our team for help with product details, delivery information or an existing order.', Icon: PackageCheck },
 ]
 
 export default function AboutPage() {
   return (
-    <div className='bg-white text-black'>
-      <section className='bg-muted'>
-        <div className='mx-auto grid min-h-[calc(100svh-5rem)] w-full gap-10 px-5 py-14 sm:px-8 lg:grid-cols-[0.9fr_1.1fr] lg:px-12 lg:py-0'>
-          <div className='flex max-w-3xl flex-col justify-center gap-6'>
-            <p className='text-sm font-medium uppercase text-muted-foreground'>
-              About FM LUXE
+    <div className="bg-white text-black">
+      <section className="bg-muted px-5 py-16 sm:px-8 lg:px-12 lg:py-24">
+        <div className="mx-auto grid max-w-7xl items-center gap-10 lg:grid-cols-2">
+          <div className="flex flex-col gap-6">
+            <p className="text-sm font-medium text-muted-foreground">About FM LUXE</p>
+            <h1 className="font-heading text-5xl font-semibold leading-tight sm:text-6xl">Gold jewellery, thoughtfully chosen.</h1>
+            <p className="max-w-xl text-base leading-7 text-muted-foreground">
+              FM LUXE is a home for gold jewellery. Browse our collections to find a piece for everyday wear, a meaningful gift or a special occasion.
             </p>
-            <h1 className='font-heading text-5xl font-bold leading-[0.95] sm:text-6xl lg:text-7xl'>
-              Fashion, gold, and shopping support between the UK and Nigeria
-            </h1>
-            <p className='max-w-2xl text-base leading-7 text-muted-foreground'>
-              FM LUXE started with a love for gold and style, and is growing into
-              a home for fashion-led services and businesses. The focus is
-              simple: help clients find beautiful pieces, shop with confidence,
-              and receive them with care.
-            </p>
-            <div className='flex flex-col gap-4 sm:flex-row sm:items-center'>
-              <Link
-                href='/shop'
-                className='inline-flex h-12 items-center justify-center gap-4 bg-black px-7 text-sm font-medium text-white transition-colors hover:bg-black/82'
-              >
-                Explore shop
-                <ArrowRight className='size-4 stroke-[1.8]' />
-              </Link>
-              <Link
-                href='/make-a-request'
-                className='inline-flex h-12 items-center justify-center border-b border-black px-1 text-sm font-medium text-black transition-opacity hover:opacity-65'
-              >
-                Request shopping help
-              </Link>
-            </div>
+            <Button asChild className="w-fit"><Link href="/shop">Explore the collection <ArrowRight data-icon="inline-end" /></Link></Button>
           </div>
-
-          <div className='relative min-h-[420px] self-end overflow-hidden bg-white lg:min-h-[calc(100svh-5rem)]'>
-            <Image
-              src='/images/hero-editorial-jewellery.png'
-              alt='Editorial FM LUXE jewellery styling'
-              fill
-              priority
-              sizes='(min-width: 1024px) 55vw, 100vw'
-              className='object-cover object-center'
-            />
+          <div className="relative aspect-square overflow-hidden">
+            <Image src="/images/hero-editorial-jewellery.png" alt="Gold jewellery from the FM LUXE collection" fill loading="eager" sizes="(min-width: 1024px) 50vw, 100vw" className="object-cover" />
           </div>
         </div>
       </section>
-
-      <section>
-        <div className='mx-auto w-full px-5 py-16 sm:px-8 lg:px-12 lg:py-20'>
-          <div className='grid gap-10 lg:grid-cols-[0.85fr_1.15fr]'>
-            <div>
-              <p className='text-sm font-medium uppercase text-muted-foreground'>
-                What we do
-              </p>
-              <h2 className='font-heading text-4xl font-bold leading-tight sm:text-5xl'>
-                A shopping experience built around real client requests
-              </h2>
-            </div>
-
-            <div className='grid gap-4 md:grid-cols-3'>
-              {values.map(({ title, description, Icon }) => (
-                <article key={title} className='border border-black/10 p-5'>
-                  <Icon className='size-5 stroke-[1.6]' />
-                  <h3 className='font-heading text-xl font-semibold'>
-                    {title}
-                  </h3>
-                  <p className='text-sm leading-6 text-muted-foreground'>
-                    {description}
-                  </p>
-                </article>
-              ))}
-            </div>
-          </div>
+      <section className="px-5 py-16 sm:px-8 lg:px-12 lg:py-20">
+        <div className="mx-auto grid max-w-7xl gap-8 md:grid-cols-3">
+          {values.map(({ title, description, Icon }) => (
+            <article key={title} className="flex flex-col gap-4 border-t border-black/10 py-6">
+              <Icon className="size-6 text-gold" aria-hidden="true" />
+              <h2 className="font-heading text-2xl font-semibold">{title}</h2>
+              <p className="text-sm leading-7 text-muted-foreground">{description}</p>
+            </article>
+          ))}
         </div>
       </section>
-
-      <section className='bg-black text-white'>
-        <div className='mx-auto grid w-full gap-10 px-5 py-16 sm:px-8 lg:grid-cols-[1fr_0.9fr] lg:items-center lg:px-12 lg:py-20'>
-          <div>
-            <p className='text-sm font-medium uppercase text-muted-foreground'>
-              Make a request
-            </p>
-            <h2 className='font-heading text-4xl font-bold leading-tight sm:text-5xl'>
-              Based in the UK, shopping for clients in Nigeria
-            </h2>
-            <p className='max-w-2xl text-base leading-7 text-muted-foreground'>
-              Clients can send requests for fashion, gold, accessories, shoes,
-              bags, and special pieces. We help source the items in the UK,
-              prepare the order, and arrange waybill delivery to Nigeria.
-            </p>
+      <section className="bg-black px-5 py-16 text-white sm:px-8 lg:px-12">
+        <div className="mx-auto flex max-w-7xl flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex flex-col gap-3">
+            <h2 className="font-heading text-3xl font-semibold">A question about a piece?</h2>
+            <p className="text-sm text-gray-300">Our team can help with product information and order support.</p>
           </div>
-
-          <div className='border border-white/15 p-6'>
-            <div className='space-y-6'>
-              <div>
-                <p className='text-xs font-medium uppercase text-muted-foreground'>
-                  Step 01
-                </p>
-                <p className='font-heading text-2xl font-semibold'>
-                  Send what you want
-                </p>
-              </div>
-              <div>
-                <p className='text-xs font-medium uppercase text-muted-foreground'>
-                  Step 02
-                </p>
-                <p className='font-heading text-2xl font-semibold'>
-                  We source and check it
-                </p>
-              </div>
-              <div>
-                <p className='text-xs font-medium uppercase text-muted-foreground'>
-                  Step 03
-                </p>
-                <p className='font-heading text-2xl font-semibold'>
-                  It is waybilled to Nigeria
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section>
-        <div className='mx-auto grid w-full gap-8 px-5 py-16 sm:px-8 lg:grid-cols-[1fr_auto] lg:items-end lg:px-12 lg:py-20'>
-          <div>
-            <p className='text-sm font-medium uppercase text-muted-foreground'>
-              Growing with intention
-            </p>
-            <h2 className='max-w-3xl font-heading text-4xl font-bold leading-tight sm:text-5xl'>
-              FM LUXE is becoming a home for more than one business
-            </h2>
-            <p className='max-w-2xl text-base leading-7 text-muted-foreground'>
-              Gold and fashion remain central, while new businesses such as
-              Nigerian delicacies and future services will sit under the wider
-              FM LUXE direction as they are ready.
-            </p>
-          </div>
-
-          <Link
-            href='/companies'
-            className='inline-flex h-12 items-center justify-center gap-4 border-b border-black text-sm font-medium text-black transition-opacity hover:opacity-65'
-          >
-            View companies
-            <ArrowRight className='size-4 stroke-[1.8]' />
-          </Link>
+          <Button asChild variant="secondary" className="w-fit"><Link href="/contact">Contact us</Link></Button>
         </div>
       </section>
     </div>

@@ -23,7 +23,7 @@ export async function CatalogStoreShell({ children }: { children: React.ReactNod
       <main className="flex-1">{children}</main>
       <footer className="flex flex-col gap-3 border-t bg-black px-5 py-10 text-sm text-white sm:px-8 lg:px-12">
         <p className="text-xl font-semibold">{settings.store_name || 'FM LUXE'}</p>
-        <p>Jewellery, fashion, and carefully chosen details.</p>
+        <p>Gold jewellery for everyday wear and special occasions.</p>
         {settings.support_email && <a href={`mailto:${settings.support_email}`}>{settings.support_email}</a>}
         {settings.support_phone && <p>{settings.support_phone}</p>}
         {settings.store_address && <p>{settings.store_address}</p>}

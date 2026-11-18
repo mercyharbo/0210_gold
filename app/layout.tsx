@@ -60,11 +60,11 @@ export const viewport: Viewport = {
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
-    default: "FM LUXE | Premium Gold Jewellery and Custom Requests",
+    default: "FM LUXE | Gold Jewellery",
     template: "%s | FM LUXE",
   },
   description:
-    "Shop premium gold jewellery, luxury fashion accessories, and request-based pieces from FM LUXE.",
+    "Explore FM LUXE gold jewellery collections, product details and customer support.",
   applicationName: "FM LUXE",
   authors: [{ name: "FM LUXE" }],
   creator: "FM LUXE",
@@ -74,8 +74,6 @@ export const metadata: Metadata = {
     "gold jewellery",
     "premium jewellery",
     "luxury accessories",
-    "custom requests",
-    "shopping requests",
     "gold necklaces",
     "gold rings",
     "gold earrings",
@@ -90,23 +88,23 @@ export const metadata: Metadata = {
     type: "website",
     url: "/",
     siteName: "FM LUXE",
-    title: "FM LUXE | Premium Gold Jewellery and Custom Requests",
+    title: "FM LUXE | Gold Jewellery",
     description:
-      "Premium gold jewellery, luxury fashion accessories, and custom shopping requests for timeless styling.",
+      "Explore the FM LUXE gold jewellery collection.",
     images: [
       {
         url: "/og-image.png",
         width: 1200,
         height: 630,
-        alt: "FM LUXE premium jewellery and custom requests",
+        alt: "FM LUXE gold jewellery",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "FM LUXE | Premium Gold Jewellery and Custom Requests",
+    title: "FM LUXE | Gold Jewellery",
     description:
-      "Premium gold jewellery, luxury fashion accessories, and custom shopping requests for timeless styling.",
+      "Explore the FM LUXE gold jewellery collection.",
     images: ["/og-image.png"],
   },
   robots: {
@@ -130,9 +128,8 @@ const organizationJsonLd = {
   logo: `${siteUrl}/og-image.png`,
   image: `${siteUrl}/og-image.png`,
   description:
-    'Premium gold jewellery, luxury fashion accessories, and UK to Nigeria custom shopping and sourcing services.',
-  currenciesAccepted: 'NGN, GBP',
-  paymentAccepted: 'Credit Card, Debit Card, Paystack, Bank Transfer',
+    'Explore FM LUXE gold jewellery collections, product details and customer support.',
+  currenciesAccepted: 'NGN',
   areaServed: ['NG', 'GB'],
 }
 

@@ -1,7 +1,6 @@
 'use client'
 
 import {
-  FileText,
   FolderTree,
   Images,
   LayoutDashboard,
@@ -62,11 +61,6 @@ const navItems = [
     title: 'Reviews',
     href: '/admin/reviews',
     icon: MessageSquare,
-  },
-  {
-    title: 'Personal Shopper',
-    href: '/admin/personal-shopper-requests',
-    icon: FileText,
   },
   {
     title: 'Settings',

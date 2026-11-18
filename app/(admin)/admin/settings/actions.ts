@@ -32,7 +32,6 @@ export async function getStoreSettingsAction(): Promise<StoreSettingsRecord> {
         ),
         paystack_mode: data.paystack_mode || defaultStoreSettings.paystack_mode,
         order_email_notifications: Boolean(data.order_email_notifications ?? true),
-        request_email_notifications: Boolean(data.request_email_notifications ?? true),
         low_stock_alerts: Boolean(data.low_stock_alerts ?? true),
         session_expiry_days: Number(data.session_expiry_days ?? 7),
         mfa_required: Boolean(data.mfa_required ?? false),

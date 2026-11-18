@@ -3,12 +3,13 @@
 import { revalidatePath } from 'next/cache'
 
 import { createSupabaseAdminClient } from '@/lib/supabase/server'
+import { requireAdmin } from '@/lib/auth/session'
 
 export type AdminNotification = {
   id: string
   title: string
   message: string
-  type: 'order' | 'personal_shopper' | 'review' | 'low_stock' | 'system'
+  type: 'order' | 'review' | 'low_stock' | 'system'
   link?: string | null
   is_read: boolean
   created_at: string
@@ -18,17 +19,18 @@ export async function getAdminNotificationsAction(): Promise<{
   notifications: AdminNotification[]
   unreadCount: number
 }> {
+  await requireAdmin()
   const supabase = createSupabaseAdminClient()
 
   try {
     const { data, error } = await supabase
       .from('admin_notifications')
       .select('*')
+      .in('type', ['order', 'review', 'low_stock', 'system'])
       .order('created_at', { ascending: false })
       .limit(30)
 
     if (error) {
-      console.warn('Error fetching admin notifications:', error.message)
       return { notifications: [], unreadCount: 0 }
     }
 
@@ -45,13 +47,13 @@ export async function getAdminNotificationsAction(): Promise<{
     const unreadCount = notifications.filter((n) => !n.is_read).length
 
     return { notifications, unreadCount }
-  } catch (error) {
-    console.error('Failed to fetch admin notifications:', error)
+  } catch {
     return { notifications: [], unreadCount: 0 }
   }
 }
 
 export async function markNotificationAsReadAction(id: string) {
+  await requireAdmin()
   const supabase = createSupabaseAdminClient()
 
   const { error } = await supabase
@@ -60,7 +62,6 @@ export async function markNotificationAsReadAction(id: string) {
     .eq('id', id)
 
   if (error) {
-    console.error('Failed to mark notification as read:', error)
     return { success: false }
   }
 
@@ -69,6 +70,7 @@ export async function markNotificationAsReadAction(id: string) {
 }
 
 export async function markAllNotificationsAsReadAction() {
+  await requireAdmin()
   const supabase = createSupabaseAdminClient()
 
   const { error } = await supabase
@@ -77,7 +79,6 @@ export async function markAllNotificationsAsReadAction() {
     .eq('is_read', false)
 
   if (error) {
-    console.error('Failed to mark all notifications as read:', error)
     return { success: false }
   }
 
@@ -86,6 +87,7 @@ export async function markAllNotificationsAsReadAction() {
 }
 
 export async function deleteNotificationAction(id: string) {
+  await requireAdmin()
   const supabase = createSupabaseAdminClient()
 
   const { error } = await supabase
@@ -94,7 +96,6 @@ export async function deleteNotificationAction(id: string) {
     .eq('id', id)
 
   if (error) {
-    console.error('Failed to delete notification:', error)
     return { success: false }
   }
 
@@ -119,10 +120,9 @@ export async function createAdminNotificationAction(payload: {
       is_read: false,
     })
 
-    if (error) {
-      console.error('Failed to create admin notification:', error)
-    }
-  } catch (e) {
-    console.error('Error creating admin notification:', e)
+    if (error) return { success: false }
+    return { success: true }
+  } catch {
+    return { success: false }
   }
 }

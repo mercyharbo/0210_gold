@@ -48,11 +48,6 @@ const handlers: HandlerMap = {
         { received: body ?? null },
         { message: 'Contact request received' },
       ),
-    'make-a-request': ({ body }) =>
-      ok(
-        { received: body ?? null },
-        { message: 'Request received' },
-      ),
   },
 }
 

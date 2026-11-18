@@ -13,6 +13,8 @@ from app.core.errors import AppError
 from app.core.logging import configure_logging, get_logger
 from app.schemas.envelope import ApiFailure, ErrorDetail
 from app.api.catalog_examples import add_catalog_examples
+from app.api.commerce_examples import add_commerce_examples
+from app.api.account_examples import add_account_examples
 
 logger = get_logger(__name__)
 
@@ -45,13 +47,13 @@ def create_app() -> FastAPI:
         allow_origins=settings.cors_origin_list,
         allow_credentials=True,
         allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-        allow_headers=["Authorization", "Content-Type"],
+        allow_headers=["Authorization", "Content-Type", "Idempotency-Key"],
     )
     app.include_router(api_router, prefix=settings.api_v1_prefix)
     original_openapi = app.openapi
 
     def documented_openapi():
-        return add_catalog_examples(original_openapi())
+        return add_account_examples(add_commerce_examples(add_catalog_examples(original_openapi())))
 
     app.openapi = documented_openapi
 

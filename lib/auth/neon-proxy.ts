@@ -5,7 +5,7 @@ import { getNeonAuth } from './neon-server'
 export async function neonProxy(request: NextRequest) {
   const path = request.nextUrl.pathname
   const catalogAdmin = /^\/admin\/(products|categories|hero-banners)(\/(new|[0-9a-f-]{36})(\/edit)?)?$/.test(path) || path === '/admin/settings'
-  const legacy = ['/profile', '/checkout', '/cart', '/make-a-request', '/personal-shopper-request', '/order-success', '/track-order'].some(
+  const legacy = ['/profile', '/checkout', '/cart', '/order-success', '/track-order'].some(
     (route) => path === route || path.startsWith(`${route}/`),
   )
   if (legacy || (path.startsWith('/admin/') && !catalogAdmin)) {

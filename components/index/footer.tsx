@@ -1,6 +1,6 @@
 import { Clock, Mail, MapPin, Phone, Send } from 'lucide-react'
 import Link from 'next/link'
-import type { SVGProps } from 'react'
+import { socialLinks } from './social-icons'
 
 import { defaultStoreSettings, type StoreSettingsRecord } from '@/lib/settings/types'
 
@@ -15,7 +15,6 @@ const footerGroups = [
       { href: '/shop', label: 'New Arrivals' },
       { href: '/shop', label: 'Best Sellers' },
       { href: '/categories', label: 'All Collections' },
-      { href: '/personal-shopper-request', label: 'UK Personal Shopping' },
     ],
   },
   {
@@ -37,46 +36,6 @@ const footerGroups = [
   },
 ]
 
-function InstagramIcon(props: SVGProps<SVGSVGElement>) {
-  return (
-    <svg viewBox='0 0 24 24' fill='none' aria-hidden='true' {...props}>
-      <rect
-        width='16'
-        height='16'
-        x='4'
-        y='4'
-        rx='4.5'
-        stroke='currentColor'
-        strokeWidth='1.8'
-      />
-      <circle cx='12' cy='12' r='3.5' stroke='currentColor' strokeWidth='1.8' />
-      <circle cx='17' cy='7' r='1.1' fill='currentColor' />
-    </svg>
-  )
-}
-
-function FacebookIcon(props: SVGProps<SVGSVGElement>) {
-  return (
-    <svg viewBox='0 0 24 24' fill='currentColor' aria-hidden='true' {...props}>
-      <path d='M14.2 8.4V6.9c0-.7.5-.9.9-.9h2.3V2.2L14.2 2c-3.6 0-4.5 2.7-4.5 4.5v1.9H7v4h2.7V22h4.4v-9.6h3l.5-4h-3.4Z' />
-    </svg>
-  )
-}
-
-function TiktokIcon(props: SVGProps<SVGSVGElement>) {
-  return (
-    <svg viewBox='0 0 24 24' fill='currentColor' aria-hidden='true' {...props}>
-      <path d='M16.7 2c.3 2.5 1.7 4 4.1 4.2v3.6a7.6 7.6 0 0 1-4-1.2v6.5c0 4.1-2.8 6.9-6.8 6.9-3.6 0-6.8-2.6-6.8-6.4 0-4.3 4.1-7.2 8.2-6.3v3.8c-1.9-.6-4.2.6-4.2 2.6 0 1.5 1.2 2.6 2.8 2.6 1.8 0 2.9-1 2.9-3.2V2h3.8Z' />
-    </svg>
-  )
-}
-
-const socialLinks = [
-  { href: '#', label: 'Instagram', Icon: InstagramIcon },
-  { href: '#', label: 'Facebook', Icon: FacebookIcon },
-  { href: '#', label: 'TikTok', Icon: TiktokIcon },
-]
-
 export function IndexFooter({ settings = defaultStoreSettings }: IndexFooterProps) {
   const cleanPhone = settings.support_phone.replace(/[^0-9+]/g, '')
   const whatsappUrl = `https://wa.me/${cleanPhone.replace('+', '')}`
@@ -91,7 +50,7 @@ export function IndexFooter({ settings = defaultStoreSettings }: IndexFooterProp
               Join Our Newsletter
             </h2>
             <p className='max-w-sm text-sm leading-6 text-muted-foreground'>
-              Be the first to know about new arrivals, gold price updates, and exclusive personal shopping sourcing.
+              Be the first to know about new jewellery arrivals and collection updates.
             </p>
             <form className='flex max-w-md items-center border-b border-white/45'>
               <label htmlFor='newsletter-email' className='sr-only'>
@@ -120,7 +79,7 @@ export function IndexFooter({ settings = defaultStoreSettings }: IndexFooterProp
                 <h3 className='font-heading text-sm font-semibold'>
                   {group.title}
                 </h3>
-                <ul className='space-y-3'>
+                <ul className='flex flex-col gap-3'>
                   {group.links.map(({ href, label }) => (
                     <li key={label}>
                       <Link
@@ -141,10 +100,10 @@ export function IndexFooter({ settings = defaultStoreSettings }: IndexFooterProp
                 Boutique & Contact
               </h3>
               
-              <div className='space-y-3 text-muted-foreground'>
+              <div className='flex flex-col gap-3 text-muted-foreground'>
                 {settings.store_address && (
                   <div className='flex items-start gap-2.5'>
-                    <MapPin className='size-4 text-gold shrink-0 mt-0.5' />
+                    <MapPin className='size-4 text-gold shrink-0 ' />
                     <span className='leading-relaxed'>{settings.store_address}</span>
                   </div>
                 )}
@@ -177,7 +136,7 @@ export function IndexFooter({ settings = defaultStoreSettings }: IndexFooterProp
 
                 {settings.business_hours && (
                   <div className='flex items-start gap-2.5'>
-                    <Clock className='size-4 text-gold shrink-0 mt-0.5' />
+                    <Clock className='size-4 text-gold shrink-0 ' />
                     <span className='leading-relaxed'>{settings.business_hours}</span>
                   </div>
                 )}
@@ -188,7 +147,7 @@ export function IndexFooter({ settings = defaultStoreSettings }: IndexFooterProp
 
         <div className='grid gap-8 pt-8 lg:grid-cols-[1fr_auto] lg:items-end'>
           <div className='flex flex-col gap-4'>
-            <p className='font-heading text-[clamp(3.5rem,12vw,10rem)] font-bold leading-none text-white tracking-tight'>
+            <p className='font-heading text-6xl font-bold leading-none text-white sm:text-8xl lg:text-9xl'>
               {settings.store_name?.toUpperCase() || 'FM LUXE'}
             </p>
             <p className='text-xs text-muted-foreground'>

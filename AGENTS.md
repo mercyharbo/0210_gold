@@ -131,5 +131,16 @@ Use the `nextjs-api-state` skill for frontend request and state architecture.
 - Document behavior needed for correct integration, such as units/currency, timestamps, idempotency, webhook signature requirements, and state transitions when relevant to that endpoint.
 - Express authentication through OpenAPI security schemes so Swagger UI clearly shows protected endpoints and supports authorization.
 - Keep `/docs`, `/redoc`, and `/openapi.json` consistent with runtime behavior. Verify examples and schemas against actual responses with focused checks.
-- Regenerate frontend OpenAPI TypeScript types whenever the public contract changes. Do not manually edit generated types or maintain conflicting handwritten copies.
+- Regenerate frontend OpenAPI TypeScript types when integrating public contract changes into the website. During explicitly backend-only phases, defer frontend generation and proxy allowlist changes until website integration. Do not manually edit generated types or maintain conflicting handwritten copies.
 - Update backend setup documentation when configuration, startup commands, or integration requirements change. An endpoint is not complete until another developer can understand and exercise its documented contract.
+
+# Product Scope and Migration Boundaries
+
+- FM LUXE sells its own gold jewellery. The catalog may support its own clothing, shoes, bags, caps and other fashion products later, when explicitly requested.
+- Do not introduce personal shopping, custom sourcing, request-management, food orders, concierge services or unrelated business promotions.
+- Published products must have a positive calculated purchase price. Inquiry-only legacy records remain drafts for correction; they are not a supported selling workflow.
+- Complete and verify the required backend APIs before integrating them into the website. Website work proceeds gradually only when explicitly authorized.
+- Focused removal of retired website services is authorized independently of new API integration. Do not add preview screens or test websites.
+- Keep payment confirmation exclusively in the verified Bachs backend path. Do not add manual transfers, arbitrary mark-paid actions, refunds or identity administration without a separate approved scope.
+- Introduce no paid subscriptions or services. Do not create fictional products or migrate existing Supabase users/data.
+- Preserve environment files, historical SQL and remote legacy records unless a specific deletion is explicitly authorized.

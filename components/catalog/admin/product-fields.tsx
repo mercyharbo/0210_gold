@@ -30,7 +30,7 @@ export function ProductFields() {
         <EditorField
           name="pricing_type"
           label="Price presentation"
-          options={options(['fixed', 'starting_from', 'price_on_request'])}
+          options={options(['fixed', 'starting_from'])}
         />
         <EditorField name="price" label="Fixed / starting price (NGN)" />
         <EditorField name="gold_weight_grams" label="Gold weight (grams)" />

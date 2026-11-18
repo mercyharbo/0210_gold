@@ -19,7 +19,6 @@ const fields: { name: keyof CatalogSettings; label: string; numeric?: boolean }[
   { name: 'usd_rate', label: 'NGN per USD', numeric: true },
   { name: 'gbp_rate', label: 'NGN per GBP', numeric: true },
   { name: 'local_shipping_fee', label: 'Local shipping fee (NGN)', numeric: true },
-  { name: 'uk_shipping_rate_per_kg', label: 'UK shipping rate per kg (NGN)', numeric: true },
   { name: 'free_shipping_threshold', label: 'Free shipping threshold (NGN)', numeric: true },
 ]
 export function CatalogSettingsForm() {

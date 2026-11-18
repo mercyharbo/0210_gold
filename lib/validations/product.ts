@@ -7,7 +7,7 @@ import {
 } from '@/lib/products/product-options'
 
 const productStatuses = ['draft', 'active', 'archived'] as const
-const productPricingTypes = ['fixed', 'starting_from', 'price_on_request'] as const
+const productPricingTypes = ['fixed', 'starting_from'] as const
 
 function optionalText(value: unknown) {
   if (value === 'none') {
@@ -125,7 +125,7 @@ export const createProductSchema = z
   .transform((product) => ({
     ...product,
     label: product.label ?? null,
-    price: product.pricingType === 'price_on_request' ? null : product.price ?? null,
+    price: product.price ?? null,
     goldWeightGrams: product.goldWeightGrams ?? null,
     goldKarats: product.goldKarats ?? [],
     makingCharge: product.makingCharge ?? 0,
@@ -133,7 +133,7 @@ export const createProductSchema = z
     isGoldKaratPriced: product.isGoldKaratPriced ?? false,
   }))
   .superRefine((product, context) => {
-    if (product.pricingType !== 'price_on_request' && product.price === null && !product.goldWeightGrams) {
+    if (product.price === null && !product.goldWeightGrams) {
       context.addIssue({
         code: 'custom',
         path: ['price'],

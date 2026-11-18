@@ -26,12 +26,12 @@ async def detail(identifier: UUID, session: AsyncSession = Depends(get_db_sessio
     return ApiSuccess(status=200, data=await output(session, "products", await record(session, "products", str(identifier))))
 
 @router.post("", status_code=201, response_model=ApiSuccess[ProductData], operation_id="createProduct",
-             summary="Create a product", description="Requires administrator. JSON body; images must reference completed managed uploads. Unique slugs return 409 on conflict.")
+             summary="Create a product", description="Requires administrator. JSON fixed or starting_from pricing only; inquiry-only writes are rejected. Starting from requires multiple gold options. Publication requires positive calculated prices and rates for every selectable karat. Images must reference completed managed uploads. Unique slugs return 409 on conflict.")
 async def create(body: ProductBody, session: AsyncSession = Depends(get_db_session)):
     return ApiSuccess(status=201, data=await save(session, "products", body))
 
 @router.put("/{identifier}", response_model=ApiSuccess[ProductData], operation_id="replaceProduct",
-            summary="Replace a product", description="Requires administrator. Full replacement including ordered images and options. Previous images remain intact if validation or saving fails.")
+            summary="Replace a product", description="Requires administrator. Full replacement including ordered images and options. Inquiry-only legacy drafts must be corrected to supported pricing before saving. Publication validates every option's price and gold rate. Stock cannot fall below active reservations (409). Previous images remain intact if validation or saving fails.")
 async def update(identifier: UUID, body: ProductBody, session: AsyncSession = Depends(get_db_session)):
     return ApiSuccess(status=200, data=await save(session, "products", body, str(identifier)))
 

@@ -43,7 +43,7 @@ export function formatProductPrice(product: Product, computedPrice?: number | nu
       : null)
 
   if (product.pricingType === 'price_on_request' || activePrice === null || activePrice === undefined) {
-    return 'Price on Request'
+    return 'Price unavailable'
   }
 
   const priceStr = formatNaira(activePrice)

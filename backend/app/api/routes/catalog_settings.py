@@ -42,8 +42,10 @@ async def gold_rates(session: AsyncSession = Depends(get_db_session)):
 
 @router.put("/admin/gold-rates", response_model=ApiSuccess[list[RateData]], operation_id="replaceGoldRates",
             dependencies=[Depends(require_admin)], summary="Set manual gold rates",
-            description="Requires administrator. Replace all configured rates, NGN per gram, positive decimals. Omitted karats become unavailable. No external pricing service is called.")
+            description="Requires administrator. Replace all configured rates, NGN per gram, positive decimals. Omitted unused karats become unavailable. Returns 409 if replacement removes required active-product rates or invalidates Starting from price variation. Correct or unpublish affected products first. No external pricing service is called.")
 async def update_rates(body: RateBody, session: AsyncSession = Depends(get_db_session)):
+    from app.services.catalog_publication import validate_rate_replacement
+    await validate_rate_replacement(session, body.rates)
     if any(rate <= 0 for rate in body.rates.values()):
         fail("INVALID_RATE", "Gold rates must be above zero.", field="rates")
     await session.execute(delete(GoldRate))

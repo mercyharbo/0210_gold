@@ -8,7 +8,7 @@ ERRORS = {
         (401, "UNAUTHENTICATED", "A valid Neon bearer token is required."),
         (403, "FORBIDDEN", "An administrator role and verified identity are required."),
         (404, "NOT_FOUND", "The catalog record was not found or is not public."),
-        (409, "CATALOG_CONFLICT", "The slug already exists or this record is still in use."),
+        (409, "CATALOG_CONFLICT", "Slug, referenced record, reserved stock or active-product rate requirements conflict with this change."),
         (422, "VALIDATION_ERROR", "Invalid fields; error.fieldErrors maps field names to messages."),
         (503, "DEPENDENCY_UNAVAILABLE", "The database or object storage is unavailable."),
     ]

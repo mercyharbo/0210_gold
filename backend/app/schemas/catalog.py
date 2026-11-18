@@ -37,7 +37,7 @@ class CategoryBody(CatalogBody):
         return self
 
 
-class ProductBody(CatalogBody):
+class ProductFields(CatalogBody):
     name: str = Field(min_length=1, max_length=200)
     slug: Slug
     category_id: UUID
@@ -72,6 +72,16 @@ class ProductBody(CatalogBody):
         return self
 
 
+class ProductBody(ProductFields):
+    pricing_type: Literal["fixed", "starting_from"] = "fixed"
+
+    @model_validator(mode="after")
+    def starting_price(self):
+        if self.pricing_type == "starting_from" and (not self.is_gold_karat_priced or len(self.gold_karats) < 2):
+            raise ValueError("Starting from requires gold pricing with at least two selectable karats.")
+        return self
+
+
 class BannerBody(CatalogBody):
     title: str = Field(min_length=1, max_length=200)
     description: str = Field(min_length=1, max_length=5000)
@@ -103,7 +113,7 @@ class PriceData(BaseModel):
     karat: Karat | None = None
 
 
-class ProductData(ProductBody):
+class ProductData(ProductFields):
     images: list[ImageData]
     id: str
     created_at: datetime

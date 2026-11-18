@@ -13,7 +13,6 @@ export type StoreSettingsRecord = {
   free_shipping_threshold: number
   paystack_mode: string
   order_email_notifications: boolean
-  request_email_notifications: boolean
   low_stock_alerts: boolean
   session_expiry_days: number
   mfa_required: boolean
@@ -25,7 +24,7 @@ export type StoreSettingsRecord = {
 
 export const defaultStoreSettings: StoreSettingsRecord = {
   id: '00000000-0000-0000-0000-000000000001',
-  store_name: 'FM Luxe Jewelry & Personal Shopping',
+  store_name: 'FM LUXE',
   support_email: 'support@fmluxe.com',
   support_phone: '+234 800 000 0000',
   store_address: 'Victoria Island, Lagos, Nigeria',
@@ -38,7 +37,6 @@ export const defaultStoreSettings: StoreSettingsRecord = {
   free_shipping_threshold: 10000000,
   paystack_mode: 'sandbox',
   order_email_notifications: true,
-  request_email_notifications: true,
   low_stock_alerts: true,
   session_expiry_days: 7,
   mfa_required: false,

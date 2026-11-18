@@ -9,6 +9,7 @@ from app.models.media import Media, MediaLink
 from app.schemas.catalog import BannerData, CategoryData, ProductData
 from app.services.pricing import calculate_price
 from app.services.storage import public_url
+from app.services.inventory import held_quantity
 
 MODELS = {"products": Product, "categories": Category, "banners": Banner}
 LINK_FIELDS = {"products": "product_id", "categories": "category_id", "banners": "banner_id"}
@@ -53,13 +54,23 @@ async def output(session: AsyncSession, kind: str, item):
 
 
 async def save(session: AsyncSession, kind: str, body, identifier: str | None = None):
+    if kind == "products":
+        from app.services.catalog_publication import publication
+        await publication(session, body)
+    item = None
+    if identifier:
+        item = await record(session, kind, identifier)
+        if kind == "products":
+            item = await session.scalar(select(Product).where(Product.id == identifier)
+                .with_for_update().execution_options(populate_existing=True))
+            if body.stock < await held_quantity(session, identifier):
+                fail("STOCK_RESERVED", "Stock cannot be reduced below active order reservations.", 409, "stock")
+    previous_stock = item.stock if kind == "products" and item else None
     data = body.model_dump(mode="json", exclude={"images", "sizes", "colors", "gold_karats"})
     if kind == "products":
         category = await session.get(Category, str(body.category_id))
         if not category or (body.status == "active" and not category.is_active):
             fail("INVALID_CATEGORY", "Choose an active category for published products.", field="category_id")
-        if body.pricing_type == "price_on_request":
-            data["price"] = None
     requested_ids = [str(image.media_id) for image in body.images]
     media_rows = (await session.scalars(select(Media).where(Media.id.in_(requested_ids)).with_for_update())).all() if requested_ids else []
     expected_kind = {"products": "product", "categories": "category", "banners": "banner"}[kind]
@@ -67,7 +78,7 @@ async def save(session: AsyncSession, kind: str, body, identifier: str | None = 
         not row.complete or row.kind != expected_kind for row in media_rows
     ):
         fail("INVALID_MEDIA", "Use completed uploads of the correct image type.", field="images")
-    item = await record(session, kind, identifier) if identifier else MODELS[kind]()
+    item = item or MODELS[kind]()
     for key, value in data.items():
         setattr(item, key, value)
     session.add(item)
@@ -83,6 +94,11 @@ async def save(session: AsyncSession, kind: str, body, identifier: str | None = 
             for field in ("sizes", "colors", "gold_karats"):
                 for position, value in enumerate(getattr(body, field)):
                     session.add(ProductOption(product_id=item.id, kind=field, value=value, position=position))
+            if previous_stock and item.stock == 0:
+                from uuid import uuid4
+                from app.services.notifications import admins
+                await admins(session, f"product:{item.id}:empty:{uuid4()}", "low_stock",
+                    "A product is now out of stock.", item.id)
         await session.commit()
     except IntegrityError:
         await session.rollback()
@@ -93,6 +109,10 @@ async def save(session: AsyncSession, kind: str, body, identifier: str | None = 
 
 async def remove(session: AsyncSession, kind: str, identifier: str):
     item = await record(session, kind, identifier)
+    if kind == "products":
+        item = await session.scalar(select(Product).where(Product.id == identifier).with_for_update())
+        if await held_quantity(session, identifier):
+            fail("STOCK_RESERVED", "This product has active order reservations and cannot be deleted.", 409)
     try:
         await session.delete(item)
         await session.commit()

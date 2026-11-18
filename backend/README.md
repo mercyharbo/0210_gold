@@ -1,9 +1,10 @@
 # FM LUXE API
 
 This directory contains the standalone FastAPI backend for identity, roles,
-catalog management, manual gold pricing, store settings, and managed images.
-The migrated storefront uses Neon. Checkout and full account operations are
-reserved for later phases; production deployment remains Phase 6.
+catalog management, manual gold pricing, store settings, managed images,
+checkout/payments, customer accounts, reviews, notifications and fulfilment.
+The migrated storefront uses Neon. Phase 4/5 commerce and account APIs remain
+separate from website integration; production deployment remains Phase 6.
 
 ## Local setup
 
@@ -82,6 +83,12 @@ custom SMTP sender. Shared SMTP is for development. Do not activate production
 checkout until the commerce features have migrated.
 
 ## Phase 3 catalog and media
+
+Phase 4 backend setup and Bachs sandbox instructions are in
+[docs/commerce.md](docs/commerce.md). The old Phase 2 development branch expired;
+follow that document for the current backend branch.
+Phase 5 product-sales APIs and their integration boundary are documented in
+[docs/phase5.md](docs/phase5.md).
 
 - Run `python -m alembic upgrade head` before starting the backend.
 - `neon.ts` declares the `catalog-images` public-read bucket. Run `neon config

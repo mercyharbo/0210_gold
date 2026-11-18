@@ -3,6 +3,7 @@ import { NextResponse, type NextRequest } from 'next/server'
 import { createSupabaseProxyClient } from '@/lib/supabase/proxy'
 import { getAuthProvider } from '@/lib/auth/provider'
 import { neonProxy } from '@/lib/auth/neon-proxy'
+import { isRemovedServiceRoute } from '@/lib/site/removed-services'
 
 const authRequiredRoutes = ['/profile', '/admin']
 const guestOnlyRoutes = ['/login', '/signup', '/register', '/forgot-password']
@@ -29,6 +30,7 @@ function redirectTo(
 }
 
 export async function proxy(request: NextRequest) {
+  if (isRemovedServiceRoute(request.nextUrl.pathname)) return NextResponse.next()
   if (getAuthProvider() === 'neon') return neonProxy(request)
   const pathname = request.nextUrl.pathname
 
@@ -64,8 +66,6 @@ export const config = {
     '/profile/:path*',
     '/checkout/:path*',
     '/cart/:path*',
-    '/make-a-request/:path*',
-    '/personal-shopper-request/:path*',
     '/order-success/:path*',
     '/track-order/:path*',
     '/admin/:path*',
