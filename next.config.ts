@@ -16,6 +16,9 @@ const supabaseHostname = getSupabaseHostname();
 const storageHostname = process.env.AWS_ENDPOINT_URL_S3 ? new URL(process.env.AWS_ENDPOINT_URL_S3).hostname : undefined;
 
 const nextConfig: NextConfig = {
+  logging: {
+    incomingRequests: { ignore: [/\/api\/v1\/auth\/google\/callback/] },
+  },
   experimental: {
     serverActions: {
       bodySizeLimit: "10mb",

@@ -3,13 +3,15 @@ from functools import lru_cache
 from urllib.parse import urlsplit
 
 import jwt
-from fastapi import Security
-from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
+from fastapi import Request, Security
+from fastapi.security import APIKeyCookie, HTTPAuthorizationCredentials, HTTPBearer
 
 from app.core.config import get_settings
 from app.core.errors import AppError
 
 bearer = HTTPBearer(auto_error=False, description="Neon Auth EdDSA access token (15-minute lifetime).")
+session_cookie = APIKeyCookie(name="fmluxe_session", auto_error=False, scheme_name="BackendSession",
+    description="HttpOnly cookie set by POST /v1/auth/login or Google callback. Cookie mutations also require X-CSRF-Token.")
 
 
 @lru_cache
@@ -38,8 +40,20 @@ def verify_token(token: str) -> dict:
 
 
 async def require_subject(
+    request: Request,
     credentials: HTTPAuthorizationCredentials | None = Security(bearer),
+    cookie: str | None = Security(session_cookie),
 ) -> str:
+    # An explicitly supplied Authorization header takes precedence, including malformed headers.
+    if request.headers.get("authorization") is None and cookie:
+        from app.auth.cookies import validate_csrf
+        from app.auth.sessions import resolve
+        from app.db.session import get_session_factory
+        if request.method not in {"GET", "HEAD", "OPTIONS"}:
+            validate_csrf(request)
+        async with get_session_factory()() as db:
+            record, _ = await resolve(request, db)
+            return record.subject
     if not credentials or credentials.scheme.lower() != "bearer":
         raise AppError(code="UNAUTHENTICATED", message="Sign in to continue.", status_code=401)
     claims = await asyncio.to_thread(verify_token, credentials.credentials)

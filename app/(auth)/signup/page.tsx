@@ -1,18 +1,15 @@
 import Link from 'next/link'
-import { getAuthProvider } from '@/lib/auth/provider'
-import { CredentialsForm } from '@/components/auth/neon/credentials-form'
 
 import {
   authInputClassName,
   authLabelClassName,
 } from '@/components/auth/auth-form-styles'
-import { AuthSubmitButton } from '@/components/auth/auth-submit-button'
+import { Button } from '@/components/ui/button'
+import { Alert, AlertDescription } from '@/components/ui/alert'
 import { PasswordInput } from '@/components/auth/password-input'
 
-import { signup } from '../actions'
 
 export default function SignupPage() {
-  if (getAuthProvider() === 'neon') return <CredentialsForm signup />
   return (
     <div className='flex flex-col gap-8'>
       <div className='space-y-2'>
@@ -24,16 +21,19 @@ export default function SignupPage() {
         </h2>
       </div>
 
+      <Alert><AlertDescription id='signup-unavailable'>Account creation is temporarily unavailable while signup is being connected. Existing customers can sign in.</AlertDescription></Alert>
       <div className='flex flex-col gap-6'>
         <button
           type='button'
+          disabled
+          aria-describedby='signup-unavailable'
           className='inline-flex h-12 w-full items-center justify-center gap-3 border border-black px-5 text-sm font-semibold transition-colors hover:bg-black hover:text-white'
         >
           <span className='text-lg font-semibold'>G</span>
           Continue with Google
         </button>
 
-        <form action={signup} className='space-y-5'>
+        <fieldset disabled aria-describedby='signup-unavailable' className='flex min-w-0 flex-col gap-5'>
           <div className='grid gap-5 sm:grid-cols-2'>
             <label className='block space-y-2'>
               <span className={authLabelClassName}>First name</span>
@@ -95,11 +95,8 @@ export default function SignupPage() {
             />
           </label>
 
-          <AuthSubmitButton
-            idleLabel='Create account'
-            loadingLabel='Creating account'
-          />
-        </form>
+          <Button type='button' disabled className='w-full'>Create account</Button>
+        </fieldset>
       </div>
 
       <div className='flex flex-col gap-3 border-t border-black/10 pt-6 text-sm text-muted-foreground sm:flex-row sm:items-center sm:justify-between'>

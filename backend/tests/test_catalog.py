@@ -85,6 +85,6 @@ def test_openapi_catalog_has_explicit_contracts():
             assert operation["operationId"]
             assert "503" in operation["responses"]
             if path.startswith("/v1/admin/"):
-                assert operation["security"] == [{"HTTPBearer": []}]
+                assert operation["security"] == [{"HTTPBearer": []}, {"BackendSession": []}]
             if method == "put" or path.endswith("/uploads"):
                 assert "requestBody" in operation

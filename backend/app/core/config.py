@@ -2,6 +2,7 @@ from functools import lru_cache
 from pathlib import Path
 
 from pydantic_settings import BaseSettings, SettingsConfigDict
+from pydantic import Field
 
 BACKEND_ROOT = Path(__file__).resolve().parents[2]
 
@@ -28,6 +29,15 @@ class Settings(BaseSettings):
     neon_auth_base_url: str | None = None
     neon_auth_jwks_url: str | None = None
     initial_admin_email: str | None = None
+    auth_session_encryption_key: str | None = None
+    auth_public_api_url: str = "http://localhost:8000"
+    auth_frontend_url: str = "http://localhost:4000"
+    auth_success_path: str = "/"
+    auth_session_max_age: int = Field(default=604800, ge=60, le=2592000)
+
+    @property
+    def auth_secure_cookies(self) -> bool:
+        return self.app_env not in {"development", "test"}
     aws_access_key_id: str | None = None
     aws_secret_access_key: str | None = None
     aws_endpoint_url_s3: str | None = None

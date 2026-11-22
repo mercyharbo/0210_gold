@@ -87,7 +87,7 @@ def test_bootstrap_cannot_accept_role_or_email():
 def test_openapi_documents_identity_contract():
     schema = app.openapi()
     bootstrap = schema["paths"]["/v1/auth/bootstrap"]["post"]
-    assert bootstrap["security"] == [{"HTTPBearer": []}]
+    assert bootstrap["security"] == [{"HTTPBearer": []}, {"BackendSession": []}]
     assert "requestBody" in bootstrap
     for code in ["200", "401", "403", "422", "500", "503"]:
         assert code in bootstrap["responses"]

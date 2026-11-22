@@ -24,6 +24,7 @@ export function CatalogRecordList({ kind }: { kind: CatalogKind }) {
   const [page, setPage] = useState(1)
   const [deleteTarget, setDeleteTarget] = useState<CatalogRecord | null>(null)
   const { mutate } = useSWRConfig()
+  
   const { data, error, isLoading } = useCatalogRead<CatalogRecord[] | CatalogPage>(
     `/api/admin/${kind}${kind === 'products' ? `?page=${page}&page_size=24` : ''}`,
   )

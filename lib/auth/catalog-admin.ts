@@ -12,6 +12,6 @@ export async function requireCatalogAdmin() {
     headers, cache: 'no-store', signal: AbortSignal.timeout(30000),
   })
   if (response.status === 401) redirect('/login')
-  if (response.status === 403 || response.status === 409) redirect('/auth/preview/account?error=Administrator%20access%20is%20required.')
+  if (response.status === 403 || response.status === 409) redirect('/')
   if (!response.ok) throw new Error('Unable to verify administrator access. Try again.')
 }

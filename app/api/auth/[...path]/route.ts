@@ -2,10 +2,16 @@ import type { NextRequest } from 'next/server'
 
 import { getNeonAuth } from '@/lib/auth/neon-server'
 import { getAuthProvider } from '@/lib/auth/provider'
+import { getBackendPath, proxyBackendRequest } from '@/lib/api/backend-proxy'
+import type { ApiMethod } from '@/lib/api/types'
 
 type AuthContext = { params: Promise<{ path: string[] }> }
 
 async function handle(request: NextRequest, context: AuthContext) {
+  const { path } = await context.params
+  const method = request.method as ApiMethod
+  const backendPath = getBackendPath(method, `auth/${path.join('/')}`)
+  if (backendPath) return proxyBackendRequest(request, method, backendPath)
   if (getAuthProvider() !== 'neon') {
     return Response.json(
       { error: 'Neon authentication is disabled in this environment.' },
@@ -14,8 +20,8 @@ async function handle(request: NextRequest, context: AuthContext) {
   }
   // Cookie/session and OAuth protocol forwarding belongs to the official SDK.
   const handlers = getNeonAuth().handler()
-  const method = request.method as keyof typeof handlers
-  return handlers[method](request, context)
+  const sdkMethod = request.method as keyof typeof handlers
+  return handlers[sdkMethod](request, context)
 }
 
 export {

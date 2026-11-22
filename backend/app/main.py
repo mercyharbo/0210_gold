@@ -15,6 +15,7 @@ from app.schemas.envelope import ApiFailure, ErrorDetail
 from app.api.catalog_examples import add_catalog_examples
 from app.api.commerce_examples import add_commerce_examples
 from app.api.account_examples import add_account_examples
+from app.api.authentication_docs import add_authentication_docs
 
 logger = get_logger(__name__)
 
@@ -47,13 +48,21 @@ def create_app() -> FastAPI:
         allow_origins=settings.cors_origin_list,
         allow_credentials=True,
         allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-        allow_headers=["Authorization", "Content-Type", "Idempotency-Key"],
+        allow_headers=["Authorization", "Content-Type", "Idempotency-Key", "X-CSRF-Token"],
     )
     app.include_router(api_router, prefix=settings.api_v1_prefix)
+
+    @app.middleware("http")
+    async def private_auth_responses(request: Request, call_next):
+        response = await call_next(request)
+        if request.url.path.startswith(settings.api_v1_prefix + "/auth/") or "fmluxe_session" in request.cookies:
+            response.headers["Cache-Control"] = "no-store"
+            response.headers["Referrer-Policy"] = "no-referrer"
+        return response
     original_openapi = app.openapi
 
     def documented_openapi():
-        return add_account_examples(add_commerce_examples(add_catalog_examples(original_openapi())))
+        return add_authentication_docs(add_account_examples(add_commerce_examples(add_catalog_examples(original_openapi()))))
 
     app.openapi = documented_openapi
 

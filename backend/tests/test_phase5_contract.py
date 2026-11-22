@@ -58,8 +58,9 @@ def test_openapi_examples_validate_and_new_routes_are_protected():
                 if example and status.startswith('2'):
                     route.response_model.model_validate(example)
             if route.path.startswith(('/v1/account/', '/v1/admin/')):
-                assert operation.get('security') == [{'HTTPBearer': []}]
-    assert not any('request' in path for path in schema['paths'])
+                assert operation.get('security') == [{'HTTPBearer': []}, {'BackendSession': []}]
+    # Code-delivery /auth/*/request routes are unrelated to retired sourcing requests.
+    assert not any('/requests' in path or '/custom-request' in path or '/personal-shopper' in path for path in schema['paths'])
     write = schema['components']['schemas'].get('ProductBody', {})
     assert 'price_on_request' not in str(write.get('properties', {}).get('pricing_type', {}))
 

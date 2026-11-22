@@ -1,4 +1,5 @@
 from app.models.profile import Profile
+from app.models.auth_session import AuthSession, OAuthTransaction
 
 from app.models.catalog import Banner, Category, CategoryPreference, GoldRate, Product, ProductOption, StoreSettings
 from app.models.media import Media, MediaLink

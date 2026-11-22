@@ -34,6 +34,13 @@ Do not commit `.env`, Neon credentials, or the virtual environment.
 
 ## Authentication and development branch
 
+**Backend auth update:** FastAPI now exposes signup, login, verification, password
+reset, cookie sessions, logout and Google OAuth. Setup, payloads, Swagger usage,
+CSRF and later manual frontend integration are documented in
+[docs/authentication.md](docs/authentication.md). Set `AUTH_SESSION_ENCRYPTION_KEY`
+and run migration `0006_auth_sessions` before using the new endpoints. The existing
+frontend SDK flow below remains unchanged until you integrate these APIs.
+
 The linked `phase2-auth` Neon branch is isolated from production. Its default
 expiry is seven days after creation (November 5, 2026); recreate or extend the
 development branch before further testing after that date. Production infrastructure

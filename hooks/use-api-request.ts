@@ -10,6 +10,24 @@ import {
   type ApiRequestOptions,
 } from '@/lib/api/client'
 import type { ApiResponse } from '@/lib/api/types'
+import type { AuthCsrf } from '@/types/authentication'
+import { useAuthCsrf } from './use-auth-endpoint'
+
+// Coordinate concurrent browser protocol reads, never mutation state or credentials.
+let csrfRead: Promise<string> | null = null
+
+function freshCsrf(refresh: () => Promise<ApiResponse<AuthCsrf> | undefined>) {
+  if (!csrfRead) {
+    csrfRead = refresh().then((response) => {
+      const token = response?.data?.csrf_token
+      if (!token) {
+        throw new ApiError({ status: 503, code: 'CSRF_UNAVAILABLE', message: 'Unable to prepare a secure request. Try again.' })
+      }
+      return token
+    }).finally(() => { csrfRead = null })
+  }
+  return csrfRead
+}
 
 export function useApiRequest<
   TResponse = unknown,
@@ -19,6 +37,7 @@ export function useApiRequest<
   const [error, setError] = useState<ApiError | null>(null)
   const [response, setResponse] = useState<ApiResponse<TResponse> | null>(null)
   const pendingRef = useRef(false)
+  const { mutate: refreshCsrf } = useAuthCsrf()
 
   const clearError = useCallback(() => setError(null), [])
 
@@ -42,11 +61,15 @@ export function useApiRequest<
       setError(null)
 
       try {
+        const headers = new Headers(options?.headers)
+        if (method.toUpperCase() !== 'GET') {
+          headers.set('X-CSRF-Token', await freshCsrf(refreshCsrf))
+        }
         const nextResponse = await apiRequest<TResponse>(
           method,
           endpoint,
           payload,
-          options,
+          { ...options, headers },
         )
         setResponse(nextResponse)
         return nextResponse
@@ -68,7 +91,7 @@ export function useApiRequest<
         setLoading(false)
       }
     },
-    [],
+    [refreshCsrf],
   )
 
   return {

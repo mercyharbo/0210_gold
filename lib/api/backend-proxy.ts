@@ -1,182 +1,73 @@
+import { backendCookieHeader, hasBackendSession } from '@/lib/auth/backend-cookies'
+import { isPublicBackendPath } from './backend-routes'
 import { jsonResponse } from './response'
 import type { ApiMethod } from './types'
-import { getIdentityHeaders } from '@/lib/auth/backend-headers'
 
+export { getBackendPath } from './backend-routes'
 const methodsWithBody = new Set<ApiMethod>(['POST', 'PUT', 'PATCH', 'DELETE'])
-const forwardedRequestHeaders = [
-  'accept',
-  'authorization',
-  'content-type',
-] as const
-const forwardedResponseHeaders = [
-  'cache-control',
-  'content-type',
-  'location',
-] as const
 
-const backendRoutes: Partial<Record<ApiMethod, ReadonlyMap<string, string>>> = {
-  GET: new Map([
-    ['health', '/v1/health'],
-    ['identity/me', '/v1/auth/me'],
-    ['admin/auth-check', '/v1/admin/auth-check'],
-  ]),
-  POST: new Map([['identity/bootstrap', '/v1/auth/bootstrap']]),
+function unavailable(code: string, message: string) {
+  return jsonResponse({ success: false, status: 503, error: { code, message } })
 }
 
-export function getBackendPath(method: ApiMethod, endpoint: string) {
-  const uuid = '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}'
-  const publicRead = /^catalog\/(products(?:\/[a-z0-9]+(?:-[a-z0-9]+)*(?:\/price)?)?|categories|banners|settings|gold-rates)$/
-  if (method === 'GET' && publicRead.test(endpoint)) return `/v1/${endpoint}`
-  if (new RegExp(`^admin/(products|categories|banners)(/${uuid})?$`).test(endpoint)) {
-    const detail = endpoint.split('/').length === 3
-    if (method === 'GET' || (!detail && method === 'POST') ||
-      (detail && (method === 'PUT' || method === 'DELETE'))) return `/v1/${endpoint}`
-  }
-  if (method === 'PUT' && /^admin\/(settings|gold-rates)$/.test(endpoint)) return `/v1/${endpoint}`
-  if (method === 'POST' && (/^admin\/media\/(uploads|cleanup)$/.test(endpoint) ||
-    new RegExp(`^admin/media/${uuid}/complete$`).test(endpoint))) return `/v1/${endpoint}`
-  if (method === 'DELETE' && new RegExp(`^admin/media/${uuid}$`).test(endpoint)) return `/v1/${endpoint}`
-  return backendRoutes[method]?.get(endpoint) ?? null
+function googleFailure(request: Request, error: string) {
+  return new Response(null, { status: 303, headers: {
+    Location: new URL(`/login?error=${error}`, request.url).toString(),
+    'Cache-Control': 'private, no-store', 'Referrer-Policy': 'no-referrer',
+  } })
 }
 
-function getBackendOrigin() {
-  const configuredOrigin = process.env.BACKEND_URL?.trim()
-
-  if (!configuredOrigin) {
-    return null
-  }
-
+export async function proxyBackendRequest(request: Request, method: ApiMethod, backendPath: string) {
+  const callback = backendPath === '/v1/auth/google/callback'
+  let backend: URL
   try {
-    const origin = new URL(configuredOrigin)
-
-    if (origin.protocol !== 'http:' && origin.protocol !== 'https:') {
-      return null
-    }
-
-    return origin
+    backend = new URL(process.env.BACKEND_URL ?? '')
+    if (!['http:', 'https:'].includes(backend.protocol)) throw new Error('Invalid protocol')
   } catch {
-    return null
+    return callback ? googleFailure(request, 'service_unavailable') :
+      unavailable('BACKEND_NOT_CONFIGURED', 'Backend service is not configured.')
   }
-}
-
-function getTimeoutMs() {
-  const configuredTimeout = Number(process.env.BACKEND_PROXY_TIMEOUT_MS ?? 30000)
-
-  if (!Number.isFinite(configuredTimeout)) {
-    return 30000
+  const incoming = new URL(request.url)
+  const writes = methodsWithBody.has(method)
+  if (writes && request.headers.get('origin') !== incoming.origin) {
+    return jsonResponse({ success: false, status: 403,
+      error: { code: 'INVALID_ORIGIN', message: 'Request origin is not allowed.' } })
   }
-
-  return Math.min(Math.max(configuredTimeout, 1000), 30000)
-}
-
-function buildUpstreamHeaders(request: Request) {
+  if (!isPublicBackendPath(backendPath) && !hasBackendSession(request.headers.get('cookie'))) {
+    return jsonResponse({ success: false, status: 401,
+      error: { code: 'UNAUTHENTICATED', message: 'Sign in to continue.' } })
+  }
   const headers = new Headers()
-
-  for (const name of forwardedRequestHeaders) {
+  for (const name of ['accept', 'content-type', 'origin', 'x-csrf-token', 'sec-fetch-site']) {
     const value = request.headers.get(name)
-
-    if (value) {
-      headers.set(name, value)
-    }
+    if (value) headers.set(name, value)
   }
-
-  return headers
-}
-
-function buildClientHeaders(upstream: Response) {
-  const headers = new Headers()
-
-  for (const name of forwardedResponseHeaders) {
-    const value = upstream.headers.get(name)
-
-    if (value) {
-      headers.set(name, value)
-    }
-  }
-
-  headers.set('Cache-Control', 'private, no-store')
-  return headers
-}
-
-export async function proxyBackendRequest(
-  request: Request,
-  method: ApiMethod,
-  backendPath: string,
-) {
-  const backendOrigin = getBackendOrigin()
-
-  if (!backendOrigin) {
-    return jsonResponse({
-      success: false,
-      status: 503,
-      error: {
-        code: 'BACKEND_NOT_CONFIGURED',
-        message: 'Backend service is not configured.',
-      },
-    })
-  }
-
-  const incomingUrl = new URL(request.url)
-  const upstreamUrl = new URL(backendPath, backendOrigin)
-  upstreamUrl.search = incomingUrl.search
-
-  const controller = new AbortController()
-  const timeout = setTimeout(() => controller.abort(), getTimeoutMs())
-
+  const cookies = backendCookieHeader(request.headers.get('cookie'))
+  if (cookies) headers.set('Cookie', cookies)
+  // The browser-facing API uses backend cookies, never a browser or SDK bearer token.
+  const target = new URL(backendPath, backend)
+  target.search = incoming.search
+  const configured = Number(process.env.BACKEND_PROXY_TIMEOUT_MS ?? 30000)
+  const timeout = Number.isFinite(configured) ? Math.min(Math.max(configured, 1000), 30000) : 30000
   try {
-    const headers = buildUpstreamHeaders(request)
-    if (backendPath !== '/v1/health' && !backendPath.startsWith('/v1/catalog/')) {
-      if (
-        methodsWithBody.has(method) &&
-        request.headers.get('origin') !== incomingUrl.origin
-      ) {
-        return jsonResponse({
-          success: false,
-          status: 403,
-          error: {
-            code: 'INVALID_ORIGIN',
-            message: 'Request origin is not allowed.',
-          },
-        })
-      }
-      const identityHeaders = await getIdentityHeaders()
-      if (!identityHeaders) {
-        return jsonResponse({
-          success: false,
-          status: 401,
-          error: { code: 'UNAUTHENTICATED', message: 'Sign in to continue.' },
-        })
-      }
-      // Never accept an arbitrary browser-supplied identity token at the BFF boundary.
-      headers.set('Authorization', identityHeaders.Authorization)
+    const body = writes ? await request.arrayBuffer() : undefined
+    const upstream = await fetch(target, {
+      method, headers, body: body?.byteLength ? body : undefined,
+      cache: 'no-store', redirect: 'manual', signal: AbortSignal.timeout(timeout),
+    })
+    if (callback && upstream.status !== 303) {
+      await upstream.body?.cancel()
+      return googleFailure(request, 'google_sign_in')
     }
-    const body = methodsWithBody.has(method)
-      ? await request.arrayBuffer()
-      : undefined
-    const upstream = await fetch(upstreamUrl, {
-      method,
-      headers,
-      body: body && body.byteLength > 0 ? body : undefined,
-      cache: 'no-store',
-      redirect: 'manual',
-      signal: controller.signal,
-    })
-
-    return new Response(upstream.body, {
-      status: upstream.status,
-      statusText: upstream.statusText,
-      headers: buildClientHeaders(upstream),
-    })
+    const responseHeaders = new Headers({ 'Cache-Control': 'private, no-store' })
+    for (const name of ['content-type', 'location', 'referrer-policy']) {
+      const value = upstream.headers.get(name)
+      if (value) responseHeaders.set(name, value)
+    }
+    for (const cookie of upstream.headers.getSetCookie()) responseHeaders.append('Set-Cookie', cookie)
+    return new Response(upstream.body, { status: upstream.status, headers: responseHeaders })
   } catch {
-    return jsonResponse({
-      success: false,
-      status: 503,
-      error: {
-        code: 'BACKEND_UNAVAILABLE',
-        message: 'Backend service is unavailable.',
-      },
-    })
-  } finally {
-    clearTimeout(timeout)
+    return callback ? googleFailure(request, 'service_unavailable') :
+      unavailable('BACKEND_UNAVAILABLE', 'Backend service is unavailable.')
   }
 }

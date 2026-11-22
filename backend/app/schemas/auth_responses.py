@@ -35,8 +35,8 @@ AUTH_RESPONSES = {
     200: {"description": "Current application profile.", "content": {
         "application/json": {"example": PROFILE_EXAMPLE},
     }},
-    401: failure(401, "UNAUTHENTICATED", "Missing, invalid, expired, or wrong-branch token; or deleted identity."),
-    403: failure(403, "FORBIDDEN", "Email must be verified; admin checks also require an admin or super_admin role."),
+    401: failure(401, "UNAUTHENTICATED", "Missing, invalid, expired or revoked cookie session, wrong-branch bearer token, or deleted identity."),
+    403: failure(403, "FORBIDDEN", "Email must be verified; admin checks require admin/super_admin. Cookie mutations also require valid CSRF and trusted origin."),
     500: failure(500, "INTERNAL_SERVER_ERROR", "The request could not be completed."),
     503: failure(503, "AUTH_UNAVAILABLE", "Authentication configuration, JWKS service, or database unavailable."),
 }

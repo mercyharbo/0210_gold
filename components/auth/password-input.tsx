@@ -32,6 +32,8 @@ export function PasswordInput({
       <button
         type='button'
         aria-label={visible ? 'Hide password' : 'Show password'}
+        aria-pressed={visible}
+        disabled={props.disabled}
         onClick={() => setVisible((current) => !current)}
         className='absolute right-2 top-1/2 grid size-8 -translate-y-1/2 place-items-center text-muted-foreground transition-colors hover:bg-black/5 hover:text-black focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black/25'
       >

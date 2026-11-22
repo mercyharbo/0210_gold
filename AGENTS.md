@@ -88,6 +88,7 @@ Use the `nextjs-api-state` skill for frontend request and state architecture.
 - Never hide feature mutations inside read hooks, endpoint hooks, Zustand stores, or one-off mutation hooks such as `useUpdateUser`.
 - The shared implementation of `useApiRequest` stays in `hooks/use-api-request.ts`; the restriction above concerns feature-level call sites.
 - Reuse the existing API transport, fetcher, and typed error handling. Do not introduce competing request wrappers.
+- `useApiRequest` centrally obtains fresh CSRF through the focused SWR auth read and attaches the security header to mutations. Do not repeat CSRF/header setup in feature handlers; keep their method, endpoint and payload visible.
 - Browser application requests use same-origin `/api/**`. Keep backend origins and secrets server-only. FastAPI owns authorization, validation, business rules, and authoritative totals.
 - Where OAuth redirects or session-cookie protocols require the official provider SDK, keep those SDK calls visible in the owning auth form and document the exception. Do not force protocol operations through an incompatible wrapper.
 
@@ -107,6 +108,8 @@ Use the `nextjs-api-state` skill for frontend request and state architecture.
 ## Small Files and Predictable Folders
 - Keep handwritten feature files below 200 lines. Split components and responsibilities before files become difficult to follow. Generated files, lockfiles, and vendored shadcn primitives are exempt; do not compress code to meet the limit.
 - Keep route pages thin. Extract forms, dialogs, sections, and tables into named components.
+- Compose headers, footers and page content directly in Next.js layouts. Avoid presentation-only shell wrappers; reserve provider wrappers for actual context, state or theme responsibilities.
+- For the approved Meere recreation, match the reference's measured General Sans typography, red palette, layout and interaction behaviour. Do not reinterpret it as inspiration. Retain FM LUXE content, omit Lookbook and unsupported business features, and keep page-by-page integration boundaries.
 - Follow the existing structure: `components/<feature>/` for feature UI, `components/ui/` for shadcn primitives, `hooks/` for focused reads and reusable hooks, `stores/` for shared UI state, `types/` for shared/generated contracts, and `lib/` for transport, validation, server helpers, and pure utilities.
 - Keep FastAPI routes thin. Separate schemas, database models, services, and authorization dependencies by responsibility.
 - Reuse existing infrastructure before adding files or abstractions. Avoid giant components, monolithic stores, vague utility files, circular imports, and duplicate implementations.

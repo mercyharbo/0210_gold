@@ -32,7 +32,7 @@ export interface paths {
         put?: never;
         /**
          * Initialize the signed-in customer's application profile
-         * @description Requires a verified Neon identity. Creates one profile per subject; retries return the existing profile. Never updates an existing role or profile. Initial admin email is server configuration only. Send {} when no optional names are available.
+         * @description Requires a verified Neon identity through a bearer token or backend session cookie. Cookie requests also require X-CSRF-Token. Creates one profile per subject; retries return the existing profile. Never updates an existing role or profile. Initial admin email is server configuration only. Send {} when no optional names are available.
          */
         post: operations["bootstrapProfile"];
         delete?: never;
@@ -50,7 +50,7 @@ export interface paths {
         };
         /**
          * Read your profile and current database role
-         * @description No body or query parameters. Identity is taken exclusively from the bearer token. Never returns another user's profile.
+         * @description No body or query parameters. Identity is taken exclusively from a validated bearer token or backend session cookie. Explicit Authorization headers take precedence. Never returns another user's profile.
          */
         get: operations["getCurrentProfile"];
         put?: never;
@@ -70,9 +70,229 @@ export interface paths {
         };
         /**
          * Verify administrator access
-         * @description Requires a verified identity and an admin or super_admin application role.
+         * @description Requires a verified bearer or backend cookie identity and an admin or super_admin application database role. Customers cannot assign roles.
          */
         get: operations["checkAdminAccess"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/auth/csrf": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Obtain a CSRF token and matching cookie
+         * @description Uses a host-only HttpOnly fmluxe_session cookie, Path=/, SameSite=Lax; Secure outside development/test. No password, provider token or JWT is returned. Send cookies on later requests. All auth POSTs require GET /v1/auth/csrf first, its cookie, and X-CSRF-Token. Tokens expire in one hour and must be fetched again after login/logout. Browser origins must be explicitly allowed. Responses use Cache-Control: no-store. No authentication required. Fetch before auth POSTs, including signup and login. Does not create a login session.
+         */
+        get: operations["getAuthCsrf"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/auth/signup": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Register an email/password customer
+         * @description Uses a host-only HttpOnly fmluxe_session cookie, Path=/, SameSite=Lax; Secure outside development/test. No password, provider token or JWT is returned. Send cookies on later requests. All auth POSTs require GET /v1/auth/csrf first, its cookie, and X-CSRF-Token. Tokens expire in one hour and must be fetched again after login/logout. Browser origins must be explicitly allowed. Responses use Cache-Control: no-store. JSON name/email/password only. Neon hashes the password. Explicitly request an email code using email-verification/request; do not assume automatic delivery. Does not establish a backend session. Verify the code, then explicitly log in. Existing identities are preserved.
+         */
+        post: operations["signupCustomer"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/auth/login": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Sign in a customer or administrator
+         * @description Uses a host-only HttpOnly fmluxe_session cookie, Path=/, SameSite=Lax; Secure outside development/test. No password, provider token or JWT is returned. Send cookies on later requests. All auth POSTs require GET /v1/auth/csrf first, its cookie, and X-CSRF-Token. Tokens expire in one hour and must be fetched again after login/logout. Browser origins must be explicitly allowed. Responses use Cache-Control: no-store. JSON email/password. Requires verified email. Creates a new backend session and revokes the previous backend session for this browser. Initializes the application profile idempotently using database-owned roles.
+         */
+        post: operations["loginCustomer"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/auth/email-verification/request": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Request an email verification code
+         * @description Uses a host-only HttpOnly fmluxe_session cookie, Path=/, SameSite=Lax; Secure outside development/test. No password, provider token or JWT is returned. Send cookies on later requests. All auth POSTs require GET /v1/auth/csrf first, its cookie, and X-CSRF-Token. Tokens expire in one hour and must be fetched again after login/logout. Browser origins must be explicitly allowed. Responses use Cache-Control: no-store. JSON email. Generic accepted response whether the account exists. Provider cooldown and code lifetime apply.
+         */
+        post: operations["requestEmailVerification"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/auth/email-verification/confirm": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Verify ownership with an email code
+         * @description Uses a host-only HttpOnly fmluxe_session cookie, Path=/, SameSite=Lax; Secure outside development/test. No password, provider token or JWT is returned. Send cookies on later requests. All auth POSTs require GET /v1/auth/csrf first, its cookie, and X-CSRF-Token. Tokens expire in one hour and must be fetched again after login/logout. Browser origins must be explicitly allowed. Responses use Cache-Control: no-store. JSON email/code. Invalid, expired or reused codes fail. Does not sign in; call login after success.
+         */
+        post: operations["confirmEmailVerification"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/auth/password-reset/request": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Request a password-reset code
+         * @description Uses a host-only HttpOnly fmluxe_session cookie, Path=/, SameSite=Lax; Secure outside development/test. No password, provider token or JWT is returned. Send cookies on later requests. All auth POSTs require GET /v1/auth/csrf first, its cookie, and X-CSRF-Token. Tokens expire in one hour and must be fetched again after login/logout. Browser origins must be explicitly allowed. Responses use Cache-Control: no-store. JSON email. Identical accepted response for existing and unknown accounts. Never returns a code.
+         */
+        post: operations["requestPasswordReset"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/auth/password-reset/confirm": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Reset a password using its emailed code
+         * @description Uses a host-only HttpOnly fmluxe_session cookie, Path=/, SameSite=Lax; Secure outside development/test. No password, provider token or JWT is returned. Send cookies on later requests. All auth POSTs require GET /v1/auth/csrf first, its cookie, and X-CSRF-Token. Tokens expire in one hour and must be fetched again after login/logout. Browser origins must be explicitly allowed. Responses use Cache-Control: no-store. JSON email/code/password. Neon validates the single-use code and changes the password. Revokes this account's backend sessions. Requires a fresh login; does not change roles or Google identity.
+         */
+        post: operations["confirmPasswordReset"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/auth/session": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Restore the current cookie session
+         * @description Uses a host-only HttpOnly fmluxe_session cookie, Path=/, SameSite=Lax; Secure outside development/test. No password, provider token or JWT is returned. Send cookies on later requests. All auth POSTs require GET /v1/auth/csrf first, its cookie, and X-CSRF-Token. Tokens expire in one hour and must be fetched again after login/logout. Browser origins must be explicitly allowed. Responses use Cache-Control: no-store. Requires the backend cookie; Authorization headers are rejected on this cookie-only endpoint. Revalidates Neon session; returns 401 when signed out. Does not extend absolute backend expiry. Verified identities receive their initialized application profile.
+         */
+        get: operations["getAuthSession"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/auth/logout": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * End the current backend cookie session
+         * @description Uses a host-only HttpOnly fmluxe_session cookie, Path=/, SameSite=Lax; Secure outside development/test. No password, provider token or JWT is returned. Send cookies on later requests. All auth POSTs require GET /v1/auth/csrf first, its cookie, and X-CSRF-Token. Tokens expire in one hour and must be fetched again after login/logout. Browser origins must be explicitly allowed. Responses use Cache-Control: no-store. No JSON body. Idempotent even if already signed out. Revokes the backend session before contacting Neon. provider_revoked=false reports an unconfirmed provider logout; previously issued bearer JWTs may live until expiry.
+         */
+        post: operations["logoutCustomer"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/auth/google/start": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Begin Google authentication
+         * @description Uses a host-only HttpOnly fmluxe_session cookie, Path=/, SameSite=Lax; Secure outside development/test. No password, provider token or JWT is returned. Send cookies on later requests. All auth POSTs require GET /v1/auth/csrf first, its cookie, and X-CSRF-Token. Tokens expire in one hour and must be fetched again after login/logout. Browser origins must be explicitly allowed. Responses use Cache-Control: no-store. No JSON body. Returns authorization_url; navigate the browser there. Sets a separate HttpOnly OAuth binding cookie, valid for 10 minutes. No client-selected return URLs. Neon's Google callback remains at NEON_AUTH_BASE_URL/callback/google; the later application callback is this API.
+         */
+        post: operations["startGoogleLogin"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/auth/google/callback": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Complete the browser-bound Google authentication transaction
+         * @description OAuth browser navigation only. Requires state query and OAuth binding cookie from start; Neon appends neon_auth_session_verifier. Exchanges it server-side, consumes the transaction once, sets the backend session cookie and redirects to AUTH_FRONTEND_URL + AUTH_SUCCESS_PATH. Errors return the documented JSON envelope, never reflect provider error text or redirect to arbitrary URLs. Callback URLs contain sensitive verifier values: disable or redact proxy/server access-log query strings.
+         */
+        get: operations["completeGoogleLogin"];
         put?: never;
         post?: never;
         delete?: never;
@@ -196,7 +416,7 @@ export interface paths {
         put?: never;
         /**
          * Create a product
-         * @description Requires administrator. JSON body; images must reference completed managed uploads. Unique slugs return 409 on conflict.
+         * @description Requires administrator. JSON fixed or starting_from pricing only; inquiry-only writes are rejected. Starting from requires multiple gold options. Publication requires positive calculated prices and rates for every selectable karat. Images must reference completed managed uploads. Unique slugs return 409 on conflict.
          */
         post: operations["createProduct"];
         delete?: never;
@@ -219,7 +439,7 @@ export interface paths {
         get: operations["getAdminProduct"];
         /**
          * Replace a product
-         * @description Requires administrator. Full replacement including ordered images and options. Previous images remain intact if validation or saving fails.
+         * @description Requires administrator. Full replacement including ordered images and options. Inquiry-only legacy drafts must be corrected to supported pricing before saving. Publication validates every option's price and gold rate. Stock cannot fall below active reservations (409). Previous images remain intact if validation or saving fails.
          */
         put: operations["replaceProduct"];
         post?: never;
@@ -407,7 +627,7 @@ export interface paths {
         get?: never;
         /**
          * Set manual gold rates
-         * @description Requires administrator. Replace all configured rates, NGN per gram, positive decimals. Omitted karats become unavailable. No external pricing service is called.
+         * @description Requires administrator. Replace all configured rates, NGN per gram, positive decimals. Omitted unused karats become unavailable. Returns 409 if replacement removes required active-product rates or invalidates Starting from price variation. Correct or unpublish affected products first. No external pricing service is called.
          */
         put: operations["replaceGoldRates"];
         post?: never;
@@ -497,10 +717,930 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/checkout/quote": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Calculate a five-minute checkout quote
+         * @description Verified customer only. JSON product IDs, whole quantities, selected options and Nigerian delivery details. Prices and shipping are calculated by FastAPI; no browser prices are accepted. NGN decimal amounts, not kobo. Does not reserve inventory.
+         */
+        post: operations["createCheckoutQuote"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/orders": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Read your order history
+         * @description Requires a verified Neon identity and initialized application profile. Customer data is owner-scoped; another customer's resource returns 404. Newest first. Optional payment/order status filter. Includes immutable snapshots and fulfilment history; never another customer's orders.
+         */
+        get: operations["listOwnedOrderHistory"];
+        put?: never;
+        /**
+         * Create an order and reserve inventory
+         * @description Verified quote owner only. Requires Idempotency-Key. Recalculates the quote; expired/changed quotes return 409. Locks product rows and reserves shared stock for 30 minutes atomically. Retry returns the same order, even after quote expiry. No payment is assumed.
+         */
+        post: operations["createOrder"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/orders/{identifier}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Read your order and authoritative payment state
+         * @description Verified owner only; another customer's UUID returns 404. No body. Expired unpaid holds are released on access. Snapshots preserve names/options/prices/address even if catalog products change. Redirect parameters never set status.
+         */
+        get: operations["getOwnedOrder"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/orders/{identifier}/cancel": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Cancel an unpaid order
+         * @description Verified owner only. No body. Idempotent state transition; releases reservations once. Paid/payment-review orders return 409. A subsequent late provider payment is recorded for review rather than fulfilled.
+         */
+        post: operations["cancelOwnedOrder"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/orders/{identifier}/payment-attempts": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Start or recover a Bachs sandbox checkout
+         * @description Verified owner only. No body. Requires Idempotency-Key; retry an uncertain initiation with the original key. Only one unresolved session per order. Returns hosted URL when confirmed; 503 PAYMENT_OUTCOME_UNKNOWN means retry safely, never assume failure or payment. Amount includes configured delivery, with merchant-borne processing fees. Live keys are disabled in this phase.
+         */
+        post: operations["initiateOrderPayment"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/orders": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Inspect orders and payment exceptions
+         * @description Admin/super_admin only. Includes customer contact, fulfilment actor history and payment audit; never public. Newest first, optional status and customer_id filters. Read access normalizes expired unpaid orders and releases their holds. page_size is capped at 100.
+         */
+        get: operations["listAdminOrders"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/orders/{identifier}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Read an order and payment audit
+         * @description Admin/super_admin only. No body; full immutable order snapshot, payment attempts and audit entries. Payment success cannot be set by editing status.
+         */
+        get: operations["getAdminOrder"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/payment-attempts/{identifier}/reconcile": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Reconcile payment against Bachs
+         * @description Admin/super_admin only. No body and no caller-supplied payment status. Fetches the known sandbox session using server credentials; checks reference, gross NGN amount and confirmed charge. Records actor and handles expiry/late payments. Unknown initiation requires retry with the original idempotency key first.
+         */
+        post: operations["reconcileBachsPayment"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/webhooks/bachs": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Receive signed Bachs sandbox events
+         * @description Provider endpoint; no bearer token. Send directly to FastAPI. Reads untouched application/json bytes, maximum 256 KiB. Prefers V2 signatures with 300-second timestamp tolerance; supports legacy timestamp/signature headers. Validates configured merchant and sandbox environment. Stores event IDs and body hashes; retries are idempotent. collection.succeeded requires matching checkout, gross amount/currency and charge ID. checkout.completed alone never marks these positive-value orders paid.
+         */
+        post: operations["receiveBachsWebhook"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/account/profile": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Read your application profile
+         * @description Requires a verified Neon identity and initialized application profile. Customer data is owner-scoped; another customer's resource returns 404. Email and role are server-owned; no body.
+         */
+        get: operations["getAccountProfile"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /**
+         * Update your contact profile
+         * @description Requires a verified Neon identity and initialized application profile. Customer data is owner-scoped; another customer's resource returns 404. Partial JSON update of first_name, last_name and phone. Null clears an optional value; omitted fields are unchanged. Identity email, role and verification are forbidden.
+         */
+        patch: operations["patchAccountProfile"];
+        trace?: never;
+    };
+    "/v1/account/category-preferences": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Read preferred categories
+         * @description Requires a verified Neon identity and initialized application profile. Customer data is owner-scoped; another customer's resource returns 404. Returns category UUIDs, sorted by ID.
+         */
+        get: operations["getCategoryPreferences"];
+        /**
+         * Replace preferred categories
+         * @description Requires a verified Neon identity and initialized application profile. Customer data is owner-scoped; another customer's resource returns 404. Complete, atomic replacement. Up to 100 unique active category UUIDs; an empty list clears preferences.
+         */
+        put: operations["replaceCategoryPreferences"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/account/addresses": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List your saved addresses
+         * @description Requires a verified Neon identity and initialized application profile. Customer data is owner-scoped; another customer's resource returns 404. Default first, then oldest creation timestamp and ID. No body.
+         */
+        get: operations["listOwnedAddresses"];
+        put?: never;
+        /**
+         * Save a Nigerian delivery address
+         * @description Requires a verified Neon identity and initialized application profile. Customer data is owner-scoped; another customer's resource returns 404. JSON address fields use bundled Nigerian state/FCT and local government area values. First address becomes default automatically. is_default=true atomically replaces the current default. Saved addresses do not alter placed orders.
+         */
+        post: operations["createOwnedAddress"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/account/addresses/{identifier}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * Delete your saved address
+         * @description Requires a verified Neon identity and initialized application profile. Customer data is owner-scoped; another customer's resource returns 404. No body. If default, selects the oldest remaining address with ID as tie-breaker; otherwise leaves default unchanged. Existing order snapshots are preserved.
+         */
+        delete: operations["deleteOwnedAddress"];
+        options?: never;
+        head?: never;
+        /**
+         * Edit your saved address
+         * @description Requires a verified Neon identity and initialized application profile. Customer data is owner-scoped; another customer's resource returns 404. Partial JSON update; merged address is validated. Required fields cannot be null. Change defaults through the separate default endpoint; country remains Nigeria.
+         */
+        patch: operations["patchOwnedAddress"];
+        trace?: never;
+    };
+    "/v1/account/addresses/{identifier}/default": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Choose your default address
+         * @description Requires a verified Neon identity and initialized application profile. Customer data is owner-scoped; another customer's resource returns 404. No body. Idempotent and serialized per customer; at most one address is default, including concurrent calls.
+         */
+        put: operations["setDefaultAddress"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/account/wishlist": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Read your wishlist
+         * @description Requires a verified Neon identity and initialized application profile. Customer data is owner-scoped; another customer's resource returns 404. Newest first. Includes calculated display_price (whole NGN) and first image/alt, or null when no image exists. Availability accounts for active catalog/category, stock and price; unavailable saved products remain visible until removed or deleted from catalog.
+         */
+        get: operations["listOwnedWishlist"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/account/wishlist/{product_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Save a product
+         * @description Requires a verified Neon identity and initialized application profile. Customer data is owner-scoped; another customer's resource returns 404. No body. Product UUID must be publicly active. Idempotent unique customer/product membership; changed is 1 only when inserted.
+         */
+        put: operations["addWishlistProduct"];
+        post?: never;
+        /**
+         * Remove a saved product
+         * @description Requires a verified Neon identity and initialized application profile. Customer data is owner-scoped; another customer's resource returns 404. No body. Idempotent even when absent; changed is the number removed.
+         */
+        delete: operations["removeWishlistProduct"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/account/reviews": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Read your product reviews
+         * @description Requires a verified Neon identity and initialized application profile. Customer data is owner-scoped; another customer's resource returns 404. Newest first. Includes pending and rejected reviews, but never private moderation notes.
+         */
+        get: operations["listOwnedReviews"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/account/reviews/{product_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Create or edit your purchased-product review
+         * @description Requires a verified Neon identity and initialized application profile. Customer data is owner-scoped; another customer's resource returns 404. Requires a paid order containing this product (403 PURCHASE_REQUIRED otherwise). JSON rating 1–5 and comment 1–2000 characters. One review per customer/product. New or edited content returns to pending moderation. An identical retry preserves its current moderation state.
+         */
+        put: operations["writePurchasedProductReview"];
+        post?: never;
+        /**
+         * Delete your product review
+         * @description Requires a verified Neon identity and initialized application profile. Customer data is owner-scoped; another customer's resource returns 404. No body. Idempotent; cannot remove another customer's review.
+         */
+        delete: operations["deleteOwnedProductReview"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/catalog/products/{slug}/reviews": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Read approved reviews and rating summary
+         * @description Public; no bearer token. Active product/category only. Newest first. Only approved reviews contribute to list/count/average; average_rating is a two-decimal string or null. Exposes given names only, no emails, customer IDs or moderation notes.
+         */
+        get: operations["listApprovedProductReviews"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/reviews": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Inspect reviews awaiting moderation
+         * @description Requires a verified Neon identity and database-owned admin or super_admin role. Newest first, optional status filter. Private moderation notes are administrator-only.
+         */
+        get: operations["listModerationReviews"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/reviews/{identifier}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /**
+         * Approve or reject a review
+         * @description Requires a verified Neon identity and database-owned admin or super_admin role. JSON status approved/rejected and optional private moderation_note. Records moderator and notifies the customer without disclosing the note. Identical retry causes no additional notification.
+         */
+        patch: operations["moderateProductReview"];
+        trace?: never;
+    };
+    "/v1/admin/reviews/bulk-moderate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Moderate up to 100 reviews atomically
+         * @description Requires a verified Neon identity and database-owned admin or super_admin role. JSON unique review_ids plus status/note. All IDs must exist; otherwise 404 and no change. Stable locking order; repeat decisions are harmless.
+         */
+        post: operations["bulkModerateProductReviews"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/account/notifications": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Read your in-app notifications
+         * @description Requires a verified Neon identity and initialized application profile. Customer data is owner-scoped; another customer's resource returns 404. Newest first; unread_only filters read items. No delivery through email or SMS.
+         */
+        get: operations["listCustomerNotifications"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/account/notifications/{identifier}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /**
+         * Mark your notification read
+         * @description Requires a verified Neon identity and initialized application profile. Customer data is owner-scoped; another customer's resource returns 404. JSON is_read=true only. Idempotent, changed is 0 or 1. Another recipient's ID returns 404.
+         */
+        patch: operations["readCustomerNotification"];
+        trace?: never;
+    };
+    "/v1/account/notifications/read-all": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Mark all your notifications read
+         * @description Requires a verified Neon identity and initialized application profile. Customer data is owner-scoped; another customer's resource returns 404. No body. Only your unread customer notifications are changed; response counts affected rows.
+         */
+        post: operations["readAllCustomerNotifications"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/notifications": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Read notifications addressed to you as administrator
+         * @description Requires a verified Neon identity and database-owned admin or super_admin role. Newest first. Recipient-specific; other administrators' read state and messages are not returned. unread_only filters read items.
+         */
+        get: operations["listAdminNotifications"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/notifications/{identifier}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /**
+         * Mark your administrator notification read
+         * @description Requires a verified Neon identity and database-owned admin or super_admin role. JSON is_read=true only. Another administrator's notification returns 404. Reading does not mark it read for everyone.
+         */
+        patch: operations["readAdminNotification"];
+        trace?: never;
+    };
+    "/v1/admin/notifications/read-all": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Mark your administrator notifications read
+         * @description Requires a verified Neon identity and database-owned admin or super_admin role. No body. Affects only the signed-in recipient; response counts changed rows.
+         */
+        post: operations["readAllAdminNotifications"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/customers": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Search customer profiles and order summaries
+         * @description Requires a verified Neon identity and database-owned admin or super_admin role. Read-only customer directory. Search q matches name, email or phone literally, case-insensitively. Newest first. No identity credentials, password access or role mutations.
+         */
+        get: operations["listAdminCustomers"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/customers/{identifier}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Read a customer profile and order summary
+         * @description Requires a verified Neon identity and database-owned admin or super_admin role. Identity ID is an opaque string, not necessarily UUID. No body. Paid total is a two-decimal NGN string; order records remain accessible through the admin order API.
+         */
+        get: operations["getAdminCustomer"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/orders/{identifier}/fulfilment-transitions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Advance fulfilment of a paid order
+         * @description Requires a verified Neon identity and database-owned admin or super_admin role. JSON status moves unfulfilled → processing → shipped → delivered. Shipped requires carrier/tracking_reference. Repeated identical transitions return the existing order; skipped/backward steps, changed replay tracking or unpaid orders return 409. No payment, refund or inventory mutation. Stores actor/history and creates a customer notification atomically.
+         */
+        post: operations["transitionOrderFulfilment"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/orders/bulk-fulfilment-transitions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Advance up to 100 paid orders atomically
+         * @description Requires a verified Neon identity and database-owned admin or super_admin role. JSON unique order_ids plus transition status/tracking. Validates every order before updates; one missing/invalid order fails the entire batch. No payment confirmation or restocking through this interface.
+         */
+        post: operations["bulkTransitionOrderFulfilment"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        /** ActionData */
+        ActionData: {
+            /**
+             * Accepted
+             * @description Request accepted; code delivery does not reveal account existence.
+             * @default true
+             */
+            accepted: boolean;
+            /**
+             * Next Action
+             * @description Next integration step; verification/reset never signs in automatically.
+             * @default none
+             * @enum {string}
+             */
+            next_action: "verify_email" | "sign_in" | "none";
+        };
+        /** AddressCreate */
+        AddressCreate: {
+            /** Label */
+            label?: string | null;
+            /** Recipient Name */
+            recipient_name: string;
+            /** Phone */
+            phone: string;
+            /** Address Line 1 */
+            address_line_1: string;
+            /** Address Line 2 */
+            address_line_2?: string | null;
+            /**
+             * Country
+             * @default Nigeria
+             * @constant
+             */
+            country: "Nigeria";
+            /** State */
+            state: string;
+            /**
+             * Local Area
+             * @description Local government area, distinct from locality.
+             */
+            local_area: string;
+            /** Locality */
+            locality?: string | null;
+            /** Postal Code */
+            postal_code?: string | null;
+            /** Delivery Notes */
+            delivery_notes?: string | null;
+            /**
+             * Is Default
+             * @default false
+             */
+            is_default: boolean;
+        };
+        /** AddressData */
+        AddressData: {
+            /** Label */
+            label?: string | null;
+            /** Recipient Name */
+            recipient_name: string;
+            /** Phone */
+            phone: string;
+            /** Address Line 1 */
+            address_line_1: string;
+            /** Address Line 2 */
+            address_line_2?: string | null;
+            /**
+             * Country
+             * @default Nigeria
+             * @constant
+             */
+            country: "Nigeria";
+            /** State */
+            state: string;
+            /**
+             * Local Area
+             * @description Local government area, distinct from locality.
+             */
+            local_area: string;
+            /** Locality */
+            locality?: string | null;
+            /** Postal Code */
+            postal_code?: string | null;
+            /** Delivery Notes */
+            delivery_notes?: string | null;
+            /** Id */
+            id: string;
+            /** Is Default */
+            is_default: boolean;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+        };
+        /** AddressPatch */
+        AddressPatch: {
+            /** Label */
+            label?: string | null;
+            /** Recipient Name */
+            recipient_name?: string | null;
+            /** Phone */
+            phone?: string | null;
+            /** Address Line 1 */
+            address_line_1?: string | null;
+            /** Address Line 2 */
+            address_line_2?: string | null;
+            /** State */
+            state?: string | null;
+            /** Local Area */
+            local_area?: string | null;
+            /** Locality */
+            locality?: string | null;
+            /** Postal Code */
+            postal_code?: string | null;
+            /** Delivery Notes */
+            delivery_notes?: string | null;
+        };
+        /** AdminOrderData */
+        AdminOrderData: {
+            /** Id */
+            id: string;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "awaiting_payment" | "paid" | "cancelled" | "expired" | "payment_review";
+            /** Review Reason */
+            review_reason: string | null;
+            /** Items */
+            items: components["schemas"]["LineData"][];
+            shipping: components["schemas"]["ShippingBody"];
+            /**
+             * Subtotal
+             * @description NGN decimal amount, e.g. 5000.50; never kobo.
+             */
+            subtotal: string;
+            /**
+             * Delivery
+             * @description NGN decimal amount, e.g. 5000.50; never kobo.
+             */
+            delivery: string;
+            /**
+             * Total
+             * @description NGN decimal amount, e.g. 5000.50; never kobo.
+             */
+            total: string;
+            /**
+             * Currency
+             * @constant
+             */
+            currency: "NGN";
+            /**
+             * Expires At
+             * Format: date-time
+             */
+            expires_at: string;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /** Payment Attempts */
+            payment_attempts: components["schemas"]["AttemptData"][];
+            /**
+             * Fulfilment Status
+             * @enum {string}
+             */
+            fulfilment_status: "unfulfilled" | "processing" | "shipped" | "delivered";
+            /** Carrier */
+            carrier: string | null;
+            /** Tracking Reference */
+            tracking_reference: string | null;
+            /** Fulfilment History */
+            fulfilment_history: components["schemas"]["AdminTransitionData"][];
+            /** Customer Id */
+            customer_id: string;
+            /** Customer Email */
+            customer_email: string;
+            /** Audit */
+            audit: components["schemas"]["AuditData"][];
+        };
+        /** AdminOrderPage */
+        AdminOrderPage: {
+            /** Items */
+            items: components["schemas"]["AdminOrderData"][];
+            /** Total */
+            total: number;
+            /** Page */
+            page: number;
+            /** Page Size */
+            page_size: number;
+        };
+        /** AdminReviewData */
+        AdminReviewData: {
+            /** Rating */
+            rating: number;
+            /** Comment */
+            comment: string;
+            /** Id */
+            id: string;
+            /** Product Id */
+            product_id: string;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "pending" | "approved" | "rejected";
+            /**
+             * Verified Purchase
+             * @default true
+             * @constant
+             */
+            verified_purchase: true;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+            /** Customer Id */
+            customer_id: string;
+            /** Moderation Note */
+            moderation_note: string | null;
+            /** Moderated By */
+            moderated_by: string | null;
+        };
+        /** AdminTransitionData */
+        AdminTransitionData: {
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "unfulfilled" | "processing" | "shipped" | "delivered";
+            /** Carrier */
+            carrier: string | null;
+            /** Tracking Reference */
+            tracking_reference: string | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Actor Id
+             * @description Administrator identity that performed the transition; never exposed publicly.
+             */
+            actor_id: string;
+        };
         /** ApiFailure */
         ApiFailure: {
             /**
@@ -512,6 +1652,90 @@ export interface components {
             /** Status */
             status: number;
             error: components["schemas"]["ErrorDetail"];
+        };
+        /** ApiSuccess[ActionData] */
+        ApiSuccess_ActionData_: {
+            /**
+             * Success
+             * @default true
+             * @constant
+             */
+            success: true;
+            /** Status */
+            status: number;
+            data: components["schemas"]["ActionData"];
+            /** Message */
+            message?: string | null;
+        };
+        /** ApiSuccess[AddressData] */
+        ApiSuccess_AddressData_: {
+            /**
+             * Success
+             * @default true
+             * @constant
+             */
+            success: true;
+            /** Status */
+            status: number;
+            data: components["schemas"]["AddressData"];
+            /** Message */
+            message?: string | null;
+        };
+        /** ApiSuccess[AdminOrderData] */
+        ApiSuccess_AdminOrderData_: {
+            /**
+             * Success
+             * @default true
+             * @constant
+             */
+            success: true;
+            /** Status */
+            status: number;
+            data: components["schemas"]["AdminOrderData"];
+            /** Message */
+            message?: string | null;
+        };
+        /** ApiSuccess[AdminOrderPage] */
+        ApiSuccess_AdminOrderPage_: {
+            /**
+             * Success
+             * @default true
+             * @constant
+             */
+            success: true;
+            /** Status */
+            status: number;
+            data: components["schemas"]["AdminOrderPage"];
+            /** Message */
+            message?: string | null;
+        };
+        /** ApiSuccess[AdminReviewData] */
+        ApiSuccess_AdminReviewData_: {
+            /**
+             * Success
+             * @default true
+             * @constant
+             */
+            success: true;
+            /** Status */
+            status: number;
+            data: components["schemas"]["AdminReviewData"];
+            /** Message */
+            message?: string | null;
+        };
+        /** ApiSuccess[AttemptData] */
+        ApiSuccess_AttemptData_: {
+            /**
+             * Success
+             * @default true
+             * @constant
+             */
+            success: true;
+            /** Status */
+            status: number;
+            data: components["schemas"]["AttemptData"];
+            /** Message */
+            message?: string | null;
         };
         /** ApiSuccess[BannerData] */
         ApiSuccess_BannerData_: {
@@ -541,6 +1765,20 @@ export interface components {
             /** Message */
             message?: string | null;
         };
+        /** ApiSuccess[ChangedData] */
+        ApiSuccess_ChangedData_: {
+            /**
+             * Success
+             * @default true
+             * @constant
+             */
+            success: true;
+            /** Status */
+            status: number;
+            data: components["schemas"]["ChangedData"];
+            /** Message */
+            message?: string | null;
+        };
         /** ApiSuccess[CleanupData] */
         ApiSuccess_CleanupData_: {
             /**
@@ -552,6 +1790,34 @@ export interface components {
             /** Status */
             status: number;
             data: components["schemas"]["CleanupData"];
+            /** Message */
+            message?: string | null;
+        };
+        /** ApiSuccess[CsrfData] */
+        ApiSuccess_CsrfData_: {
+            /**
+             * Success
+             * @default true
+             * @constant
+             */
+            success: true;
+            /** Status */
+            status: number;
+            data: components["schemas"]["CsrfData"];
+            /** Message */
+            message?: string | null;
+        };
+        /** ApiSuccess[CustomerData] */
+        ApiSuccess_CustomerData_: {
+            /**
+             * Success
+             * @default true
+             * @constant
+             */
+            success: true;
+            /** Status */
+            status: number;
+            data: components["schemas"]["CustomerData"];
             /** Message */
             message?: string | null;
         };
@@ -569,6 +1835,20 @@ export interface components {
             /** Message */
             message?: string | null;
         };
+        /** ApiSuccess[GoogleData] */
+        ApiSuccess_GoogleData_: {
+            /**
+             * Success
+             * @default true
+             * @constant
+             */
+            success: true;
+            /** Status */
+            status: number;
+            data: components["schemas"]["GoogleData"];
+            /** Message */
+            message?: string | null;
+        };
         /** ApiSuccess[HealthData] */
         ApiSuccess_HealthData_: {
             /**
@@ -583,6 +1863,20 @@ export interface components {
             /** Message */
             message?: string | null;
         };
+        /** ApiSuccess[LogoutData] */
+        ApiSuccess_LogoutData_: {
+            /**
+             * Success
+             * @default true
+             * @constant
+             */
+            success: true;
+            /** Status */
+            status: number;
+            data: components["schemas"]["LogoutData"];
+            /** Message */
+            message?: string | null;
+        };
         /** ApiSuccess[MediaData] */
         ApiSuccess_MediaData_: {
             /**
@@ -594,6 +1888,118 @@ export interface components {
             /** Status */
             status: number;
             data: components["schemas"]["MediaData"];
+            /** Message */
+            message?: string | null;
+        };
+        /** ApiSuccess[OrderData] */
+        ApiSuccess_OrderData_: {
+            /**
+             * Success
+             * @default true
+             * @constant
+             */
+            success: true;
+            /** Status */
+            status: number;
+            data: components["schemas"]["OrderData"];
+            /** Message */
+            message?: string | null;
+        };
+        /** ApiSuccess[Page[AdminReviewData]] */
+        ApiSuccess_Page_AdminReviewData__: {
+            /**
+             * Success
+             * @default true
+             * @constant
+             */
+            success: true;
+            /** Status */
+            status: number;
+            data: components["schemas"]["Page_AdminReviewData_"];
+            /** Message */
+            message?: string | null;
+        };
+        /** ApiSuccess[Page[CustomerData]] */
+        ApiSuccess_Page_CustomerData__: {
+            /**
+             * Success
+             * @default true
+             * @constant
+             */
+            success: true;
+            /** Status */
+            status: number;
+            data: components["schemas"]["Page_CustomerData_"];
+            /** Message */
+            message?: string | null;
+        };
+        /** ApiSuccess[Page[NotificationData]] */
+        ApiSuccess_Page_NotificationData__: {
+            /**
+             * Success
+             * @default true
+             * @constant
+             */
+            success: true;
+            /** Status */
+            status: number;
+            data: components["schemas"]["Page_NotificationData_"];
+            /** Message */
+            message?: string | null;
+        };
+        /** ApiSuccess[Page[OrderData]] */
+        ApiSuccess_Page_OrderData__: {
+            /**
+             * Success
+             * @default true
+             * @constant
+             */
+            success: true;
+            /** Status */
+            status: number;
+            data: components["schemas"]["Page_OrderData_"];
+            /** Message */
+            message?: string | null;
+        };
+        /** ApiSuccess[Page[ReviewData]] */
+        ApiSuccess_Page_ReviewData__: {
+            /**
+             * Success
+             * @default true
+             * @constant
+             */
+            success: true;
+            /** Status */
+            status: number;
+            data: components["schemas"]["Page_ReviewData_"];
+            /** Message */
+            message?: string | null;
+        };
+        /** ApiSuccess[Page[WishlistData]] */
+        ApiSuccess_Page_WishlistData__: {
+            /**
+             * Success
+             * @default true
+             * @constant
+             */
+            success: true;
+            /** Status */
+            status: number;
+            data: components["schemas"]["Page_WishlistData_"];
+            /** Message */
+            message?: string | null;
+        };
+        /** ApiSuccess[PreferencesBody] */
+        ApiSuccess_PreferencesBody_: {
+            /**
+             * Success
+             * @default true
+             * @constant
+             */
+            success: true;
+            /** Status */
+            status: number;
+            data: components["schemas"]["PreferencesBody"];
             /** Message */
             message?: string | null;
         };
@@ -653,6 +2059,62 @@ export interface components {
             /** Message */
             message?: string | null;
         };
+        /** ApiSuccess[PublicReviewPage] */
+        ApiSuccess_PublicReviewPage_: {
+            /**
+             * Success
+             * @default true
+             * @constant
+             */
+            success: true;
+            /** Status */
+            status: number;
+            data: components["schemas"]["PublicReviewPage"];
+            /** Message */
+            message?: string | null;
+        };
+        /** ApiSuccess[QuoteData] */
+        ApiSuccess_QuoteData_: {
+            /**
+             * Success
+             * @default true
+             * @constant
+             */
+            success: true;
+            /** Status */
+            status: number;
+            data: components["schemas"]["QuoteData"];
+            /** Message */
+            message?: string | null;
+        };
+        /** ApiSuccess[ReviewData] */
+        ApiSuccess_ReviewData_: {
+            /**
+             * Success
+             * @default true
+             * @constant
+             */
+            success: true;
+            /** Status */
+            status: number;
+            data: components["schemas"]["ReviewData"];
+            /** Message */
+            message?: string | null;
+        };
+        /** ApiSuccess[SessionData] */
+        ApiSuccess_SessionData_: {
+            /**
+             * Success
+             * @default true
+             * @constant
+             */
+            success: true;
+            /** Status */
+            status: number;
+            data: components["schemas"]["SessionData"];
+            /** Message */
+            message?: string | null;
+        };
         /** ApiSuccess[SettingsBody] */
         ApiSuccess_SettingsBody_: {
             /**
@@ -678,6 +2140,65 @@ export interface components {
             /** Status */
             status: number;
             data: components["schemas"]["UploadData"];
+            /** Message */
+            message?: string | null;
+        };
+        /** ApiSuccess[WebhookResult] */
+        ApiSuccess_WebhookResult_: {
+            /**
+             * Success
+             * @default true
+             * @constant
+             */
+            success: true;
+            /** Status */
+            status: number;
+            data: components["schemas"]["WebhookResult"];
+            /** Message */
+            message?: string | null;
+        };
+        /** ApiSuccess[list[AddressData]] */
+        ApiSuccess_list_AddressData__: {
+            /**
+             * Success
+             * @default true
+             * @constant
+             */
+            success: true;
+            /** Status */
+            status: number;
+            /** Data */
+            data: components["schemas"]["AddressData"][];
+            /** Message */
+            message?: string | null;
+        };
+        /** ApiSuccess[list[AdminOrderData]] */
+        ApiSuccess_list_AdminOrderData__: {
+            /**
+             * Success
+             * @default true
+             * @constant
+             */
+            success: true;
+            /** Status */
+            status: number;
+            /** Data */
+            data: components["schemas"]["AdminOrderData"][];
+            /** Message */
+            message?: string | null;
+        };
+        /** ApiSuccess[list[AdminReviewData]] */
+        ApiSuccess_list_AdminReviewData__: {
+            /**
+             * Success
+             * @default true
+             * @constant
+             */
+            success: true;
+            /** Status */
+            status: number;
+            /** Data */
+            data: components["schemas"]["AdminReviewData"][];
             /** Message */
             message?: string | null;
         };
@@ -725,6 +2246,48 @@ export interface components {
             data: components["schemas"]["RateData"][];
             /** Message */
             message?: string | null;
+        };
+        /** AttemptData */
+        AttemptData: {
+            /** Id */
+            id: string;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "initiating" | "pending" | "unknown" | "succeeded" | "failed" | "expired";
+            /** Checkout Id */
+            checkout_id: string | null;
+            /**
+             * Checkout Url
+             * @description Bachs hosted URL; null until session creation is confirmed.
+             */
+            checkout_url: string | null;
+            /**
+             * Expires At
+             * Format: date-time
+             */
+            expires_at: string;
+        };
+        /** AuditData */
+        AuditData: {
+            /** Id */
+            id: string;
+            /** Kind */
+            kind: string;
+            /** Amount */
+            amount: string | null;
+            /** Currency */
+            currency: string | null;
+            /** Charge Id */
+            charge_id: string | null;
+            /** Actor Id */
+            actor_id: string | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
         };
         /** BannerBody */
         BannerBody: {
@@ -804,6 +2367,54 @@ export interface components {
              * @description Optional contact phone; not an authentication credential.
              */
             phone?: string | null;
+        };
+        /** BulkModeration */
+        BulkModeration: {
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "approved" | "rejected";
+            /**
+             * Moderation Note
+             * @description Administrator-only; not sent to the customer.
+             */
+            moderation_note?: string | null;
+            /** Review Ids */
+            review_ids: string[];
+        };
+        /** BulkTransition */
+        BulkTransition: {
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "processing" | "shipped" | "delivered";
+            /** Carrier */
+            carrier?: string | null;
+            /** Tracking Reference */
+            tracking_reference?: string | null;
+            /** Order Ids */
+            order_ids: string[];
+        };
+        /** CartLine */
+        CartLine: {
+            /**
+             * Product Id
+             * Format: uuid
+             */
+            product_id: string;
+            /**
+             * Quantity
+             * @description Positive whole quantity; stock is shared across options.
+             */
+            quantity: number;
+            /** Size */
+            size?: string | null;
+            /** Color */
+            color?: string | null;
+            /** Karat */
+            karat?: ("18k" | "22k" | "24k") | null;
         };
         /** CategoryBody */
         CategoryBody: {
@@ -889,10 +2500,42 @@ export interface components {
              */
             updated_at: string;
         };
+        /** ChangedData */
+        ChangedData: {
+            /** Changed */
+            changed: number;
+        };
         /** CleanupData */
         CleanupData: {
             /** Deleted */
             deleted: number;
+        };
+        /** CsrfData */
+        CsrfData: {
+            /**
+             * Csrf Token
+             * @description Send as X-CSRF-Token with mutations and retain the accompanying HttpOnly CSRF cookie.
+             */
+            csrf_token: string;
+            /**
+             * Expires In
+             * @description Token validity in seconds; fetch again after login/logout rotates the session.
+             * @default 3600
+             */
+            expires_in: number;
+        };
+        /** CustomerData */
+        CustomerData: {
+            profile: components["schemas"]["ProfileData"];
+            /** Order Count */
+            order_count: number;
+            /** Paid Order Count */
+            paid_order_count: number;
+            /**
+             * Paid Total
+             * @description Sum of currently paid orders in NGN, two decimal places.
+             */
+            paid_total: string;
         };
         /** DatabaseHealth */
         DatabaseHealth: {
@@ -909,6 +2552,19 @@ export interface components {
              * @default true
              */
             deleted: boolean;
+        };
+        /**
+         * EmailBody
+         * @example {
+         *       "email": "customer@example.com"
+         *     }
+         */
+        EmailBody: {
+            /**
+             * Email
+             * @description Identity email address.
+             */
+            email: string;
         };
         /** ErrorDetail */
         ErrorDetail: {
@@ -930,6 +2586,25 @@ export interface components {
                 [key: string]: string[];
             } | null;
         };
+        /** GoogleData */
+        GoogleData: {
+            /**
+             * Authorization Url
+             * @description Navigate the browser here; Neon may first set OAuth state cookies before redirecting to Google. Do not fetch with AJAX.
+             */
+            authorization_url: string;
+            /**
+             * Expires In
+             * @description Single-use browser-bound OAuth transaction validity in seconds.
+             * @default 600
+             */
+            expires_in: number;
+        };
+        /** HTTPValidationError */
+        HTTPValidationError: {
+            /** Detail */
+            detail?: components["schemas"]["ValidationError"][];
+        };
         /** HealthData */
         HealthData: {
             /** Service */
@@ -939,6 +2614,29 @@ export interface components {
             /** Environment */
             environment: string;
             database: components["schemas"]["DatabaseHealth"];
+        };
+        /** IdentityData */
+        IdentityData: {
+            /**
+             * Id
+             * @description Opaque Neon identity subject.
+             */
+            id: string;
+            /**
+             * Email
+             * @description Identity-owned email; cannot be changed using these endpoints.
+             */
+            email: string;
+            /**
+             * Name
+             * @description Identity display name.
+             */
+            name: string;
+            /**
+             * Email Verified
+             * @description Whether the identity provider has verified this email.
+             */
+            email_verified: boolean;
         };
         /** ImageData */
         ImageData: {
@@ -965,12 +2663,245 @@ export interface components {
              */
             alt: string;
         };
+        /** LineData */
+        LineData: {
+            /** Product Id */
+            product_id: string;
+            /** Name */
+            name: string;
+            /** Slug */
+            slug: string;
+            /** Quantity */
+            quantity: number;
+            /** Size */
+            size: string | null;
+            /** Color */
+            color: string | null;
+            /** Karat */
+            karat: string | null;
+            /**
+             * Unit Price
+             * @description NGN decimal amount, e.g. 5000.50; never kobo.
+             */
+            unit_price: string;
+            /**
+             * Line Total
+             * @description NGN decimal amount, e.g. 5000.50; never kobo.
+             */
+            line_total: string;
+        };
+        /**
+         * LoginBody
+         * @example {
+         *       "email": "customer@example.com",
+         *       "password": "Example-password-42!"
+         *     }
+         */
+        LoginBody: {
+            /**
+             * Email
+             * @description Identity email address.
+             */
+            email: string;
+            /**
+             * Password
+             * Format: password
+             * @description Account password; never logged or returned.
+             */
+            password: string;
+        };
+        /** LogoutData */
+        LogoutData: {
+            /**
+             * Logged Out
+             * @description Backend session revoked and browser cookie cleared.
+             * @default true
+             */
+            logged_out: boolean;
+            /**
+             * Provider Revoked
+             * @description False if Neon sign-out could not be confirmed; backend session remains revoked.
+             */
+            provider_revoked: boolean;
+        };
         /** MediaData */
         MediaData: {
             /** Media Id */
             media_id: string;
             /** Url */
             url: string;
+        };
+        /** ModerationBody */
+        ModerationBody: {
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "approved" | "rejected";
+            /**
+             * Moderation Note
+             * @description Administrator-only; not sent to the customer.
+             */
+            moderation_note?: string | null;
+        };
+        /** NotificationData */
+        NotificationData: {
+            /** Id */
+            id: string;
+            /** Kind */
+            kind: string;
+            /** Message */
+            message: string;
+            /** Resource Id */
+            resource_id: string;
+            /** Is Read */
+            is_read: boolean;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+        };
+        /** OrderBody */
+        OrderBody: {
+            /**
+             * Quote Id
+             * Format: uuid
+             * @description An unexpired quote owned by the signed-in customer. No prices are accepted.
+             */
+            quote_id: string;
+        };
+        /** OrderData */
+        OrderData: {
+            /** Id */
+            id: string;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "awaiting_payment" | "paid" | "cancelled" | "expired" | "payment_review";
+            /** Review Reason */
+            review_reason: string | null;
+            /** Items */
+            items: components["schemas"]["LineData"][];
+            shipping: components["schemas"]["ShippingBody"];
+            /**
+             * Subtotal
+             * @description NGN decimal amount, e.g. 5000.50; never kobo.
+             */
+            subtotal: string;
+            /**
+             * Delivery
+             * @description NGN decimal amount, e.g. 5000.50; never kobo.
+             */
+            delivery: string;
+            /**
+             * Total
+             * @description NGN decimal amount, e.g. 5000.50; never kobo.
+             */
+            total: string;
+            /**
+             * Currency
+             * @constant
+             */
+            currency: "NGN";
+            /**
+             * Expires At
+             * Format: date-time
+             */
+            expires_at: string;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /** Payment Attempts */
+            payment_attempts: components["schemas"]["AttemptData"][];
+            /**
+             * Fulfilment Status
+             * @enum {string}
+             */
+            fulfilment_status: "unfulfilled" | "processing" | "shipped" | "delivered";
+            /** Carrier */
+            carrier: string | null;
+            /** Tracking Reference */
+            tracking_reference: string | null;
+            /** Fulfilment History */
+            fulfilment_history: components["schemas"]["TransitionData"][];
+        };
+        /** Page[AdminReviewData] */
+        Page_AdminReviewData_: {
+            /** Items */
+            items: components["schemas"]["AdminReviewData"][];
+            /** Total */
+            total: number;
+            /** Page */
+            page: number;
+            /** Page Size */
+            page_size: number;
+        };
+        /** Page[CustomerData] */
+        Page_CustomerData_: {
+            /** Items */
+            items: components["schemas"]["CustomerData"][];
+            /** Total */
+            total: number;
+            /** Page */
+            page: number;
+            /** Page Size */
+            page_size: number;
+        };
+        /** Page[NotificationData] */
+        Page_NotificationData_: {
+            /** Items */
+            items: components["schemas"]["NotificationData"][];
+            /** Total */
+            total: number;
+            /** Page */
+            page: number;
+            /** Page Size */
+            page_size: number;
+        };
+        /** Page[OrderData] */
+        Page_OrderData_: {
+            /** Items */
+            items: components["schemas"]["OrderData"][];
+            /** Total */
+            total: number;
+            /** Page */
+            page: number;
+            /** Page Size */
+            page_size: number;
+        };
+        /** Page[ReviewData] */
+        Page_ReviewData_: {
+            /** Items */
+            items: components["schemas"]["ReviewData"][];
+            /** Total */
+            total: number;
+            /** Page */
+            page: number;
+            /** Page Size */
+            page_size: number;
+        };
+        /** Page[WishlistData] */
+        Page_WishlistData_: {
+            /** Items */
+            items: components["schemas"]["WishlistData"][];
+            /** Total */
+            total: number;
+            /** Page */
+            page: number;
+            /** Page Size */
+            page_size: number;
+        };
+        /** PreferencesBody */
+        PreferencesBody: {
+            /**
+             * Category Ids
+             * @description Complete replacement of category preferences; duplicates are rejected.
+             */
+            category_ids?: string[];
         };
         /** PriceData */
         PriceData: {
@@ -1008,7 +2939,7 @@ export interface components {
              * @default fixed
              * @enum {string}
              */
-            pricing_type: "fixed" | "starting_from" | "price_on_request";
+            pricing_type: "fixed" | "starting_from";
             /** Price */
             price?: (number | string) | null;
             /**
@@ -1191,6 +3122,99 @@ export interface components {
              */
             updated_at: string;
         };
+        /** ProfilePatch */
+        ProfilePatch: {
+            /** First Name */
+            first_name?: string | null;
+            /** Last Name */
+            last_name?: string | null;
+            /** Phone */
+            phone?: string | null;
+        };
+        /** PublicReview */
+        PublicReview: {
+            /** Rating */
+            rating: number;
+            /** Comment */
+            comment: string;
+            /** Id */
+            id: string;
+            /**
+             * Author Name
+             * @description Given name only; never an email address.
+             */
+            author_name: string;
+            /**
+             * Verified Purchase
+             * @default true
+             * @constant
+             */
+            verified_purchase: true;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+        };
+        /** PublicReviewPage */
+        PublicReviewPage: {
+            /** Items */
+            items: components["schemas"]["PublicReview"][];
+            /** Total */
+            total: number;
+            /** Page */
+            page: number;
+            /** Page Size */
+            page_size: number;
+            /**
+             * Average Rating
+             * @description Approved ratings only, two decimal places; null when no reviews.
+             */
+            average_rating: string | null;
+            /** Rating Count */
+            rating_count: number;
+        };
+        /** QuoteBody */
+        QuoteBody: {
+            /** Items */
+            items: components["schemas"]["CartLine"][];
+            shipping: components["schemas"]["ShippingBody"];
+        };
+        /** QuoteData */
+        QuoteData: {
+            /** Id */
+            id: string;
+            /** Items */
+            items: components["schemas"]["LineData"][];
+            shipping: components["schemas"]["ShippingBody"];
+            /**
+             * Subtotal
+             * @description NGN decimal amount, e.g. 5000.50; never kobo.
+             */
+            subtotal: string;
+            /**
+             * Delivery
+             * @description NGN decimal amount, e.g. 5000.50; never kobo.
+             */
+            delivery: string;
+            /**
+             * Total
+             * @description NGN decimal amount, e.g. 5000.50; never kobo.
+             */
+            total: string;
+            /**
+             * Currency
+             * @default NGN
+             * @constant
+             */
+            currency: "NGN";
+            /**
+             * Expires At
+             * Format: date-time
+             * @description UTC expiry, five minutes after creation. Quote does not reserve stock.
+             */
+            expires_at: string;
+        };
         /** RateBody */
         RateBody: {
             /**
@@ -1218,6 +3242,92 @@ export interface components {
              * Format: date-time
              */
             updated_at: string;
+        };
+        /** ReadBody */
+        ReadBody: {
+            /**
+             * Is Read
+             * @default true
+             * @constant
+             */
+            is_read: true;
+        };
+        /**
+         * ResetBody
+         * @example {
+         *       "code": "012345",
+         *       "email": "customer@example.com",
+         *       "password": "New-example-password-42!"
+         *     }
+         */
+        ResetBody: {
+            /**
+             * Email
+             * @description Identity email address.
+             */
+            email: string;
+            /**
+             * Code
+             * @description Exact email verification code; preserve leading zeros.
+             */
+            code: string;
+            /**
+             * Password
+             * Format: password
+             * @description New password, 8–128 characters.
+             */
+            password: string;
+        };
+        /** ReviewBody */
+        ReviewBody: {
+            /** Rating */
+            rating: number;
+            /** Comment */
+            comment: string;
+        };
+        /** ReviewData */
+        ReviewData: {
+            /** Rating */
+            rating: number;
+            /** Comment */
+            comment: string;
+            /** Id */
+            id: string;
+            /** Product Id */
+            product_id: string;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "pending" | "approved" | "rejected";
+            /**
+             * Verified Purchase
+             * @default true
+             * @constant
+             */
+            verified_purchase: true;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+        };
+        /** SessionData */
+        SessionData: {
+            identity: components["schemas"]["IdentityData"];
+            /** @description Application profile and database role; null before email verification. */
+            profile: components["schemas"]["ProfileData"] | null;
+            /**
+             * Expires At
+             * Format: date-time
+             * @description Absolute backend session expiry in UTC; never later than Neon session expiry.
+             */
+            expires_at: string;
         };
         /** SettingsBody */
         "SettingsBody-Input": {
@@ -1345,6 +3455,95 @@ export interface components {
              */
             free_shipping_threshold: string;
         };
+        /** ShippingBody */
+        ShippingBody: {
+            /**
+             * Name
+             * @description Recipient's full name.
+             */
+            name: string;
+            /**
+             * Phone
+             * @description Delivery contact telephone.
+             */
+            phone: string;
+            /**
+             * Address
+             * @description Street address; not a saved-address identifier.
+             */
+            address: string;
+            /**
+             * Country
+             * @default Nigeria
+             * @constant
+             */
+            country: "Nigeria";
+            /**
+             * State
+             * @description State/FCT from the bundled Nigerian dataset.
+             */
+            state: string;
+            /**
+             * Local Area
+             * @description Local government area belonging to that state.
+             */
+            local_area: string;
+        };
+        /**
+         * SignupBody
+         * @example {
+         *       "email": "customer@example.com",
+         *       "name": "Ada James",
+         *       "password": "Example-password-42!"
+         *     }
+         */
+        SignupBody: {
+            /**
+             * Email
+             * @description Identity email address.
+             */
+            email: string;
+            /**
+             * Password
+             * Format: password
+             * @description New password, 8–128 characters.
+             */
+            password: string;
+            /**
+             * Name
+             * @description Customer's display name. Roles are not accepted.
+             */
+            name: string;
+        };
+        /** TransitionBody */
+        TransitionBody: {
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "processing" | "shipped" | "delivered";
+            /** Carrier */
+            carrier?: string | null;
+            /** Tracking Reference */
+            tracking_reference?: string | null;
+        };
+        /** TransitionData */
+        TransitionData: {
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "unfulfilled" | "processing" | "shipped" | "delivered";
+            /** Carrier */
+            carrier: string | null;
+            /** Tracking Reference */
+            tracking_reference: string | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+        };
         /** UploadBody */
         UploadBody: {
             /**
@@ -1381,6 +3580,145 @@ export interface components {
              * @default 300
              */
             expires_in: number;
+        };
+        /** ValidationError */
+        ValidationError: {
+            /** Location */
+            loc: (string | number)[];
+            /** Message */
+            msg: string;
+            /** Error Type */
+            type: string;
+            /** Input */
+            input?: unknown;
+            /** Context */
+            ctx?: Record<string, never>;
+        };
+        /**
+         * VerificationBody
+         * @example {
+         *       "code": "012345",
+         *       "email": "customer@example.com"
+         *     }
+         */
+        VerificationBody: {
+            /**
+             * Email
+             * @description Identity email address.
+             */
+            email: string;
+            /**
+             * Code
+             * @description Exact email verification code; preserve leading zeros.
+             */
+            code: string;
+        };
+        /** WebhookResult */
+        WebhookResult: {
+            /**
+             * Received
+             * @default true
+             */
+            received: boolean;
+            /**
+             * Outcome
+             * @description applied, duplicate, ignored, or a recorded review reason.
+             */
+            outcome: string;
+        };
+        /** WishlistData */
+        WishlistData: {
+            /** Product Id */
+            product_id: string;
+            /** Name */
+            name: string;
+            /** Slug */
+            slug: string;
+            display_price: components["schemas"]["PriceData"];
+            /** Image Url */
+            image_url: string | null;
+            /** Image Alt */
+            image_alt: string | null;
+            /**
+             * Available
+             * @description False when product or category is inactive or its price is unavailable.
+             */
+            available: boolean;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+        };
+        /** PaymentEventData */
+        PaymentEventData: {
+            /**
+             * Checkout Id
+             * @default null
+             */
+            checkout_id: string | null;
+            /**
+             * Reference
+             * @default null
+             */
+            reference: string | null;
+            /**
+             * Charge Id
+             * @default null
+             */
+            charge_id: string | null;
+            /**
+             * Amount
+             * @default null
+             */
+            amount: string | null;
+            /**
+             * Currency
+             * @default null
+             */
+            currency: string | null;
+            /**
+             * Status
+             * @default null
+             */
+            status: string | null;
+            /**
+             * Metadata
+             * @default null
+             */
+            metadata: {
+                [key: string]: unknown;
+            } | null;
+            /**
+             * Fee Bearer
+             * @default null
+             */
+            fee_bearer: string | null;
+        };
+        /** PaymentEvent */
+        PaymentEvent: {
+            /** Id */
+            id: string;
+            /** Type */
+            type: string;
+            /** Organization Id */
+            organization_id: string;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Environment
+             * @default null
+             */
+            environment: string | null;
+            /**
+             * Livemode
+             * @default false
+             */
+            livemode: boolean;
+            data: components["schemas"]["PaymentEventData"];
         };
     };
     responses: never;
@@ -1423,7 +3761,10 @@ export interface operations {
     bootstrapProfile: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Required with BackendSession cookies; obtain from GET /v1/auth/csrf. Not required with bearer-only authentication. */
+                "X-CSRF-Token"?: string;
+            };
             path?: never;
             cookie?: never;
         };
@@ -1458,7 +3799,7 @@ export interface operations {
                     "application/json": components["schemas"]["ApiSuccess_ProfileData_"];
                 };
             };
-            /** @description Missing, invalid, expired, or wrong-branch token; or deleted identity. */
+            /** @description Missing, invalid, expired or revoked cookie session, wrong-branch bearer token, or deleted identity. */
             401: {
                 headers: {
                     [name: string]: unknown;
@@ -1470,14 +3811,14 @@ export interface operations {
                      *       "status": 401,
                      *       "error": {
                      *         "code": "UNAUTHENTICATED",
-                     *         "message": "Missing, invalid, expired, or wrong-branch token; or deleted identity."
+                     *         "message": "Missing, invalid, expired or revoked cookie session, wrong-branch bearer token, or deleted identity."
                      *       }
                      *     }
                      */
                     "application/json": components["schemas"]["ApiFailure"];
                 };
             };
-            /** @description Email must be verified; admin checks also require an admin or super_admin role. */
+            /** @description Email must be verified; admin checks require admin/super_admin. Cookie mutations also require valid CSRF and trusted origin. */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -1489,7 +3830,7 @@ export interface operations {
                      *       "status": 403,
                      *       "error": {
                      *         "code": "FORBIDDEN",
-                     *         "message": "Email must be verified; admin checks also require an admin or super_admin role."
+                     *         "message": "Email must be verified; admin checks require admin/super_admin. Cookie mutations also require valid CSRF and trusted origin."
                      *       }
                      *     }
                      */
@@ -1594,7 +3935,7 @@ export interface operations {
                     "application/json": components["schemas"]["ApiSuccess_ProfileData_"];
                 };
             };
-            /** @description Missing, invalid, expired, or wrong-branch token; or deleted identity. */
+            /** @description Missing, invalid, expired or revoked cookie session, wrong-branch bearer token, or deleted identity. */
             401: {
                 headers: {
                     [name: string]: unknown;
@@ -1606,14 +3947,14 @@ export interface operations {
                      *       "status": 401,
                      *       "error": {
                      *         "code": "UNAUTHENTICATED",
-                     *         "message": "Missing, invalid, expired, or wrong-branch token; or deleted identity."
+                     *         "message": "Missing, invalid, expired or revoked cookie session, wrong-branch bearer token, or deleted identity."
                      *       }
                      *     }
                      */
                     "application/json": components["schemas"]["ApiFailure"];
                 };
             };
-            /** @description Email must be verified; admin checks also require an admin or super_admin role. */
+            /** @description Email must be verified; admin checks require admin/super_admin. Cookie mutations also require valid CSRF and trusted origin. */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -1625,7 +3966,7 @@ export interface operations {
                      *       "status": 403,
                      *       "error": {
                      *         "code": "FORBIDDEN",
-                     *         "message": "Email must be verified; admin checks also require an admin or super_admin role."
+                     *         "message": "Email must be verified; admin checks require admin/super_admin. Cookie mutations also require valid CSRF and trusted origin."
                      *       }
                      *     }
                      */
@@ -1725,7 +4066,7 @@ export interface operations {
                     "application/json": components["schemas"]["ApiSuccess_ProfileData_"];
                 };
             };
-            /** @description Missing, invalid, expired, or wrong-branch token; or deleted identity. */
+            /** @description Missing, invalid, expired or revoked cookie session, wrong-branch bearer token, or deleted identity. */
             401: {
                 headers: {
                     [name: string]: unknown;
@@ -1737,14 +4078,14 @@ export interface operations {
                      *       "status": 401,
                      *       "error": {
                      *         "code": "UNAUTHENTICATED",
-                     *         "message": "Missing, invalid, expired, or wrong-branch token; or deleted identity."
+                     *         "message": "Missing, invalid, expired or revoked cookie session, wrong-branch bearer token, or deleted identity."
                      *       }
                      *     }
                      */
                     "application/json": components["schemas"]["ApiFailure"];
                 };
             };
-            /** @description Email must be verified; admin checks also require an admin or super_admin role. */
+            /** @description Email must be verified; admin checks require admin/super_admin. Cookie mutations also require valid CSRF and trusted origin. */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -1756,7 +4097,7 @@ export interface operations {
                      *       "status": 403,
                      *       "error": {
                      *         "code": "FORBIDDEN",
-                     *         "message": "Email must be verified; admin checks also require an admin or super_admin role."
+                     *         "message": "Email must be verified; admin checks require admin/super_admin. Cookie mutations also require valid CSRF and trusted origin."
                      *       }
                      *     }
                      */
@@ -1814,6 +4155,2144 @@ export interface operations {
                      *       "error": {
                      *         "code": "AUTH_UNAVAILABLE",
                      *         "message": "Authentication configuration, JWKS service, or database unavailable."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+        };
+    };
+    getAuthCsrf: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    /** @description Sets the HttpOnly fmluxe_csrf cookie; return the JSON token in X-CSRF-Token. */
+                    "Set-Cookie"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": true,
+                     *       "status": 200,
+                     *       "data": {
+                     *         "csrf_token": "opaque-csrf-example",
+                     *         "expires_in": 3600
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiSuccess_CsrfData_"];
+                };
+            };
+            /** @description Invalid, expired or used code; rejected provider request; invalid OAuth state. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 400,
+                     *       "error": {
+                     *         "code": "INVALID_CODE",
+                     *         "message": "Invalid, expired or used code; rejected provider request; invalid OAuth state."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Missing, expired or revoked session; invalid credentials. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 401,
+                     *       "error": {
+                     *         "code": "UNAUTHENTICATED",
+                     *         "message": "Missing, expired or revoked session; invalid credentials."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Untrusted origin, invalid CSRF token or unverified email. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 403,
+                     *       "error": {
+                     *         "code": "CSRF_REJECTED",
+                     *         "message": "Untrusted origin, invalid CSRF token or unverified email."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description An account with these details already exists. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 409,
+                     *       "error": {
+                     *         "code": "ACCOUNT_EXISTS",
+                     *         "message": "An account with these details already exists."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Invalid fields; fieldErrors maps submitted field names to messages. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 422,
+                     *       "error": {
+                     *         "code": "VALIDATION_ERROR",
+                     *         "message": "The request contains invalid fields.",
+                     *         "fieldErrors": {
+                     *           "email": [
+                     *             "Enter a valid email address."
+                     *           ]
+                     *         }
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Authentication provider rate limit; wait before retrying. */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 429,
+                     *       "error": {
+                     *         "code": "AUTH_RATE_LIMITED",
+                     *         "message": "Authentication provider rate limit; wait before retrying."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description The request could not be completed. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 500,
+                     *       "error": {
+                     *         "code": "INTERNAL_SERVER_ERROR",
+                     *         "message": "The request could not be completed."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Provider, encryption configuration or database unavailable. */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 503,
+                     *       "error": {
+                     *         "code": "AUTH_UNAVAILABLE",
+                     *         "message": "Provider, encryption configuration or database unavailable."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+        };
+    };
+    signupCustomer: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Token from GET /v1/auth/csrf. Also send its fmluxe_csrf cookie. */
+                "x-csrf-token"?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SignupBody"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": true,
+                     *       "status": 200,
+                     *       "data": {
+                     *         "accepted": true,
+                     *         "next_action": "verify_email"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiSuccess_ActionData_"];
+                };
+            };
+            /** @description Invalid, expired or used code; rejected provider request; invalid OAuth state. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 400,
+                     *       "error": {
+                     *         "code": "INVALID_CODE",
+                     *         "message": "Invalid, expired or used code; rejected provider request; invalid OAuth state."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Missing, expired or revoked session; invalid credentials. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 401,
+                     *       "error": {
+                     *         "code": "UNAUTHENTICATED",
+                     *         "message": "Missing, expired or revoked session; invalid credentials."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Untrusted origin, invalid CSRF token or unverified email. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 403,
+                     *       "error": {
+                     *         "code": "CSRF_REJECTED",
+                     *         "message": "Untrusted origin, invalid CSRF token or unverified email."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description An account with these details already exists. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 409,
+                     *       "error": {
+                     *         "code": "ACCOUNT_EXISTS",
+                     *         "message": "An account with these details already exists."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Invalid fields; fieldErrors maps submitted field names to messages. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 422,
+                     *       "error": {
+                     *         "code": "VALIDATION_ERROR",
+                     *         "message": "The request contains invalid fields.",
+                     *         "fieldErrors": {
+                     *           "email": [
+                     *             "Enter a valid email address."
+                     *           ]
+                     *         }
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Authentication provider rate limit; wait before retrying. */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 429,
+                     *       "error": {
+                     *         "code": "AUTH_RATE_LIMITED",
+                     *         "message": "Authentication provider rate limit; wait before retrying."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description The request could not be completed. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 500,
+                     *       "error": {
+                     *         "code": "INTERNAL_SERVER_ERROR",
+                     *         "message": "The request could not be completed."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Provider, encryption configuration or database unavailable. */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 503,
+                     *       "error": {
+                     *         "code": "AUTH_UNAVAILABLE",
+                     *         "message": "Provider, encryption configuration or database unavailable."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+        };
+    };
+    loginCustomer: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Token from GET /v1/auth/csrf. Also send its fmluxe_csrf cookie. */
+                "x-csrf-token"?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["LoginBody"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    /** @description Sets or rotates the host-only HttpOnly fmluxe_session cookie. */
+                    "Set-Cookie"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": true,
+                     *       "status": 200,
+                     *       "data": {
+                     *         "identity": {
+                     *           "id": "identity-example",
+                     *           "email": "customer@example.com",
+                     *           "name": "Ada James",
+                     *           "email_verified": true
+                     *         },
+                     *         "profile": {
+                     *           "id": "identity-example",
+                     *           "email": "customer@example.com",
+                     *           "name": "Ada James",
+                     *           "role": "customer",
+                     *           "created_at": "2026-11-22T10:00:00Z",
+                     *           "updated_at": "2026-11-22T10:00:00Z"
+                     *         },
+                     *         "expires_at": "2026-11-29T10:00:00Z"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiSuccess_SessionData_"];
+                };
+            };
+            /** @description Invalid, expired or used code; rejected provider request; invalid OAuth state. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 400,
+                     *       "error": {
+                     *         "code": "INVALID_CODE",
+                     *         "message": "Invalid, expired or used code; rejected provider request; invalid OAuth state."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Missing, expired or revoked session; invalid credentials. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 401,
+                     *       "error": {
+                     *         "code": "UNAUTHENTICATED",
+                     *         "message": "Missing, expired or revoked session; invalid credentials."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Untrusted origin, invalid CSRF token or unverified email. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 403,
+                     *       "error": {
+                     *         "code": "CSRF_REJECTED",
+                     *         "message": "Untrusted origin, invalid CSRF token or unverified email."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description An account with these details already exists. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 409,
+                     *       "error": {
+                     *         "code": "ACCOUNT_EXISTS",
+                     *         "message": "An account with these details already exists."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Invalid fields; fieldErrors maps submitted field names to messages. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 422,
+                     *       "error": {
+                     *         "code": "VALIDATION_ERROR",
+                     *         "message": "The request contains invalid fields.",
+                     *         "fieldErrors": {
+                     *           "email": [
+                     *             "Enter a valid email address."
+                     *           ]
+                     *         }
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Authentication provider rate limit; wait before retrying. */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 429,
+                     *       "error": {
+                     *         "code": "AUTH_RATE_LIMITED",
+                     *         "message": "Authentication provider rate limit; wait before retrying."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description The request could not be completed. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 500,
+                     *       "error": {
+                     *         "code": "INTERNAL_SERVER_ERROR",
+                     *         "message": "The request could not be completed."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Provider, encryption configuration or database unavailable. */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 503,
+                     *       "error": {
+                     *         "code": "AUTH_UNAVAILABLE",
+                     *         "message": "Provider, encryption configuration or database unavailable."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+        };
+    };
+    requestEmailVerification: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Token from GET /v1/auth/csrf. Also send its fmluxe_csrf cookie. */
+                "x-csrf-token"?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["EmailBody"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": true,
+                     *       "status": 200,
+                     *       "data": {
+                     *         "accepted": true,
+                     *         "next_action": "none"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiSuccess_ActionData_"];
+                };
+            };
+            /** @description Invalid, expired or used code; rejected provider request; invalid OAuth state. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 400,
+                     *       "error": {
+                     *         "code": "INVALID_CODE",
+                     *         "message": "Invalid, expired or used code; rejected provider request; invalid OAuth state."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Missing, expired or revoked session; invalid credentials. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 401,
+                     *       "error": {
+                     *         "code": "UNAUTHENTICATED",
+                     *         "message": "Missing, expired or revoked session; invalid credentials."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Untrusted origin, invalid CSRF token or unverified email. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 403,
+                     *       "error": {
+                     *         "code": "CSRF_REJECTED",
+                     *         "message": "Untrusted origin, invalid CSRF token or unverified email."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description An account with these details already exists. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 409,
+                     *       "error": {
+                     *         "code": "ACCOUNT_EXISTS",
+                     *         "message": "An account with these details already exists."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Invalid fields; fieldErrors maps submitted field names to messages. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 422,
+                     *       "error": {
+                     *         "code": "VALIDATION_ERROR",
+                     *         "message": "The request contains invalid fields.",
+                     *         "fieldErrors": {
+                     *           "email": [
+                     *             "Enter a valid email address."
+                     *           ]
+                     *         }
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Authentication provider rate limit; wait before retrying. */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 429,
+                     *       "error": {
+                     *         "code": "AUTH_RATE_LIMITED",
+                     *         "message": "Authentication provider rate limit; wait before retrying."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description The request could not be completed. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 500,
+                     *       "error": {
+                     *         "code": "INTERNAL_SERVER_ERROR",
+                     *         "message": "The request could not be completed."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Provider, encryption configuration or database unavailable. */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 503,
+                     *       "error": {
+                     *         "code": "AUTH_UNAVAILABLE",
+                     *         "message": "Provider, encryption configuration or database unavailable."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+        };
+    };
+    confirmEmailVerification: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Token from GET /v1/auth/csrf. Also send its fmluxe_csrf cookie. */
+                "x-csrf-token"?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["VerificationBody"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": true,
+                     *       "status": 200,
+                     *       "data": {
+                     *         "accepted": true,
+                     *         "next_action": "sign_in"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiSuccess_ActionData_"];
+                };
+            };
+            /** @description Invalid, expired or used code; rejected provider request; invalid OAuth state. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 400,
+                     *       "error": {
+                     *         "code": "INVALID_CODE",
+                     *         "message": "Invalid, expired or used code; rejected provider request; invalid OAuth state."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Missing, expired or revoked session; invalid credentials. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 401,
+                     *       "error": {
+                     *         "code": "UNAUTHENTICATED",
+                     *         "message": "Missing, expired or revoked session; invalid credentials."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Untrusted origin, invalid CSRF token or unverified email. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 403,
+                     *       "error": {
+                     *         "code": "CSRF_REJECTED",
+                     *         "message": "Untrusted origin, invalid CSRF token or unverified email."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description An account with these details already exists. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 409,
+                     *       "error": {
+                     *         "code": "ACCOUNT_EXISTS",
+                     *         "message": "An account with these details already exists."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Invalid fields; fieldErrors maps submitted field names to messages. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 422,
+                     *       "error": {
+                     *         "code": "VALIDATION_ERROR",
+                     *         "message": "The request contains invalid fields.",
+                     *         "fieldErrors": {
+                     *           "email": [
+                     *             "Enter a valid email address."
+                     *           ]
+                     *         }
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Authentication provider rate limit; wait before retrying. */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 429,
+                     *       "error": {
+                     *         "code": "AUTH_RATE_LIMITED",
+                     *         "message": "Authentication provider rate limit; wait before retrying."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description The request could not be completed. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 500,
+                     *       "error": {
+                     *         "code": "INTERNAL_SERVER_ERROR",
+                     *         "message": "The request could not be completed."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Provider, encryption configuration or database unavailable. */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 503,
+                     *       "error": {
+                     *         "code": "AUTH_UNAVAILABLE",
+                     *         "message": "Provider, encryption configuration or database unavailable."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+        };
+    };
+    requestPasswordReset: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Token from GET /v1/auth/csrf. Also send its fmluxe_csrf cookie. */
+                "x-csrf-token"?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["EmailBody"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": true,
+                     *       "status": 200,
+                     *       "data": {
+                     *         "accepted": true,
+                     *         "next_action": "none"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiSuccess_ActionData_"];
+                };
+            };
+            /** @description Invalid, expired or used code; rejected provider request; invalid OAuth state. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 400,
+                     *       "error": {
+                     *         "code": "INVALID_CODE",
+                     *         "message": "Invalid, expired or used code; rejected provider request; invalid OAuth state."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Missing, expired or revoked session; invalid credentials. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 401,
+                     *       "error": {
+                     *         "code": "UNAUTHENTICATED",
+                     *         "message": "Missing, expired or revoked session; invalid credentials."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Untrusted origin, invalid CSRF token or unverified email. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 403,
+                     *       "error": {
+                     *         "code": "CSRF_REJECTED",
+                     *         "message": "Untrusted origin, invalid CSRF token or unverified email."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description An account with these details already exists. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 409,
+                     *       "error": {
+                     *         "code": "ACCOUNT_EXISTS",
+                     *         "message": "An account with these details already exists."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Invalid fields; fieldErrors maps submitted field names to messages. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 422,
+                     *       "error": {
+                     *         "code": "VALIDATION_ERROR",
+                     *         "message": "The request contains invalid fields.",
+                     *         "fieldErrors": {
+                     *           "email": [
+                     *             "Enter a valid email address."
+                     *           ]
+                     *         }
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Authentication provider rate limit; wait before retrying. */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 429,
+                     *       "error": {
+                     *         "code": "AUTH_RATE_LIMITED",
+                     *         "message": "Authentication provider rate limit; wait before retrying."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description The request could not be completed. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 500,
+                     *       "error": {
+                     *         "code": "INTERNAL_SERVER_ERROR",
+                     *         "message": "The request could not be completed."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Provider, encryption configuration or database unavailable. */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 503,
+                     *       "error": {
+                     *         "code": "AUTH_UNAVAILABLE",
+                     *         "message": "Provider, encryption configuration or database unavailable."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+        };
+    };
+    confirmPasswordReset: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Token from GET /v1/auth/csrf. Also send its fmluxe_csrf cookie. */
+                "x-csrf-token"?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ResetBody"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": true,
+                     *       "status": 200,
+                     *       "data": {
+                     *         "accepted": true,
+                     *         "next_action": "sign_in"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiSuccess_ActionData_"];
+                };
+            };
+            /** @description Invalid, expired or used code; rejected provider request; invalid OAuth state. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 400,
+                     *       "error": {
+                     *         "code": "INVALID_CODE",
+                     *         "message": "Invalid, expired or used code; rejected provider request; invalid OAuth state."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Missing, expired or revoked session; invalid credentials. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 401,
+                     *       "error": {
+                     *         "code": "UNAUTHENTICATED",
+                     *         "message": "Missing, expired or revoked session; invalid credentials."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Untrusted origin, invalid CSRF token or unverified email. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 403,
+                     *       "error": {
+                     *         "code": "CSRF_REJECTED",
+                     *         "message": "Untrusted origin, invalid CSRF token or unverified email."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description An account with these details already exists. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 409,
+                     *       "error": {
+                     *         "code": "ACCOUNT_EXISTS",
+                     *         "message": "An account with these details already exists."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Invalid fields; fieldErrors maps submitted field names to messages. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 422,
+                     *       "error": {
+                     *         "code": "VALIDATION_ERROR",
+                     *         "message": "The request contains invalid fields.",
+                     *         "fieldErrors": {
+                     *           "email": [
+                     *             "Enter a valid email address."
+                     *           ]
+                     *         }
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Authentication provider rate limit; wait before retrying. */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 429,
+                     *       "error": {
+                     *         "code": "AUTH_RATE_LIMITED",
+                     *         "message": "Authentication provider rate limit; wait before retrying."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description The request could not be completed. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 500,
+                     *       "error": {
+                     *         "code": "INTERNAL_SERVER_ERROR",
+                     *         "message": "The request could not be completed."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Provider, encryption configuration or database unavailable. */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 503,
+                     *       "error": {
+                     *         "code": "AUTH_UNAVAILABLE",
+                     *         "message": "Provider, encryption configuration or database unavailable."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+        };
+    };
+    getAuthSession: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": true,
+                     *       "status": 200,
+                     *       "data": {
+                     *         "identity": {
+                     *           "id": "identity-example",
+                     *           "email": "customer@example.com",
+                     *           "name": "Ada James",
+                     *           "email_verified": true
+                     *         },
+                     *         "profile": {
+                     *           "id": "identity-example",
+                     *           "email": "customer@example.com",
+                     *           "name": "Ada James",
+                     *           "role": "customer",
+                     *           "created_at": "2026-11-22T10:00:00Z",
+                     *           "updated_at": "2026-11-22T10:00:00Z"
+                     *         },
+                     *         "expires_at": "2026-11-29T10:00:00Z"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiSuccess_SessionData_"];
+                };
+            };
+            /** @description Invalid, expired or used code; rejected provider request; invalid OAuth state. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 400,
+                     *       "error": {
+                     *         "code": "INVALID_CODE",
+                     *         "message": "Invalid, expired or used code; rejected provider request; invalid OAuth state."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Missing, expired or revoked session; invalid credentials. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 401,
+                     *       "error": {
+                     *         "code": "UNAUTHENTICATED",
+                     *         "message": "Missing, expired or revoked session; invalid credentials."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Untrusted origin, invalid CSRF token or unverified email. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 403,
+                     *       "error": {
+                     *         "code": "CSRF_REJECTED",
+                     *         "message": "Untrusted origin, invalid CSRF token or unverified email."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description An account with these details already exists. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 409,
+                     *       "error": {
+                     *         "code": "ACCOUNT_EXISTS",
+                     *         "message": "An account with these details already exists."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Invalid fields; fieldErrors maps submitted field names to messages. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 422,
+                     *       "error": {
+                     *         "code": "VALIDATION_ERROR",
+                     *         "message": "The request contains invalid fields.",
+                     *         "fieldErrors": {
+                     *           "email": [
+                     *             "Enter a valid email address."
+                     *           ]
+                     *         }
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Authentication provider rate limit; wait before retrying. */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 429,
+                     *       "error": {
+                     *         "code": "AUTH_RATE_LIMITED",
+                     *         "message": "Authentication provider rate limit; wait before retrying."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description The request could not be completed. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 500,
+                     *       "error": {
+                     *         "code": "INTERNAL_SERVER_ERROR",
+                     *         "message": "The request could not be completed."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Provider, encryption configuration or database unavailable. */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 503,
+                     *       "error": {
+                     *         "code": "AUTH_UNAVAILABLE",
+                     *         "message": "Provider, encryption configuration or database unavailable."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+        };
+    };
+    logoutCustomer: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Token from GET /v1/auth/csrf. Also send its fmluxe_csrf cookie. */
+                "x-csrf-token"?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    /** @description Expires the fmluxe_session cookie. Fetch a fresh CSRF token afterward. */
+                    "Set-Cookie"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": true,
+                     *       "status": 200,
+                     *       "data": {
+                     *         "logged_out": true,
+                     *         "provider_revoked": true
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiSuccess_LogoutData_"];
+                };
+            };
+            /** @description Invalid, expired or used code; rejected provider request; invalid OAuth state. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 400,
+                     *       "error": {
+                     *         "code": "INVALID_CODE",
+                     *         "message": "Invalid, expired or used code; rejected provider request; invalid OAuth state."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Missing, expired or revoked session; invalid credentials. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 401,
+                     *       "error": {
+                     *         "code": "UNAUTHENTICATED",
+                     *         "message": "Missing, expired or revoked session; invalid credentials."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Untrusted origin, invalid CSRF token or unverified email. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 403,
+                     *       "error": {
+                     *         "code": "CSRF_REJECTED",
+                     *         "message": "Untrusted origin, invalid CSRF token or unverified email."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description An account with these details already exists. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 409,
+                     *       "error": {
+                     *         "code": "ACCOUNT_EXISTS",
+                     *         "message": "An account with these details already exists."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Invalid fields; fieldErrors maps submitted field names to messages. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 422,
+                     *       "error": {
+                     *         "code": "VALIDATION_ERROR",
+                     *         "message": "The request contains invalid fields.",
+                     *         "fieldErrors": {
+                     *           "email": [
+                     *             "Enter a valid email address."
+                     *           ]
+                     *         }
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Authentication provider rate limit; wait before retrying. */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 429,
+                     *       "error": {
+                     *         "code": "AUTH_RATE_LIMITED",
+                     *         "message": "Authentication provider rate limit; wait before retrying."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description The request could not be completed. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 500,
+                     *       "error": {
+                     *         "code": "INTERNAL_SERVER_ERROR",
+                     *         "message": "The request could not be completed."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Provider, encryption configuration or database unavailable. */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 503,
+                     *       "error": {
+                     *         "code": "AUTH_UNAVAILABLE",
+                     *         "message": "Provider, encryption configuration or database unavailable."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+        };
+    };
+    startGoogleLogin: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Token from GET /v1/auth/csrf. Also send its fmluxe_csrf cookie. */
+                "x-csrf-token"?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    /** @description Sets the HttpOnly fmluxe_oauth binding cookie for 600 seconds. */
+                    "Set-Cookie"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": true,
+                     *       "status": 200,
+                     *       "data": {
+                     *         "authorization_url": "https://accounts.google.com/o/oauth2/v2/auth?example=sanitized",
+                     *         "expires_in": 600
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiSuccess_GoogleData_"];
+                };
+            };
+            /** @description Invalid, expired or used code; rejected provider request; invalid OAuth state. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 400,
+                     *       "error": {
+                     *         "code": "INVALID_CODE",
+                     *         "message": "Invalid, expired or used code; rejected provider request; invalid OAuth state."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Missing, expired or revoked session; invalid credentials. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 401,
+                     *       "error": {
+                     *         "code": "UNAUTHENTICATED",
+                     *         "message": "Missing, expired or revoked session; invalid credentials."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Untrusted origin, invalid CSRF token or unverified email. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 403,
+                     *       "error": {
+                     *         "code": "CSRF_REJECTED",
+                     *         "message": "Untrusted origin, invalid CSRF token or unverified email."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description An account with these details already exists. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 409,
+                     *       "error": {
+                     *         "code": "ACCOUNT_EXISTS",
+                     *         "message": "An account with these details already exists."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Invalid fields; fieldErrors maps submitted field names to messages. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 422,
+                     *       "error": {
+                     *         "code": "VALIDATION_ERROR",
+                     *         "message": "The request contains invalid fields.",
+                     *         "fieldErrors": {
+                     *           "email": [
+                     *             "Enter a valid email address."
+                     *           ]
+                     *         }
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Authentication provider rate limit; wait before retrying. */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 429,
+                     *       "error": {
+                     *         "code": "AUTH_RATE_LIMITED",
+                     *         "message": "Authentication provider rate limit; wait before retrying."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description The request could not be completed. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 500,
+                     *       "error": {
+                     *         "code": "INTERNAL_SERVER_ERROR",
+                     *         "message": "The request could not be completed."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Provider, encryption configuration or database unavailable. */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 503,
+                     *       "error": {
+                     *         "code": "AUTH_UNAVAILABLE",
+                     *         "message": "Provider, encryption configuration or database unavailable."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+        };
+    };
+    completeGoogleLogin: {
+        parameters: {
+            query: {
+                /** @description Opaque transaction state; never generate it in the frontend. */
+                state: string;
+                /** @description Single-use verifier supplied by Neon. */
+                neon_auth_session_verifier?: string | null;
+                /** @description Provider failure marker; contents are never reflected. */
+                error?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Session established; navigate to the configured application destination. */
+            303: {
+                headers: {
+                    /** @description Fixed configured application destination. */
+                    Location?: string;
+                    /** @description HttpOnly backend session cookie; clears OAuth binding. */
+                    "Set-Cookie"?: string;
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Invalid, expired or used code; rejected provider request; invalid OAuth state. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 400,
+                     *       "error": {
+                     *         "code": "INVALID_CODE",
+                     *         "message": "Invalid, expired or used code; rejected provider request; invalid OAuth state."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Missing, expired or revoked session; invalid credentials. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 401,
+                     *       "error": {
+                     *         "code": "UNAUTHENTICATED",
+                     *         "message": "Missing, expired or revoked session; invalid credentials."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Untrusted origin, invalid CSRF token or unverified email. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 403,
+                     *       "error": {
+                     *         "code": "CSRF_REJECTED",
+                     *         "message": "Untrusted origin, invalid CSRF token or unverified email."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description An account with these details already exists. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 409,
+                     *       "error": {
+                     *         "code": "ACCOUNT_EXISTS",
+                     *         "message": "An account with these details already exists."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Invalid fields; fieldErrors maps submitted field names to messages. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 422,
+                     *       "error": {
+                     *         "code": "VALIDATION_ERROR",
+                     *         "message": "The request contains invalid fields.",
+                     *         "fieldErrors": {
+                     *           "email": [
+                     *             "Enter a valid email address."
+                     *           ]
+                     *         }
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Authentication provider rate limit; wait before retrying. */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 429,
+                     *       "error": {
+                     *         "code": "AUTH_RATE_LIMITED",
+                     *         "message": "Authentication provider rate limit; wait before retrying."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description The request could not be completed. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 500,
+                     *       "error": {
+                     *         "code": "INTERNAL_SERVER_ERROR",
+                     *         "message": "The request could not be completed."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Provider, encryption configuration or database unavailable. */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 503,
+                     *       "error": {
+                     *         "code": "AUTH_UNAVAILABLE",
+                     *         "message": "Provider, encryption configuration or database unavailable."
                      *       }
                      *     }
                      */
@@ -1959,7 +6438,7 @@ export interface operations {
                     "application/json": components["schemas"]["ApiFailure"];
                 };
             };
-            /** @description The slug already exists or this record is still in use. */
+            /** @description Slug, referenced record, reserved stock or active-product rate requirements conflict with this change. */
             409: {
                 headers: {
                     [name: string]: unknown;
@@ -1971,7 +6450,7 @@ export interface operations {
                      *       "status": 409,
                      *       "error": {
                      *         "code": "CATALOG_CONFLICT",
-                     *         "message": "The slug already exists or this record is still in use."
+                     *         "message": "Slug, referenced record, reserved stock or active-product rate requirements conflict with this change."
                      *       }
                      *     }
                      */
@@ -2152,7 +6631,7 @@ export interface operations {
                     "application/json": components["schemas"]["ApiFailure"];
                 };
             };
-            /** @description The slug already exists or this record is still in use. */
+            /** @description Slug, referenced record, reserved stock or active-product rate requirements conflict with this change. */
             409: {
                 headers: {
                     [name: string]: unknown;
@@ -2164,7 +6643,7 @@ export interface operations {
                      *       "status": 409,
                      *       "error": {
                      *         "code": "CATALOG_CONFLICT",
-                     *         "message": "The slug already exists or this record is still in use."
+                     *         "message": "Slug, referenced record, reserved stock or active-product rate requirements conflict with this change."
                      *       }
                      *     }
                      */
@@ -2312,7 +6791,7 @@ export interface operations {
                     "application/json": components["schemas"]["ApiFailure"];
                 };
             };
-            /** @description The slug already exists or this record is still in use. */
+            /** @description Slug, referenced record, reserved stock or active-product rate requirements conflict with this change. */
             409: {
                 headers: {
                     [name: string]: unknown;
@@ -2324,7 +6803,7 @@ export interface operations {
                      *       "status": 409,
                      *       "error": {
                      *         "code": "CATALOG_CONFLICT",
-                     *         "message": "The slug already exists or this record is still in use."
+                     *         "message": "Slug, referenced record, reserved stock or active-product rate requirements conflict with this change."
                      *       }
                      *     }
                      */
@@ -2479,7 +6958,7 @@ export interface operations {
                     "application/json": components["schemas"]["ApiFailure"];
                 };
             };
-            /** @description The slug already exists or this record is still in use. */
+            /** @description Slug, referenced record, reserved stock or active-product rate requirements conflict with this change. */
             409: {
                 headers: {
                     [name: string]: unknown;
@@ -2491,7 +6970,7 @@ export interface operations {
                      *       "status": 409,
                      *       "error": {
                      *         "code": "CATALOG_CONFLICT",
-                     *         "message": "The slug already exists or this record is still in use."
+                     *         "message": "Slug, referenced record, reserved stock or active-product rate requirements conflict with this change."
                      *       }
                      *     }
                      */
@@ -2646,7 +7125,7 @@ export interface operations {
                     "application/json": components["schemas"]["ApiFailure"];
                 };
             };
-            /** @description The slug already exists or this record is still in use. */
+            /** @description Slug, referenced record, reserved stock or active-product rate requirements conflict with this change. */
             409: {
                 headers: {
                     [name: string]: unknown;
@@ -2658,7 +7137,7 @@ export interface operations {
                      *       "status": 409,
                      *       "error": {
                      *         "code": "CATALOG_CONFLICT",
-                     *         "message": "The slug already exists or this record is still in use."
+                     *         "message": "Slug, referenced record, reserved stock or active-product rate requirements conflict with this change."
                      *       }
                      *     }
                      */
@@ -2848,7 +7327,7 @@ export interface operations {
                     "application/json": components["schemas"]["ApiFailure"];
                 };
             };
-            /** @description The slug already exists or this record is still in use. */
+            /** @description Slug, referenced record, reserved stock or active-product rate requirements conflict with this change. */
             409: {
                 headers: {
                     [name: string]: unknown;
@@ -2860,7 +7339,7 @@ export interface operations {
                      *       "status": 409,
                      *       "error": {
                      *         "code": "CATALOG_CONFLICT",
-                     *         "message": "The slug already exists or this record is still in use."
+                     *         "message": "Slug, referenced record, reserved stock or active-product rate requirements conflict with this change."
                      *       }
                      *     }
                      */
@@ -2918,7 +7397,10 @@ export interface operations {
     createProduct: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Required with BackendSession cookies; obtain from GET /v1/auth/csrf. Not required with bearer-only authentication. */
+                "X-CSRF-Token"?: string;
+            };
             path?: never;
             cookie?: never;
         };
@@ -3071,7 +7553,7 @@ export interface operations {
                     "application/json": components["schemas"]["ApiFailure"];
                 };
             };
-            /** @description The slug already exists or this record is still in use. */
+            /** @description Slug, referenced record, reserved stock or active-product rate requirements conflict with this change. */
             409: {
                 headers: {
                     [name: string]: unknown;
@@ -3083,7 +7565,7 @@ export interface operations {
                      *       "status": 409,
                      *       "error": {
                      *         "code": "CATALOG_CONFLICT",
-                     *         "message": "The slug already exists or this record is still in use."
+                     *         "message": "Slug, referenced record, reserved stock or active-product rate requirements conflict with this change."
                      *       }
                      *     }
                      */
@@ -3264,7 +7746,7 @@ export interface operations {
                     "application/json": components["schemas"]["ApiFailure"];
                 };
             };
-            /** @description The slug already exists or this record is still in use. */
+            /** @description Slug, referenced record, reserved stock or active-product rate requirements conflict with this change. */
             409: {
                 headers: {
                     [name: string]: unknown;
@@ -3276,7 +7758,7 @@ export interface operations {
                      *       "status": 409,
                      *       "error": {
                      *         "code": "CATALOG_CONFLICT",
-                     *         "message": "The slug already exists or this record is still in use."
+                     *         "message": "Slug, referenced record, reserved stock or active-product rate requirements conflict with this change."
                      *       }
                      *     }
                      */
@@ -3334,7 +7816,10 @@ export interface operations {
     replaceProduct: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Required with BackendSession cookies; obtain from GET /v1/auth/csrf. Not required with bearer-only authentication. */
+                "X-CSRF-Token"?: string;
+            };
             path: {
                 identifier: string;
             };
@@ -3489,7 +7974,7 @@ export interface operations {
                     "application/json": components["schemas"]["ApiFailure"];
                 };
             };
-            /** @description The slug already exists or this record is still in use. */
+            /** @description Slug, referenced record, reserved stock or active-product rate requirements conflict with this change. */
             409: {
                 headers: {
                     [name: string]: unknown;
@@ -3501,7 +7986,7 @@ export interface operations {
                      *       "status": 409,
                      *       "error": {
                      *         "code": "CATALOG_CONFLICT",
-                     *         "message": "The slug already exists or this record is still in use."
+                     *         "message": "Slug, referenced record, reserved stock or active-product rate requirements conflict with this change."
                      *       }
                      *     }
                      */
@@ -3559,7 +8044,10 @@ export interface operations {
     deleteProduct: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Required with BackendSession cookies; obtain from GET /v1/auth/csrf. Not required with bearer-only authentication. */
+                "X-CSRF-Token"?: string;
+            };
             path: {
                 identifier: string;
             };
@@ -3633,7 +8121,7 @@ export interface operations {
                     "application/json": components["schemas"]["ApiFailure"];
                 };
             };
-            /** @description The slug already exists or this record is still in use. */
+            /** @description Slug, referenced record, reserved stock or active-product rate requirements conflict with this change. */
             409: {
                 headers: {
                     [name: string]: unknown;
@@ -3645,7 +8133,7 @@ export interface operations {
                      *       "status": 409,
                      *       "error": {
                      *         "code": "CATALOG_CONFLICT",
-                     *         "message": "The slug already exists or this record is still in use."
+                     *         "message": "Slug, referenced record, reserved stock or active-product rate requirements conflict with this change."
                      *       }
                      *     }
                      */
@@ -3800,7 +8288,7 @@ export interface operations {
                     "application/json": components["schemas"]["ApiFailure"];
                 };
             };
-            /** @description The slug already exists or this record is still in use. */
+            /** @description Slug, referenced record, reserved stock or active-product rate requirements conflict with this change. */
             409: {
                 headers: {
                     [name: string]: unknown;
@@ -3812,7 +8300,7 @@ export interface operations {
                      *       "status": 409,
                      *       "error": {
                      *         "code": "CATALOG_CONFLICT",
-                     *         "message": "The slug already exists or this record is still in use."
+                     *         "message": "Slug, referenced record, reserved stock or active-product rate requirements conflict with this change."
                      *       }
                      *     }
                      */
@@ -3870,7 +8358,10 @@ export interface operations {
     createCategory: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Required with BackendSession cookies; obtain from GET /v1/auth/csrf. Not required with bearer-only authentication. */
+                "X-CSRF-Token"?: string;
+            };
             path?: never;
             cookie?: never;
         };
@@ -3977,7 +8468,7 @@ export interface operations {
                     "application/json": components["schemas"]["ApiFailure"];
                 };
             };
-            /** @description The slug already exists or this record is still in use. */
+            /** @description Slug, referenced record, reserved stock or active-product rate requirements conflict with this change. */
             409: {
                 headers: {
                     [name: string]: unknown;
@@ -3989,7 +8480,7 @@ export interface operations {
                      *       "status": 409,
                      *       "error": {
                      *         "code": "CATALOG_CONFLICT",
-                     *         "message": "The slug already exists or this record is still in use."
+                     *         "message": "Slug, referenced record, reserved stock or active-product rate requirements conflict with this change."
                      *       }
                      *     }
                      */
@@ -4144,7 +8635,7 @@ export interface operations {
                     "application/json": components["schemas"]["ApiFailure"];
                 };
             };
-            /** @description The slug already exists or this record is still in use. */
+            /** @description Slug, referenced record, reserved stock or active-product rate requirements conflict with this change. */
             409: {
                 headers: {
                     [name: string]: unknown;
@@ -4156,7 +8647,7 @@ export interface operations {
                      *       "status": 409,
                      *       "error": {
                      *         "code": "CATALOG_CONFLICT",
-                     *         "message": "The slug already exists or this record is still in use."
+                     *         "message": "Slug, referenced record, reserved stock or active-product rate requirements conflict with this change."
                      *       }
                      *     }
                      */
@@ -4214,7 +8705,10 @@ export interface operations {
     replaceCategory: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Required with BackendSession cookies; obtain from GET /v1/auth/csrf. Not required with bearer-only authentication. */
+                "X-CSRF-Token"?: string;
+            };
             path: {
                 identifier: string;
             };
@@ -4323,7 +8817,7 @@ export interface operations {
                     "application/json": components["schemas"]["ApiFailure"];
                 };
             };
-            /** @description The slug already exists or this record is still in use. */
+            /** @description Slug, referenced record, reserved stock or active-product rate requirements conflict with this change. */
             409: {
                 headers: {
                     [name: string]: unknown;
@@ -4335,7 +8829,7 @@ export interface operations {
                      *       "status": 409,
                      *       "error": {
                      *         "code": "CATALOG_CONFLICT",
-                     *         "message": "The slug already exists or this record is still in use."
+                     *         "message": "Slug, referenced record, reserved stock or active-product rate requirements conflict with this change."
                      *       }
                      *     }
                      */
@@ -4393,7 +8887,10 @@ export interface operations {
     deleteCategory: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Required with BackendSession cookies; obtain from GET /v1/auth/csrf. Not required with bearer-only authentication. */
+                "X-CSRF-Token"?: string;
+            };
             path: {
                 identifier: string;
             };
@@ -4467,7 +8964,7 @@ export interface operations {
                     "application/json": components["schemas"]["ApiFailure"];
                 };
             };
-            /** @description The slug already exists or this record is still in use. */
+            /** @description Slug, referenced record, reserved stock or active-product rate requirements conflict with this change. */
             409: {
                 headers: {
                     [name: string]: unknown;
@@ -4479,7 +8976,7 @@ export interface operations {
                      *       "status": 409,
                      *       "error": {
                      *         "code": "CATALOG_CONFLICT",
-                     *         "message": "The slug already exists or this record is still in use."
+                     *         "message": "Slug, referenced record, reserved stock or active-product rate requirements conflict with this change."
                      *       }
                      *     }
                      */
@@ -4634,7 +9131,7 @@ export interface operations {
                     "application/json": components["schemas"]["ApiFailure"];
                 };
             };
-            /** @description The slug already exists or this record is still in use. */
+            /** @description Slug, referenced record, reserved stock or active-product rate requirements conflict with this change. */
             409: {
                 headers: {
                     [name: string]: unknown;
@@ -4646,7 +9143,7 @@ export interface operations {
                      *       "status": 409,
                      *       "error": {
                      *         "code": "CATALOG_CONFLICT",
-                     *         "message": "The slug already exists or this record is still in use."
+                     *         "message": "Slug, referenced record, reserved stock or active-product rate requirements conflict with this change."
                      *       }
                      *     }
                      */
@@ -4704,7 +9201,10 @@ export interface operations {
     createBanner: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Required with BackendSession cookies; obtain from GET /v1/auth/csrf. Not required with bearer-only authentication. */
+                "X-CSRF-Token"?: string;
+            };
             path?: never;
             cookie?: never;
         };
@@ -4816,7 +9316,7 @@ export interface operations {
                     "application/json": components["schemas"]["ApiFailure"];
                 };
             };
-            /** @description The slug already exists or this record is still in use. */
+            /** @description Slug, referenced record, reserved stock or active-product rate requirements conflict with this change. */
             409: {
                 headers: {
                     [name: string]: unknown;
@@ -4828,7 +9328,7 @@ export interface operations {
                      *       "status": 409,
                      *       "error": {
                      *         "code": "CATALOG_CONFLICT",
-                     *         "message": "The slug already exists or this record is still in use."
+                     *         "message": "Slug, referenced record, reserved stock or active-product rate requirements conflict with this change."
                      *       }
                      *     }
                      */
@@ -4983,7 +9483,7 @@ export interface operations {
                     "application/json": components["schemas"]["ApiFailure"];
                 };
             };
-            /** @description The slug already exists or this record is still in use. */
+            /** @description Slug, referenced record, reserved stock or active-product rate requirements conflict with this change. */
             409: {
                 headers: {
                     [name: string]: unknown;
@@ -4995,7 +9495,7 @@ export interface operations {
                      *       "status": 409,
                      *       "error": {
                      *         "code": "CATALOG_CONFLICT",
-                     *         "message": "The slug already exists or this record is still in use."
+                     *         "message": "Slug, referenced record, reserved stock or active-product rate requirements conflict with this change."
                      *       }
                      *     }
                      */
@@ -5053,7 +9553,10 @@ export interface operations {
     replaceBanner: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Required with BackendSession cookies; obtain from GET /v1/auth/csrf. Not required with bearer-only authentication. */
+                "X-CSRF-Token"?: string;
+            };
             path: {
                 identifier: string;
             };
@@ -5167,7 +9670,7 @@ export interface operations {
                     "application/json": components["schemas"]["ApiFailure"];
                 };
             };
-            /** @description The slug already exists or this record is still in use. */
+            /** @description Slug, referenced record, reserved stock or active-product rate requirements conflict with this change. */
             409: {
                 headers: {
                     [name: string]: unknown;
@@ -5179,7 +9682,7 @@ export interface operations {
                      *       "status": 409,
                      *       "error": {
                      *         "code": "CATALOG_CONFLICT",
-                     *         "message": "The slug already exists or this record is still in use."
+                     *         "message": "Slug, referenced record, reserved stock or active-product rate requirements conflict with this change."
                      *       }
                      *     }
                      */
@@ -5237,7 +9740,10 @@ export interface operations {
     deleteBanner: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Required with BackendSession cookies; obtain from GET /v1/auth/csrf. Not required with bearer-only authentication. */
+                "X-CSRF-Token"?: string;
+            };
             path: {
                 identifier: string;
             };
@@ -5311,7 +9817,7 @@ export interface operations {
                     "application/json": components["schemas"]["ApiFailure"];
                 };
             };
-            /** @description The slug already exists or this record is still in use. */
+            /** @description Slug, referenced record, reserved stock or active-product rate requirements conflict with this change. */
             409: {
                 headers: {
                     [name: string]: unknown;
@@ -5323,7 +9829,7 @@ export interface operations {
                      *       "status": 409,
                      *       "error": {
                      *         "code": "CATALOG_CONFLICT",
-                     *         "message": "The slug already exists or this record is still in use."
+                     *         "message": "Slug, referenced record, reserved stock or active-product rate requirements conflict with this change."
                      *       }
                      *     }
                      */
@@ -5453,7 +9959,7 @@ export interface operations {
                     "application/json": components["schemas"]["ApiFailure"];
                 };
             };
-            /** @description The slug already exists or this record is still in use. */
+            /** @description Slug, referenced record, reserved stock or active-product rate requirements conflict with this change. */
             409: {
                 headers: {
                     [name: string]: unknown;
@@ -5465,7 +9971,7 @@ export interface operations {
                      *       "status": 409,
                      *       "error": {
                      *         "code": "CATALOG_CONFLICT",
-                     *         "message": "The slug already exists or this record is still in use."
+                     *         "message": "Slug, referenced record, reserved stock or active-product rate requirements conflict with this change."
                      *       }
                      *     }
                      */
@@ -5523,7 +10029,10 @@ export interface operations {
     replaceStoreSettings: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Required with BackendSession cookies; obtain from GET /v1/auth/csrf. Not required with bearer-only authentication. */
+                "X-CSRF-Token"?: string;
+            };
             path?: never;
             cookie?: never;
         };
@@ -5606,7 +10115,7 @@ export interface operations {
                     "application/json": components["schemas"]["ApiFailure"];
                 };
             };
-            /** @description The slug already exists or this record is still in use. */
+            /** @description Slug, referenced record, reserved stock or active-product rate requirements conflict with this change. */
             409: {
                 headers: {
                     [name: string]: unknown;
@@ -5618,7 +10127,7 @@ export interface operations {
                      *       "status": 409,
                      *       "error": {
                      *         "code": "CATALOG_CONFLICT",
-                     *         "message": "The slug already exists or this record is still in use."
+                     *         "message": "Slug, referenced record, reserved stock or active-product rate requirements conflict with this change."
                      *       }
                      *     }
                      */
@@ -5748,7 +10257,7 @@ export interface operations {
                     "application/json": components["schemas"]["ApiFailure"];
                 };
             };
-            /** @description The slug already exists or this record is still in use. */
+            /** @description Slug, referenced record, reserved stock or active-product rate requirements conflict with this change. */
             409: {
                 headers: {
                     [name: string]: unknown;
@@ -5760,7 +10269,7 @@ export interface operations {
                      *       "status": 409,
                      *       "error": {
                      *         "code": "CATALOG_CONFLICT",
-                     *         "message": "The slug already exists or this record is still in use."
+                     *         "message": "Slug, referenced record, reserved stock or active-product rate requirements conflict with this change."
                      *       }
                      *     }
                      */
@@ -5818,7 +10327,10 @@ export interface operations {
     replaceGoldRates: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Required with BackendSession cookies; obtain from GET /v1/auth/csrf. Not required with bearer-only authentication. */
+                "X-CSRF-Token"?: string;
+            };
             path?: never;
             cookie?: never;
         };
@@ -5903,7 +10415,7 @@ export interface operations {
                     "application/json": components["schemas"]["ApiFailure"];
                 };
             };
-            /** @description The slug already exists or this record is still in use. */
+            /** @description Slug, referenced record, reserved stock or active-product rate requirements conflict with this change. */
             409: {
                 headers: {
                     [name: string]: unknown;
@@ -5915,7 +10427,7 @@ export interface operations {
                      *       "status": 409,
                      *       "error": {
                      *         "code": "CATALOG_CONFLICT",
-                     *         "message": "The slug already exists or this record is still in use."
+                     *         "message": "Slug, referenced record, reserved stock or active-product rate requirements conflict with this change."
                      *       }
                      *     }
                      */
@@ -5973,7 +10485,10 @@ export interface operations {
     authorizeImageUpload: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Required with BackendSession cookies; obtain from GET /v1/auth/csrf. Not required with bearer-only authentication. */
+                "X-CSRF-Token"?: string;
+            };
             path?: never;
             cookie?: never;
         };
@@ -6056,7 +10571,7 @@ export interface operations {
                     "application/json": components["schemas"]["ApiFailure"];
                 };
             };
-            /** @description The slug already exists or this record is still in use. */
+            /** @description Slug, referenced record, reserved stock or active-product rate requirements conflict with this change. */
             409: {
                 headers: {
                     [name: string]: unknown;
@@ -6068,7 +10583,7 @@ export interface operations {
                      *       "status": 409,
                      *       "error": {
                      *         "code": "CATALOG_CONFLICT",
-                     *         "message": "The slug already exists or this record is still in use."
+                     *         "message": "Slug, referenced record, reserved stock or active-product rate requirements conflict with this change."
                      *       }
                      *     }
                      */
@@ -6126,7 +10641,10 @@ export interface operations {
     completeImageUpload: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Required with BackendSession cookies; obtain from GET /v1/auth/csrf. Not required with bearer-only authentication. */
+                "X-CSRF-Token"?: string;
+            };
             path: {
                 identifier: string;
             };
@@ -6200,7 +10718,7 @@ export interface operations {
                     "application/json": components["schemas"]["ApiFailure"];
                 };
             };
-            /** @description The slug already exists or this record is still in use. */
+            /** @description Slug, referenced record, reserved stock or active-product rate requirements conflict with this change. */
             409: {
                 headers: {
                     [name: string]: unknown;
@@ -6212,7 +10730,7 @@ export interface operations {
                      *       "status": 409,
                      *       "error": {
                      *         "code": "CATALOG_CONFLICT",
-                     *         "message": "The slug already exists or this record is still in use."
+                     *         "message": "Slug, referenced record, reserved stock or active-product rate requirements conflict with this change."
                      *       }
                      *     }
                      */
@@ -6270,7 +10788,10 @@ export interface operations {
     deleteManagedImage: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Required with BackendSession cookies; obtain from GET /v1/auth/csrf. Not required with bearer-only authentication. */
+                "X-CSRF-Token"?: string;
+            };
             path: {
                 identifier: string;
             };
@@ -6344,7 +10865,7 @@ export interface operations {
                     "application/json": components["schemas"]["ApiFailure"];
                 };
             };
-            /** @description The slug already exists or this record is still in use. */
+            /** @description Slug, referenced record, reserved stock or active-product rate requirements conflict with this change. */
             409: {
                 headers: {
                     [name: string]: unknown;
@@ -6356,7 +10877,7 @@ export interface operations {
                      *       "status": 409,
                      *       "error": {
                      *         "code": "CATALOG_CONFLICT",
-                     *         "message": "The slug already exists or this record is still in use."
+                     *         "message": "Slug, referenced record, reserved stock or active-product rate requirements conflict with this change."
                      *       }
                      *     }
                      */
@@ -6414,7 +10935,10 @@ export interface operations {
     cleanupUnusedImages: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Required with BackendSession cookies; obtain from GET /v1/auth/csrf. Not required with bearer-only authentication. */
+                "X-CSRF-Token"?: string;
+            };
             path?: never;
             cookie?: never;
         };
@@ -6486,7 +11010,7 @@ export interface operations {
                     "application/json": components["schemas"]["ApiFailure"];
                 };
             };
-            /** @description The slug already exists or this record is still in use. */
+            /** @description Slug, referenced record, reserved stock or active-product rate requirements conflict with this change. */
             409: {
                 headers: {
                     [name: string]: unknown;
@@ -6498,7 +11022,7 @@ export interface operations {
                      *       "status": 409,
                      *       "error": {
                      *         "code": "CATALOG_CONFLICT",
-                     *         "message": "The slug already exists or this record is still in use."
+                     *         "message": "Slug, referenced record, reserved stock or active-product rate requirements conflict with this change."
                      *       }
                      *     }
                      */
@@ -6545,6 +11069,7546 @@ export interface operations {
                      *       "error": {
                      *         "code": "DEPENDENCY_UNAVAILABLE",
                      *         "message": "The database or object storage is unavailable."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+        };
+    };
+    createCheckoutQuote: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Required with BackendSession cookies; obtain from GET /v1/auth/csrf. Not required with bearer-only authentication. */
+                "X-CSRF-Token"?: string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                /**
+                 * @example {
+                 *       "items": [
+                 *         {
+                 *           "product_id": "00000000-0000-4000-8000-000000000001",
+                 *           "quantity": 1
+                 *         }
+                 *       ],
+                 *       "shipping": {
+                 *         "name": "Ada James",
+                 *         "phone": "+2348012345678",
+                 *         "address": "12 Example Street",
+                 *         "country": "Nigeria",
+                 *         "state": "Lagos",
+                 *         "local_area": "Ikeja"
+                 *       }
+                 *     }
+                 */
+                "application/json": components["schemas"]["QuoteBody"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": true,
+                     *       "status": 200,
+                     *       "data": {
+                     *         "items": [
+                     *           {
+                     *             "product_id": "00000000-0000-4000-8000-000000000001",
+                     *             "name": "Gold pendant",
+                     *             "slug": "gold-pendant",
+                     *             "quantity": 1,
+                     *             "size": null,
+                     *             "color": null,
+                     *             "karat": null,
+                     *             "unit_price": "120000.00",
+                     *             "line_total": "120000.00"
+                     *           }
+                     *         ],
+                     *         "shipping": {
+                     *           "name": "Ada James",
+                     *           "phone": "+2348012345678",
+                     *           "address": "12 Example Street",
+                     *           "country": "Nigeria",
+                     *           "state": "Lagos",
+                     *           "local_area": "Ikeja"
+                     *         },
+                     *         "subtotal": "120000.00",
+                     *         "delivery": "5000.00",
+                     *         "total": "125000.00",
+                     *         "currency": "NGN",
+                     *         "id": "00000000-0000-4000-8000-000000000001",
+                     *         "expires_at": "2026-11-13T12:05:00Z"
+                     *       },
+                     *       "message": null
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiSuccess_QuoteData_"];
+                };
+            };
+            /** @description A valid Neon bearer token is required. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 401,
+                     *       "error": {
+                     *         "code": "UNAUTHENTICATED",
+                     *         "message": "A valid Neon bearer token is required."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Email verification or administrator access is required. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 403,
+                     *       "error": {
+                     *         "code": "FORBIDDEN",
+                     *         "message": "Email verification or administrator access is required."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description The requested resource was not found or does not belong to this customer. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 404,
+                     *       "error": {
+                     *         "code": "ORDER_NOT_FOUND",
+                     *         "message": "The requested resource was not found or does not belong to this customer."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Quote, stock, idempotency key or order state conflicts with the request. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 409,
+                     *       "error": {
+                     *         "code": "ORDER_CONFLICT",
+                     *         "message": "Quote, stock, idempotency key or order state conflicts with the request."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Invalid fields; see error.fieldErrors. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 422,
+                     *       "error": {
+                     *         "code": "VALIDATION_ERROR",
+                     *         "message": "Invalid fields; see error.fieldErrors.",
+                     *         "fieldErrors": {
+                     *           "items.0.quantity": [
+                     *             "Quantity must be a positive whole number."
+                     *           ]
+                     *         }
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description The request could not be completed. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 500,
+                     *       "error": {
+                     *         "code": "INTERNAL_SERVER_ERROR",
+                     *         "message": "The request could not be completed."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Database or payment provider is unavailable or not configured. */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 503,
+                     *       "error": {
+                     *         "code": "DEPENDENCY_UNAVAILABLE",
+                     *         "message": "Database or payment provider is unavailable or not configured."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+        };
+    };
+    listOwnedOrderHistory: {
+        parameters: {
+            query?: {
+                /** @description One-based page number. */
+                page?: number;
+                /** @description Items per page; maximum 100. */
+                page_size?: number;
+                status?: ("awaiting_payment" | "paid" | "cancelled" | "expired" | "payment_review") | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": true,
+                     *       "status": 200,
+                     *       "message": null,
+                     *       "data": {
+                     *         "items": [
+                     *           {
+                     *             "items": [
+                     *               {
+                     *                 "product_id": "00000000-0000-4000-8000-000000000001",
+                     *                 "name": "Gold pendant",
+                     *                 "slug": "gold-pendant",
+                     *                 "quantity": 1,
+                     *                 "size": null,
+                     *                 "color": null,
+                     *                 "karat": null,
+                     *                 "unit_price": "120000.00",
+                     *                 "line_total": "120000.00"
+                     *               }
+                     *             ],
+                     *             "shipping": {
+                     *               "name": "Ada James",
+                     *               "phone": "+2348012345678",
+                     *               "address": "12 Example Street",
+                     *               "country": "Nigeria",
+                     *               "state": "Lagos",
+                     *               "local_area": "Ikeja"
+                     *             },
+                     *             "subtotal": "120000.00",
+                     *             "delivery": "5000.00",
+                     *             "total": "125000.00",
+                     *             "currency": "NGN",
+                     *             "id": "00000000-0000-4000-8000-000000000001",
+                     *             "status": "awaiting_payment",
+                     *             "review_reason": null,
+                     *             "expires_at": "2026-11-13T12:30:00Z",
+                     *             "created_at": "2026-11-13T12:00:00Z",
+                     *             "payment_attempts": [
+                     *               {
+                     *                 "id": "00000000-0000-4000-8000-000000000001",
+                     *                 "status": "pending",
+                     *                 "checkout_id": "chk_example",
+                     *                 "checkout_url": "https://checkout.bachs.io/c/example",
+                     *                 "expires_at": "2026-11-13T12:30:00Z"
+                     *               }
+                     *             ],
+                     *             "fulfilment_status": "unfulfilled",
+                     *             "carrier": null,
+                     *             "tracking_reference": null,
+                     *             "fulfilment_history": []
+                     *           }
+                     *         ],
+                     *         "total": 1,
+                     *         "page": 1,
+                     *         "page_size": 24
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiSuccess_Page_OrderData__"];
+                };
+            };
+            /** @description A valid Neon bearer token is required. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 401,
+                     *       "error": {
+                     *         "code": "UNAUTHENTICATED",
+                     *         "message": "A valid Neon bearer token is required."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Email verification or administrator access is required. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 403,
+                     *       "error": {
+                     *         "code": "FORBIDDEN",
+                     *         "message": "Email verification or administrator access is required."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description The requested resource was not found or does not belong to this customer. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 404,
+                     *       "error": {
+                     *         "code": "ORDER_NOT_FOUND",
+                     *         "message": "The requested resource was not found or does not belong to this customer."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Quote, stock, idempotency key or order state conflicts with the request. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 409,
+                     *       "error": {
+                     *         "code": "ORDER_CONFLICT",
+                     *         "message": "Quote, stock, idempotency key or order state conflicts with the request."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Invalid fields; see error.fieldErrors. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 422,
+                     *       "error": {
+                     *         "code": "VALIDATION_ERROR",
+                     *         "message": "Invalid fields; see error.fieldErrors.",
+                     *         "fieldErrors": {
+                     *           "items.0.quantity": [
+                     *             "Quantity must be a positive whole number."
+                     *           ]
+                     *         }
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description The request could not be completed. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 500,
+                     *       "error": {
+                     *         "code": "INTERNAL_SERVER_ERROR",
+                     *         "message": "The request could not be completed."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Database or payment provider is unavailable or not configured. */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 503,
+                     *       "error": {
+                     *         "code": "DEPENDENCY_UNAVAILABLE",
+                     *         "message": "Database or payment provider is unavailable or not configured."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+        };
+    };
+    createOrder: {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description Opaque unique request key. Persist across retries. Reuse with different order input returns 409. */
+                "Idempotency-Key": string;
+                /** @description Required with BackendSession cookies; obtain from GET /v1/auth/csrf. Not required with bearer-only authentication. */
+                "X-CSRF-Token"?: string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                /**
+                 * @example {
+                 *       "quote_id": "00000000-0000-4000-8000-000000000001"
+                 *     }
+                 */
+                "application/json": components["schemas"]["OrderBody"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": true,
+                     *       "status": 201,
+                     *       "data": {
+                     *         "items": [
+                     *           {
+                     *             "product_id": "00000000-0000-4000-8000-000000000001",
+                     *             "name": "Gold pendant",
+                     *             "slug": "gold-pendant",
+                     *             "quantity": 1,
+                     *             "size": null,
+                     *             "color": null,
+                     *             "karat": null,
+                     *             "unit_price": "120000.00",
+                     *             "line_total": "120000.00"
+                     *           }
+                     *         ],
+                     *         "shipping": {
+                     *           "name": "Ada James",
+                     *           "phone": "+2348012345678",
+                     *           "address": "12 Example Street",
+                     *           "country": "Nigeria",
+                     *           "state": "Lagos",
+                     *           "local_area": "Ikeja"
+                     *         },
+                     *         "subtotal": "120000.00",
+                     *         "delivery": "5000.00",
+                     *         "total": "125000.00",
+                     *         "currency": "NGN",
+                     *         "id": "00000000-0000-4000-8000-000000000001",
+                     *         "status": "awaiting_payment",
+                     *         "review_reason": null,
+                     *         "expires_at": "2026-11-13T12:30:00Z",
+                     *         "created_at": "2026-11-13T12:00:00Z",
+                     *         "payment_attempts": [
+                     *           {
+                     *             "id": "00000000-0000-4000-8000-000000000001",
+                     *             "status": "pending",
+                     *             "checkout_id": "chk_example",
+                     *             "checkout_url": "https://checkout.bachs.io/c/example",
+                     *             "expires_at": "2026-11-13T12:30:00Z"
+                     *           }
+                     *         ],
+                     *         "fulfilment_status": "unfulfilled",
+                     *         "carrier": null,
+                     *         "tracking_reference": null,
+                     *         "fulfilment_history": []
+                     *       },
+                     *       "message": null
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiSuccess_OrderData_"];
+                };
+            };
+            /** @description A valid Neon bearer token is required. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 401,
+                     *       "error": {
+                     *         "code": "UNAUTHENTICATED",
+                     *         "message": "A valid Neon bearer token is required."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Email verification or administrator access is required. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 403,
+                     *       "error": {
+                     *         "code": "FORBIDDEN",
+                     *         "message": "Email verification or administrator access is required."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description The requested resource was not found or does not belong to this customer. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 404,
+                     *       "error": {
+                     *         "code": "ORDER_NOT_FOUND",
+                     *         "message": "The requested resource was not found or does not belong to this customer."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Quote, stock, idempotency key or order state conflicts with the request. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 409,
+                     *       "error": {
+                     *         "code": "ORDER_CONFLICT",
+                     *         "message": "Quote, stock, idempotency key or order state conflicts with the request."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Invalid fields; see error.fieldErrors. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 422,
+                     *       "error": {
+                     *         "code": "VALIDATION_ERROR",
+                     *         "message": "Invalid fields; see error.fieldErrors.",
+                     *         "fieldErrors": {
+                     *           "items.0.quantity": [
+                     *             "Quantity must be a positive whole number."
+                     *           ]
+                     *         }
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description The request could not be completed. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 500,
+                     *       "error": {
+                     *         "code": "INTERNAL_SERVER_ERROR",
+                     *         "message": "The request could not be completed."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Database or payment provider is unavailable or not configured. */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 503,
+                     *       "error": {
+                     *         "code": "DEPENDENCY_UNAVAILABLE",
+                     *         "message": "Database or payment provider is unavailable or not configured."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+        };
+    };
+    getOwnedOrder: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                identifier: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": true,
+                     *       "status": 200,
+                     *       "data": {
+                     *         "items": [
+                     *           {
+                     *             "product_id": "00000000-0000-4000-8000-000000000001",
+                     *             "name": "Gold pendant",
+                     *             "slug": "gold-pendant",
+                     *             "quantity": 1,
+                     *             "size": null,
+                     *             "color": null,
+                     *             "karat": null,
+                     *             "unit_price": "120000.00",
+                     *             "line_total": "120000.00"
+                     *           }
+                     *         ],
+                     *         "shipping": {
+                     *           "name": "Ada James",
+                     *           "phone": "+2348012345678",
+                     *           "address": "12 Example Street",
+                     *           "country": "Nigeria",
+                     *           "state": "Lagos",
+                     *           "local_area": "Ikeja"
+                     *         },
+                     *         "subtotal": "120000.00",
+                     *         "delivery": "5000.00",
+                     *         "total": "125000.00",
+                     *         "currency": "NGN",
+                     *         "id": "00000000-0000-4000-8000-000000000001",
+                     *         "status": "awaiting_payment",
+                     *         "review_reason": null,
+                     *         "expires_at": "2026-11-13T12:30:00Z",
+                     *         "created_at": "2026-11-13T12:00:00Z",
+                     *         "payment_attempts": [
+                     *           {
+                     *             "id": "00000000-0000-4000-8000-000000000001",
+                     *             "status": "pending",
+                     *             "checkout_id": "chk_example",
+                     *             "checkout_url": "https://checkout.bachs.io/c/example",
+                     *             "expires_at": "2026-11-13T12:30:00Z"
+                     *           }
+                     *         ],
+                     *         "fulfilment_status": "unfulfilled",
+                     *         "carrier": null,
+                     *         "tracking_reference": null,
+                     *         "fulfilment_history": []
+                     *       },
+                     *       "message": null
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiSuccess_OrderData_"];
+                };
+            };
+            /** @description A valid Neon bearer token is required. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 401,
+                     *       "error": {
+                     *         "code": "UNAUTHENTICATED",
+                     *         "message": "A valid Neon bearer token is required."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Email verification or administrator access is required. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 403,
+                     *       "error": {
+                     *         "code": "FORBIDDEN",
+                     *         "message": "Email verification or administrator access is required."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description The requested resource was not found or does not belong to this customer. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 404,
+                     *       "error": {
+                     *         "code": "ORDER_NOT_FOUND",
+                     *         "message": "The requested resource was not found or does not belong to this customer."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Quote, stock, idempotency key or order state conflicts with the request. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 409,
+                     *       "error": {
+                     *         "code": "ORDER_CONFLICT",
+                     *         "message": "Quote, stock, idempotency key or order state conflicts with the request."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Invalid fields; see error.fieldErrors. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 422,
+                     *       "error": {
+                     *         "code": "VALIDATION_ERROR",
+                     *         "message": "Invalid fields; see error.fieldErrors.",
+                     *         "fieldErrors": {
+                     *           "items.0.quantity": [
+                     *             "Quantity must be a positive whole number."
+                     *           ]
+                     *         }
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description The request could not be completed. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 500,
+                     *       "error": {
+                     *         "code": "INTERNAL_SERVER_ERROR",
+                     *         "message": "The request could not be completed."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Database or payment provider is unavailable or not configured. */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 503,
+                     *       "error": {
+                     *         "code": "DEPENDENCY_UNAVAILABLE",
+                     *         "message": "Database or payment provider is unavailable or not configured."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+        };
+    };
+    cancelOwnedOrder: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Required with BackendSession cookies; obtain from GET /v1/auth/csrf. Not required with bearer-only authentication. */
+                "X-CSRF-Token"?: string;
+            };
+            path: {
+                identifier: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": true,
+                     *       "status": 200,
+                     *       "data": {
+                     *         "items": [
+                     *           {
+                     *             "product_id": "00000000-0000-4000-8000-000000000001",
+                     *             "name": "Gold pendant",
+                     *             "slug": "gold-pendant",
+                     *             "quantity": 1,
+                     *             "size": null,
+                     *             "color": null,
+                     *             "karat": null,
+                     *             "unit_price": "120000.00",
+                     *             "line_total": "120000.00"
+                     *           }
+                     *         ],
+                     *         "shipping": {
+                     *           "name": "Ada James",
+                     *           "phone": "+2348012345678",
+                     *           "address": "12 Example Street",
+                     *           "country": "Nigeria",
+                     *           "state": "Lagos",
+                     *           "local_area": "Ikeja"
+                     *         },
+                     *         "subtotal": "120000.00",
+                     *         "delivery": "5000.00",
+                     *         "total": "125000.00",
+                     *         "currency": "NGN",
+                     *         "id": "00000000-0000-4000-8000-000000000001",
+                     *         "status": "awaiting_payment",
+                     *         "review_reason": null,
+                     *         "expires_at": "2026-11-13T12:30:00Z",
+                     *         "created_at": "2026-11-13T12:00:00Z",
+                     *         "payment_attempts": [
+                     *           {
+                     *             "id": "00000000-0000-4000-8000-000000000001",
+                     *             "status": "pending",
+                     *             "checkout_id": "chk_example",
+                     *             "checkout_url": "https://checkout.bachs.io/c/example",
+                     *             "expires_at": "2026-11-13T12:30:00Z"
+                     *           }
+                     *         ],
+                     *         "fulfilment_status": "unfulfilled",
+                     *         "carrier": null,
+                     *         "tracking_reference": null,
+                     *         "fulfilment_history": []
+                     *       },
+                     *       "message": null
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiSuccess_OrderData_"];
+                };
+            };
+            /** @description A valid Neon bearer token is required. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 401,
+                     *       "error": {
+                     *         "code": "UNAUTHENTICATED",
+                     *         "message": "A valid Neon bearer token is required."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Email verification or administrator access is required. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 403,
+                     *       "error": {
+                     *         "code": "FORBIDDEN",
+                     *         "message": "Email verification or administrator access is required."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description The requested resource was not found or does not belong to this customer. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 404,
+                     *       "error": {
+                     *         "code": "ORDER_NOT_FOUND",
+                     *         "message": "The requested resource was not found or does not belong to this customer."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Quote, stock, idempotency key or order state conflicts with the request. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 409,
+                     *       "error": {
+                     *         "code": "ORDER_CONFLICT",
+                     *         "message": "Quote, stock, idempotency key or order state conflicts with the request."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Invalid fields; see error.fieldErrors. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 422,
+                     *       "error": {
+                     *         "code": "VALIDATION_ERROR",
+                     *         "message": "Invalid fields; see error.fieldErrors.",
+                     *         "fieldErrors": {
+                     *           "items.0.quantity": [
+                     *             "Quantity must be a positive whole number."
+                     *           ]
+                     *         }
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description The request could not be completed. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 500,
+                     *       "error": {
+                     *         "code": "INTERNAL_SERVER_ERROR",
+                     *         "message": "The request could not be completed."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Database or payment provider is unavailable or not configured. */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 503,
+                     *       "error": {
+                     *         "code": "DEPENDENCY_UNAVAILABLE",
+                     *         "message": "Database or payment provider is unavailable or not configured."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+        };
+    };
+    initiateOrderPayment: {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description Opaque unique request key. Persist across retries. Reuse with different order input returns 409. */
+                "Idempotency-Key": string;
+                /** @description Required with BackendSession cookies; obtain from GET /v1/auth/csrf. Not required with bearer-only authentication. */
+                "X-CSRF-Token"?: string;
+            };
+            path: {
+                identifier: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": true,
+                     *       "status": 200,
+                     *       "data": {
+                     *         "id": "00000000-0000-4000-8000-000000000001",
+                     *         "status": "pending",
+                     *         "checkout_id": "chk_example",
+                     *         "checkout_url": "https://checkout.bachs.io/c/example",
+                     *         "expires_at": "2026-11-13T12:30:00Z"
+                     *       },
+                     *       "message": null
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiSuccess_AttemptData_"];
+                };
+            };
+            /** @description A valid Neon bearer token is required. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 401,
+                     *       "error": {
+                     *         "code": "UNAUTHENTICATED",
+                     *         "message": "A valid Neon bearer token is required."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Email verification or administrator access is required. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 403,
+                     *       "error": {
+                     *         "code": "FORBIDDEN",
+                     *         "message": "Email verification or administrator access is required."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description The requested resource was not found or does not belong to this customer. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 404,
+                     *       "error": {
+                     *         "code": "ORDER_NOT_FOUND",
+                     *         "message": "The requested resource was not found or does not belong to this customer."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Quote, stock, idempotency key or order state conflicts with the request. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 409,
+                     *       "error": {
+                     *         "code": "ORDER_CONFLICT",
+                     *         "message": "Quote, stock, idempotency key or order state conflicts with the request."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Invalid fields; see error.fieldErrors. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 422,
+                     *       "error": {
+                     *         "code": "VALIDATION_ERROR",
+                     *         "message": "Invalid fields; see error.fieldErrors.",
+                     *         "fieldErrors": {
+                     *           "items.0.quantity": [
+                     *             "Quantity must be a positive whole number."
+                     *           ]
+                     *         }
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description The request could not be completed. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 500,
+                     *       "error": {
+                     *         "code": "INTERNAL_SERVER_ERROR",
+                     *         "message": "The request could not be completed."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Database or payment provider is unavailable or not configured. */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 503,
+                     *       "error": {
+                     *         "code": "DEPENDENCY_UNAVAILABLE",
+                     *         "message": "Database or payment provider is unavailable or not configured."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+        };
+    };
+    listAdminOrders: {
+        parameters: {
+            query?: {
+                page?: number;
+                page_size?: number;
+                status?: ("awaiting_payment" | "paid" | "cancelled" | "expired" | "payment_review") | null;
+                /** @description Opaque identity ID; filters one customer's orders. */
+                customer_id?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": true,
+                     *       "status": 200,
+                     *       "data": {
+                     *         "items": [
+                     *           {
+                     *             "items": [
+                     *               {
+                     *                 "product_id": "00000000-0000-4000-8000-000000000001",
+                     *                 "name": "Gold pendant",
+                     *                 "slug": "gold-pendant",
+                     *                 "quantity": 1,
+                     *                 "size": null,
+                     *                 "color": null,
+                     *                 "karat": null,
+                     *                 "unit_price": "120000.00",
+                     *                 "line_total": "120000.00"
+                     *               }
+                     *             ],
+                     *             "shipping": {
+                     *               "name": "Ada James",
+                     *               "phone": "+2348012345678",
+                     *               "address": "12 Example Street",
+                     *               "country": "Nigeria",
+                     *               "state": "Lagos",
+                     *               "local_area": "Ikeja"
+                     *             },
+                     *             "subtotal": "120000.00",
+                     *             "delivery": "5000.00",
+                     *             "total": "125000.00",
+                     *             "currency": "NGN",
+                     *             "id": "00000000-0000-4000-8000-000000000001",
+                     *             "status": "awaiting_payment",
+                     *             "review_reason": null,
+                     *             "expires_at": "2026-11-13T12:30:00Z",
+                     *             "created_at": "2026-11-13T12:00:00Z",
+                     *             "payment_attempts": [
+                     *               {
+                     *                 "id": "00000000-0000-4000-8000-000000000001",
+                     *                 "status": "pending",
+                     *                 "checkout_id": "chk_example",
+                     *                 "checkout_url": "https://checkout.bachs.io/c/example",
+                     *                 "expires_at": "2026-11-13T12:30:00Z"
+                     *               }
+                     *             ],
+                     *             "fulfilment_status": "unfulfilled",
+                     *             "carrier": null,
+                     *             "tracking_reference": null,
+                     *             "fulfilment_history": [],
+                     *             "customer_id": "identity_example",
+                     *             "customer_email": "ada@example.com",
+                     *             "audit": []
+                     *           }
+                     *         ],
+                     *         "total": 1,
+                     *         "page": 1,
+                     *         "page_size": 24
+                     *       },
+                     *       "message": null
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiSuccess_AdminOrderPage_"];
+                };
+            };
+            /** @description A valid Neon bearer token is required. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 401,
+                     *       "error": {
+                     *         "code": "UNAUTHENTICATED",
+                     *         "message": "A valid Neon bearer token is required."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Email verification or administrator access is required. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 403,
+                     *       "error": {
+                     *         "code": "FORBIDDEN",
+                     *         "message": "Email verification or administrator access is required."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description The requested resource was not found or does not belong to this customer. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 404,
+                     *       "error": {
+                     *         "code": "ORDER_NOT_FOUND",
+                     *         "message": "The requested resource was not found or does not belong to this customer."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Quote, stock, idempotency key or order state conflicts with the request. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 409,
+                     *       "error": {
+                     *         "code": "ORDER_CONFLICT",
+                     *         "message": "Quote, stock, idempotency key or order state conflicts with the request."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Invalid fields; see error.fieldErrors. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 422,
+                     *       "error": {
+                     *         "code": "VALIDATION_ERROR",
+                     *         "message": "Invalid fields; see error.fieldErrors.",
+                     *         "fieldErrors": {
+                     *           "items.0.quantity": [
+                     *             "Quantity must be a positive whole number."
+                     *           ]
+                     *         }
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description The request could not be completed. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 500,
+                     *       "error": {
+                     *         "code": "INTERNAL_SERVER_ERROR",
+                     *         "message": "The request could not be completed."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Database or payment provider is unavailable or not configured. */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 503,
+                     *       "error": {
+                     *         "code": "DEPENDENCY_UNAVAILABLE",
+                     *         "message": "Database or payment provider is unavailable or not configured."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+        };
+    };
+    getAdminOrder: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                identifier: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": true,
+                     *       "status": 200,
+                     *       "data": {
+                     *         "items": [
+                     *           {
+                     *             "product_id": "00000000-0000-4000-8000-000000000001",
+                     *             "name": "Gold pendant",
+                     *             "slug": "gold-pendant",
+                     *             "quantity": 1,
+                     *             "size": null,
+                     *             "color": null,
+                     *             "karat": null,
+                     *             "unit_price": "120000.00",
+                     *             "line_total": "120000.00"
+                     *           }
+                     *         ],
+                     *         "shipping": {
+                     *           "name": "Ada James",
+                     *           "phone": "+2348012345678",
+                     *           "address": "12 Example Street",
+                     *           "country": "Nigeria",
+                     *           "state": "Lagos",
+                     *           "local_area": "Ikeja"
+                     *         },
+                     *         "subtotal": "120000.00",
+                     *         "delivery": "5000.00",
+                     *         "total": "125000.00",
+                     *         "currency": "NGN",
+                     *         "id": "00000000-0000-4000-8000-000000000001",
+                     *         "status": "awaiting_payment",
+                     *         "review_reason": null,
+                     *         "expires_at": "2026-11-13T12:30:00Z",
+                     *         "created_at": "2026-11-13T12:00:00Z",
+                     *         "payment_attempts": [
+                     *           {
+                     *             "id": "00000000-0000-4000-8000-000000000001",
+                     *             "status": "pending",
+                     *             "checkout_id": "chk_example",
+                     *             "checkout_url": "https://checkout.bachs.io/c/example",
+                     *             "expires_at": "2026-11-13T12:30:00Z"
+                     *           }
+                     *         ],
+                     *         "fulfilment_status": "unfulfilled",
+                     *         "carrier": null,
+                     *         "tracking_reference": null,
+                     *         "fulfilment_history": [],
+                     *         "customer_id": "identity_example",
+                     *         "customer_email": "ada@example.com",
+                     *         "audit": []
+                     *       },
+                     *       "message": null
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiSuccess_AdminOrderData_"];
+                };
+            };
+            /** @description A valid Neon bearer token is required. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 401,
+                     *       "error": {
+                     *         "code": "UNAUTHENTICATED",
+                     *         "message": "A valid Neon bearer token is required."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Email verification or administrator access is required. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 403,
+                     *       "error": {
+                     *         "code": "FORBIDDEN",
+                     *         "message": "Email verification or administrator access is required."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description The requested resource was not found or does not belong to this customer. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 404,
+                     *       "error": {
+                     *         "code": "ORDER_NOT_FOUND",
+                     *         "message": "The requested resource was not found or does not belong to this customer."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Quote, stock, idempotency key or order state conflicts with the request. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 409,
+                     *       "error": {
+                     *         "code": "ORDER_CONFLICT",
+                     *         "message": "Quote, stock, idempotency key or order state conflicts with the request."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Invalid fields; see error.fieldErrors. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 422,
+                     *       "error": {
+                     *         "code": "VALIDATION_ERROR",
+                     *         "message": "Invalid fields; see error.fieldErrors.",
+                     *         "fieldErrors": {
+                     *           "items.0.quantity": [
+                     *             "Quantity must be a positive whole number."
+                     *           ]
+                     *         }
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description The request could not be completed. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 500,
+                     *       "error": {
+                     *         "code": "INTERNAL_SERVER_ERROR",
+                     *         "message": "The request could not be completed."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Database or payment provider is unavailable or not configured. */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 503,
+                     *       "error": {
+                     *         "code": "DEPENDENCY_UNAVAILABLE",
+                     *         "message": "Database or payment provider is unavailable or not configured."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+        };
+    };
+    reconcileBachsPayment: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Required with BackendSession cookies; obtain from GET /v1/auth/csrf. Not required with bearer-only authentication. */
+                "X-CSRF-Token"?: string;
+            };
+            path: {
+                identifier: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": true,
+                     *       "status": 200,
+                     *       "data": {
+                     *         "items": [
+                     *           {
+                     *             "product_id": "00000000-0000-4000-8000-000000000001",
+                     *             "name": "Gold pendant",
+                     *             "slug": "gold-pendant",
+                     *             "quantity": 1,
+                     *             "size": null,
+                     *             "color": null,
+                     *             "karat": null,
+                     *             "unit_price": "120000.00",
+                     *             "line_total": "120000.00"
+                     *           }
+                     *         ],
+                     *         "shipping": {
+                     *           "name": "Ada James",
+                     *           "phone": "+2348012345678",
+                     *           "address": "12 Example Street",
+                     *           "country": "Nigeria",
+                     *           "state": "Lagos",
+                     *           "local_area": "Ikeja"
+                     *         },
+                     *         "subtotal": "120000.00",
+                     *         "delivery": "5000.00",
+                     *         "total": "125000.00",
+                     *         "currency": "NGN",
+                     *         "id": "00000000-0000-4000-8000-000000000001",
+                     *         "status": "awaiting_payment",
+                     *         "review_reason": null,
+                     *         "expires_at": "2026-11-13T12:30:00Z",
+                     *         "created_at": "2026-11-13T12:00:00Z",
+                     *         "payment_attempts": [
+                     *           {
+                     *             "id": "00000000-0000-4000-8000-000000000001",
+                     *             "status": "pending",
+                     *             "checkout_id": "chk_example",
+                     *             "checkout_url": "https://checkout.bachs.io/c/example",
+                     *             "expires_at": "2026-11-13T12:30:00Z"
+                     *           }
+                     *         ],
+                     *         "fulfilment_status": "unfulfilled",
+                     *         "carrier": null,
+                     *         "tracking_reference": null,
+                     *         "fulfilment_history": [],
+                     *         "customer_id": "identity_example",
+                     *         "customer_email": "ada@example.com",
+                     *         "audit": []
+                     *       },
+                     *       "message": null
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiSuccess_AdminOrderData_"];
+                };
+            };
+            /** @description A valid Neon bearer token is required. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 401,
+                     *       "error": {
+                     *         "code": "UNAUTHENTICATED",
+                     *         "message": "A valid Neon bearer token is required."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Email verification or administrator access is required. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 403,
+                     *       "error": {
+                     *         "code": "FORBIDDEN",
+                     *         "message": "Email verification or administrator access is required."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description The requested resource was not found or does not belong to this customer. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 404,
+                     *       "error": {
+                     *         "code": "ORDER_NOT_FOUND",
+                     *         "message": "The requested resource was not found or does not belong to this customer."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Quote, stock, idempotency key or order state conflicts with the request. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 409,
+                     *       "error": {
+                     *         "code": "ORDER_CONFLICT",
+                     *         "message": "Quote, stock, idempotency key or order state conflicts with the request."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Invalid fields; see error.fieldErrors. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 422,
+                     *       "error": {
+                     *         "code": "VALIDATION_ERROR",
+                     *         "message": "Invalid fields; see error.fieldErrors.",
+                     *         "fieldErrors": {
+                     *           "items.0.quantity": [
+                     *             "Quantity must be a positive whole number."
+                     *           ]
+                     *         }
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description The request could not be completed. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 500,
+                     *       "error": {
+                     *         "code": "INTERNAL_SERVER_ERROR",
+                     *         "message": "The request could not be completed."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Database or payment provider is unavailable or not configured. */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 503,
+                     *       "error": {
+                     *         "code": "DEPENDENCY_UNAVAILABLE",
+                     *         "message": "Database or payment provider is unavailable or not configured."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+        };
+    };
+    receiveBachsWebhook: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description t=timestamp,v1=HMAC; all rotation signatures are checked. */
+                "X-Bachs-Signature-V2"?: string | null;
+                "X-Bachs-Signature"?: string | null;
+                "X-Bachs-Timestamp"?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                /**
+                 * @example {
+                 *       "id": "evt_example",
+                 *       "type": "collection.succeeded",
+                 *       "organization_id": "acct_example",
+                 *       "created_at": "2026-11-13T12:05:00Z",
+                 *       "environment": "sandbox",
+                 *       "data": {
+                 *         "checkout_id": "chk_example",
+                 *         "reference": "00000000-0000-4000-8000-000000000001",
+                 *         "charge_id": "ch_example",
+                 *         "amount": "125000.00",
+                 *         "currency": "NGN",
+                 *         "status": "SUCCEEDED",
+                 *         "fee_bearer": "merchant"
+                 *       }
+                 *     }
+                 */
+                "application/json": components["schemas"]["PaymentEvent"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": true,
+                     *       "status": 200,
+                     *       "data": {
+                     *         "received": true,
+                     *         "outcome": "applied"
+                     *       },
+                     *       "message": null
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiSuccess_WebhookResult_"];
+                };
+            };
+            /** @description Webhook signature, timestamp or payload is invalid. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 400,
+                     *       "error": {
+                     *         "code": "INVALID_WEBHOOK",
+                     *         "message": "Webhook signature, timestamp or payload is invalid."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Email verification or administrator access is required. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 403,
+                     *       "error": {
+                     *         "code": "FORBIDDEN",
+                     *         "message": "Email verification or administrator access is required."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Quote, stock, idempotency key or order state conflicts with the request. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 409,
+                     *       "error": {
+                     *         "code": "ORDER_CONFLICT",
+                     *         "message": "Quote, stock, idempotency key or order state conflicts with the request."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Webhook body exceeds 256 KiB. */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 413,
+                     *       "error": {
+                     *         "code": "WEBHOOK_TOO_LARGE",
+                     *         "message": "Webhook body exceeds 256 KiB."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+            /** @description The request could not be completed. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 500,
+                     *       "error": {
+                     *         "code": "INTERNAL_SERVER_ERROR",
+                     *         "message": "The request could not be completed."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Database or payment provider is unavailable or not configured. */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 503,
+                     *       "error": {
+                     *         "code": "DEPENDENCY_UNAVAILABLE",
+                     *         "message": "Database or payment provider is unavailable or not configured."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+        };
+    };
+    getAccountProfile: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": true,
+                     *       "status": 200,
+                     *       "message": null,
+                     *       "data": {
+                     *         "id": "identity_example",
+                     *         "email": "ada@example.com",
+                     *         "name": "Ada James",
+                     *         "first_name": "Ada",
+                     *         "last_name": "James",
+                     *         "phone": "+2348012345678",
+                     *         "role": "customer",
+                     *         "created_at": "2026-11-18T12:00:00Z",
+                     *         "updated_at": "2026-11-18T12:00:00Z"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiSuccess_ProfileData_"];
+                };
+            };
+            /** @description A valid Neon bearer token is required. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 401,
+                     *       "error": {
+                     *         "code": "UNAUTHENTICATED",
+                     *         "message": "A valid Neon bearer token is required."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Email verification or administrator access is required. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 403,
+                     *       "error": {
+                     *         "code": "FORBIDDEN",
+                     *         "message": "Email verification or administrator access is required."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description The requested resource was not found or does not belong to this customer. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 404,
+                     *       "error": {
+                     *         "code": "ORDER_NOT_FOUND",
+                     *         "message": "The requested resource was not found or does not belong to this customer."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Quote, stock, idempotency key or order state conflicts with the request. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 409,
+                     *       "error": {
+                     *         "code": "ORDER_CONFLICT",
+                     *         "message": "Quote, stock, idempotency key or order state conflicts with the request."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Invalid fields; see error.fieldErrors. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 422,
+                     *       "error": {
+                     *         "code": "VALIDATION_ERROR",
+                     *         "message": "Invalid fields; see error.fieldErrors.",
+                     *         "fieldErrors": {
+                     *           "items.0.quantity": [
+                     *             "Quantity must be a positive whole number."
+                     *           ]
+                     *         }
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description The request could not be completed. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 500,
+                     *       "error": {
+                     *         "code": "INTERNAL_SERVER_ERROR",
+                     *         "message": "The request could not be completed."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Database or payment provider is unavailable or not configured. */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 503,
+                     *       "error": {
+                     *         "code": "DEPENDENCY_UNAVAILABLE",
+                     *         "message": "Database or payment provider is unavailable or not configured."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+        };
+    };
+    patchAccountProfile: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Required with BackendSession cookies; obtain from GET /v1/auth/csrf. Not required with bearer-only authentication. */
+                "X-CSRF-Token"?: string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                /**
+                 * @example {
+                 *       "first_name": "Ada",
+                 *       "phone": null
+                 *     }
+                 */
+                "application/json": components["schemas"]["ProfilePatch"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": true,
+                     *       "status": 200,
+                     *       "message": null,
+                     *       "data": {
+                     *         "id": "identity_example",
+                     *         "email": "ada@example.com",
+                     *         "name": "Ada James",
+                     *         "first_name": "Ada",
+                     *         "last_name": "James",
+                     *         "phone": "+2348012345678",
+                     *         "role": "customer",
+                     *         "created_at": "2026-11-18T12:00:00Z",
+                     *         "updated_at": "2026-11-18T12:00:00Z"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiSuccess_ProfileData_"];
+                };
+            };
+            /** @description A valid Neon bearer token is required. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 401,
+                     *       "error": {
+                     *         "code": "UNAUTHENTICATED",
+                     *         "message": "A valid Neon bearer token is required."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Email verification or administrator access is required. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 403,
+                     *       "error": {
+                     *         "code": "FORBIDDEN",
+                     *         "message": "Email verification or administrator access is required."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description The requested resource was not found or does not belong to this customer. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 404,
+                     *       "error": {
+                     *         "code": "ORDER_NOT_FOUND",
+                     *         "message": "The requested resource was not found or does not belong to this customer."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Quote, stock, idempotency key or order state conflicts with the request. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 409,
+                     *       "error": {
+                     *         "code": "ORDER_CONFLICT",
+                     *         "message": "Quote, stock, idempotency key or order state conflicts with the request."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Invalid fields; see error.fieldErrors. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 422,
+                     *       "error": {
+                     *         "code": "VALIDATION_ERROR",
+                     *         "message": "Invalid fields; see error.fieldErrors.",
+                     *         "fieldErrors": {
+                     *           "items.0.quantity": [
+                     *             "Quantity must be a positive whole number."
+                     *           ]
+                     *         }
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description The request could not be completed. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 500,
+                     *       "error": {
+                     *         "code": "INTERNAL_SERVER_ERROR",
+                     *         "message": "The request could not be completed."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Database or payment provider is unavailable or not configured. */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 503,
+                     *       "error": {
+                     *         "code": "DEPENDENCY_UNAVAILABLE",
+                     *         "message": "Database or payment provider is unavailable or not configured."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+        };
+    };
+    getCategoryPreferences: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": true,
+                     *       "status": 200,
+                     *       "message": null,
+                     *       "data": {
+                     *         "category_ids": [
+                     *           "00000000-0000-4000-8000-000000000001"
+                     *         ]
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiSuccess_PreferencesBody_"];
+                };
+            };
+            /** @description A valid Neon bearer token is required. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 401,
+                     *       "error": {
+                     *         "code": "UNAUTHENTICATED",
+                     *         "message": "A valid Neon bearer token is required."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Email verification or administrator access is required. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 403,
+                     *       "error": {
+                     *         "code": "FORBIDDEN",
+                     *         "message": "Email verification or administrator access is required."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description The requested resource was not found or does not belong to this customer. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 404,
+                     *       "error": {
+                     *         "code": "ORDER_NOT_FOUND",
+                     *         "message": "The requested resource was not found or does not belong to this customer."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Quote, stock, idempotency key or order state conflicts with the request. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 409,
+                     *       "error": {
+                     *         "code": "ORDER_CONFLICT",
+                     *         "message": "Quote, stock, idempotency key or order state conflicts with the request."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Invalid fields; see error.fieldErrors. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 422,
+                     *       "error": {
+                     *         "code": "VALIDATION_ERROR",
+                     *         "message": "Invalid fields; see error.fieldErrors.",
+                     *         "fieldErrors": {
+                     *           "items.0.quantity": [
+                     *             "Quantity must be a positive whole number."
+                     *           ]
+                     *         }
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description The request could not be completed. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 500,
+                     *       "error": {
+                     *         "code": "INTERNAL_SERVER_ERROR",
+                     *         "message": "The request could not be completed."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Database or payment provider is unavailable or not configured. */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 503,
+                     *       "error": {
+                     *         "code": "DEPENDENCY_UNAVAILABLE",
+                     *         "message": "Database or payment provider is unavailable or not configured."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+        };
+    };
+    replaceCategoryPreferences: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Required with BackendSession cookies; obtain from GET /v1/auth/csrf. Not required with bearer-only authentication. */
+                "X-CSRF-Token"?: string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                /**
+                 * @example {
+                 *       "category_ids": [
+                 *         "00000000-0000-4000-8000-000000000001"
+                 *       ]
+                 *     }
+                 */
+                "application/json": components["schemas"]["PreferencesBody"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": true,
+                     *       "status": 200,
+                     *       "message": null,
+                     *       "data": {
+                     *         "category_ids": [
+                     *           "00000000-0000-4000-8000-000000000001"
+                     *         ]
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiSuccess_PreferencesBody_"];
+                };
+            };
+            /** @description A valid Neon bearer token is required. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 401,
+                     *       "error": {
+                     *         "code": "UNAUTHENTICATED",
+                     *         "message": "A valid Neon bearer token is required."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Email verification or administrator access is required. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 403,
+                     *       "error": {
+                     *         "code": "FORBIDDEN",
+                     *         "message": "Email verification or administrator access is required."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description The requested resource was not found or does not belong to this customer. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 404,
+                     *       "error": {
+                     *         "code": "ORDER_NOT_FOUND",
+                     *         "message": "The requested resource was not found or does not belong to this customer."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Quote, stock, idempotency key or order state conflicts with the request. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 409,
+                     *       "error": {
+                     *         "code": "ORDER_CONFLICT",
+                     *         "message": "Quote, stock, idempotency key or order state conflicts with the request."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Invalid fields; see error.fieldErrors. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 422,
+                     *       "error": {
+                     *         "code": "VALIDATION_ERROR",
+                     *         "message": "Invalid fields; see error.fieldErrors.",
+                     *         "fieldErrors": {
+                     *           "items.0.quantity": [
+                     *             "Quantity must be a positive whole number."
+                     *           ]
+                     *         }
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description The request could not be completed. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 500,
+                     *       "error": {
+                     *         "code": "INTERNAL_SERVER_ERROR",
+                     *         "message": "The request could not be completed."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Database or payment provider is unavailable or not configured. */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 503,
+                     *       "error": {
+                     *         "code": "DEPENDENCY_UNAVAILABLE",
+                     *         "message": "Database or payment provider is unavailable or not configured."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+        };
+    };
+    listOwnedAddresses: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": true,
+                     *       "status": 200,
+                     *       "message": null,
+                     *       "data": [
+                     *         {
+                     *           "label": "Home",
+                     *           "recipient_name": "Ada James",
+                     *           "phone": "+2348012345678",
+                     *           "address_line_1": "12 Example Street",
+                     *           "address_line_2": null,
+                     *           "country": "Nigeria",
+                     *           "state": "Lagos",
+                     *           "local_area": "Ikeja",
+                     *           "locality": null,
+                     *           "postal_code": null,
+                     *           "delivery_notes": null,
+                     *           "id": "00000000-0000-4000-8000-000000000001",
+                     *           "is_default": true,
+                     *           "created_at": "2026-11-18T12:00:00Z"
+                     *         }
+                     *       ]
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiSuccess_list_AddressData__"];
+                };
+            };
+            /** @description A valid Neon bearer token is required. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 401,
+                     *       "error": {
+                     *         "code": "UNAUTHENTICATED",
+                     *         "message": "A valid Neon bearer token is required."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Email verification or administrator access is required. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 403,
+                     *       "error": {
+                     *         "code": "FORBIDDEN",
+                     *         "message": "Email verification or administrator access is required."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description The requested resource was not found or does not belong to this customer. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 404,
+                     *       "error": {
+                     *         "code": "ORDER_NOT_FOUND",
+                     *         "message": "The requested resource was not found or does not belong to this customer."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Quote, stock, idempotency key or order state conflicts with the request. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 409,
+                     *       "error": {
+                     *         "code": "ORDER_CONFLICT",
+                     *         "message": "Quote, stock, idempotency key or order state conflicts with the request."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Invalid fields; see error.fieldErrors. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 422,
+                     *       "error": {
+                     *         "code": "VALIDATION_ERROR",
+                     *         "message": "Invalid fields; see error.fieldErrors.",
+                     *         "fieldErrors": {
+                     *           "items.0.quantity": [
+                     *             "Quantity must be a positive whole number."
+                     *           ]
+                     *         }
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description The request could not be completed. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 500,
+                     *       "error": {
+                     *         "code": "INTERNAL_SERVER_ERROR",
+                     *         "message": "The request could not be completed."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Database or payment provider is unavailable or not configured. */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 503,
+                     *       "error": {
+                     *         "code": "DEPENDENCY_UNAVAILABLE",
+                     *         "message": "Database or payment provider is unavailable or not configured."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+        };
+    };
+    createOwnedAddress: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Required with BackendSession cookies; obtain from GET /v1/auth/csrf. Not required with bearer-only authentication. */
+                "X-CSRF-Token"?: string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                /**
+                 * @example {
+                 *       "label": "Home",
+                 *       "recipient_name": "Ada James",
+                 *       "phone": "+2348012345678",
+                 *       "address_line_1": "12 Example Street",
+                 *       "address_line_2": null,
+                 *       "country": "Nigeria",
+                 *       "state": "Lagos",
+                 *       "local_area": "Ikeja",
+                 *       "locality": null,
+                 *       "postal_code": null,
+                 *       "delivery_notes": null
+                 *     }
+                 */
+                "application/json": components["schemas"]["AddressCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": true,
+                     *       "status": 201,
+                     *       "message": null,
+                     *       "data": {
+                     *         "label": "Home",
+                     *         "recipient_name": "Ada James",
+                     *         "phone": "+2348012345678",
+                     *         "address_line_1": "12 Example Street",
+                     *         "address_line_2": null,
+                     *         "country": "Nigeria",
+                     *         "state": "Lagos",
+                     *         "local_area": "Ikeja",
+                     *         "locality": null,
+                     *         "postal_code": null,
+                     *         "delivery_notes": null,
+                     *         "id": "00000000-0000-4000-8000-000000000001",
+                     *         "is_default": true,
+                     *         "created_at": "2026-11-18T12:00:00Z"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiSuccess_AddressData_"];
+                };
+            };
+            /** @description A valid Neon bearer token is required. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 401,
+                     *       "error": {
+                     *         "code": "UNAUTHENTICATED",
+                     *         "message": "A valid Neon bearer token is required."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Email verification or administrator access is required. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 403,
+                     *       "error": {
+                     *         "code": "FORBIDDEN",
+                     *         "message": "Email verification or administrator access is required."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description The requested resource was not found or does not belong to this customer. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 404,
+                     *       "error": {
+                     *         "code": "ORDER_NOT_FOUND",
+                     *         "message": "The requested resource was not found or does not belong to this customer."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Quote, stock, idempotency key or order state conflicts with the request. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 409,
+                     *       "error": {
+                     *         "code": "ORDER_CONFLICT",
+                     *         "message": "Quote, stock, idempotency key or order state conflicts with the request."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Invalid fields; see error.fieldErrors. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 422,
+                     *       "error": {
+                     *         "code": "VALIDATION_ERROR",
+                     *         "message": "Invalid fields; see error.fieldErrors.",
+                     *         "fieldErrors": {
+                     *           "items.0.quantity": [
+                     *             "Quantity must be a positive whole number."
+                     *           ]
+                     *         }
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description The request could not be completed. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 500,
+                     *       "error": {
+                     *         "code": "INTERNAL_SERVER_ERROR",
+                     *         "message": "The request could not be completed."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Database or payment provider is unavailable or not configured. */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 503,
+                     *       "error": {
+                     *         "code": "DEPENDENCY_UNAVAILABLE",
+                     *         "message": "Database or payment provider is unavailable or not configured."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+        };
+    };
+    deleteOwnedAddress: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Required with BackendSession cookies; obtain from GET /v1/auth/csrf. Not required with bearer-only authentication. */
+                "X-CSRF-Token"?: string;
+            };
+            path: {
+                identifier: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": true,
+                     *       "status": 200,
+                     *       "message": null,
+                     *       "data": {
+                     *         "deleted": true
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiSuccess_Deleted_"];
+                };
+            };
+            /** @description A valid Neon bearer token is required. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 401,
+                     *       "error": {
+                     *         "code": "UNAUTHENTICATED",
+                     *         "message": "A valid Neon bearer token is required."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Email verification or administrator access is required. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 403,
+                     *       "error": {
+                     *         "code": "FORBIDDEN",
+                     *         "message": "Email verification or administrator access is required."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description The requested resource was not found or does not belong to this customer. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 404,
+                     *       "error": {
+                     *         "code": "ORDER_NOT_FOUND",
+                     *         "message": "The requested resource was not found or does not belong to this customer."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Quote, stock, idempotency key or order state conflicts with the request. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 409,
+                     *       "error": {
+                     *         "code": "ORDER_CONFLICT",
+                     *         "message": "Quote, stock, idempotency key or order state conflicts with the request."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Invalid fields; see error.fieldErrors. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 422,
+                     *       "error": {
+                     *         "code": "VALIDATION_ERROR",
+                     *         "message": "Invalid fields; see error.fieldErrors.",
+                     *         "fieldErrors": {
+                     *           "items.0.quantity": [
+                     *             "Quantity must be a positive whole number."
+                     *           ]
+                     *         }
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description The request could not be completed. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 500,
+                     *       "error": {
+                     *         "code": "INTERNAL_SERVER_ERROR",
+                     *         "message": "The request could not be completed."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Database or payment provider is unavailable or not configured. */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 503,
+                     *       "error": {
+                     *         "code": "DEPENDENCY_UNAVAILABLE",
+                     *         "message": "Database or payment provider is unavailable or not configured."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+        };
+    };
+    patchOwnedAddress: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Required with BackendSession cookies; obtain from GET /v1/auth/csrf. Not required with bearer-only authentication. */
+                "X-CSRF-Token"?: string;
+            };
+            path: {
+                identifier: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                /**
+                 * @example {
+                 *       "address_line_1": "14 Example Street"
+                 *     }
+                 */
+                "application/json": components["schemas"]["AddressPatch"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": true,
+                     *       "status": 200,
+                     *       "message": null,
+                     *       "data": {
+                     *         "label": "Home",
+                     *         "recipient_name": "Ada James",
+                     *         "phone": "+2348012345678",
+                     *         "address_line_1": "12 Example Street",
+                     *         "address_line_2": null,
+                     *         "country": "Nigeria",
+                     *         "state": "Lagos",
+                     *         "local_area": "Ikeja",
+                     *         "locality": null,
+                     *         "postal_code": null,
+                     *         "delivery_notes": null,
+                     *         "id": "00000000-0000-4000-8000-000000000001",
+                     *         "is_default": true,
+                     *         "created_at": "2026-11-18T12:00:00Z"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiSuccess_AddressData_"];
+                };
+            };
+            /** @description A valid Neon bearer token is required. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 401,
+                     *       "error": {
+                     *         "code": "UNAUTHENTICATED",
+                     *         "message": "A valid Neon bearer token is required."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Email verification or administrator access is required. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 403,
+                     *       "error": {
+                     *         "code": "FORBIDDEN",
+                     *         "message": "Email verification or administrator access is required."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description The requested resource was not found or does not belong to this customer. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 404,
+                     *       "error": {
+                     *         "code": "ORDER_NOT_FOUND",
+                     *         "message": "The requested resource was not found or does not belong to this customer."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Quote, stock, idempotency key or order state conflicts with the request. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 409,
+                     *       "error": {
+                     *         "code": "ORDER_CONFLICT",
+                     *         "message": "Quote, stock, idempotency key or order state conflicts with the request."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Invalid fields; see error.fieldErrors. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 422,
+                     *       "error": {
+                     *         "code": "VALIDATION_ERROR",
+                     *         "message": "Invalid fields; see error.fieldErrors.",
+                     *         "fieldErrors": {
+                     *           "items.0.quantity": [
+                     *             "Quantity must be a positive whole number."
+                     *           ]
+                     *         }
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description The request could not be completed. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 500,
+                     *       "error": {
+                     *         "code": "INTERNAL_SERVER_ERROR",
+                     *         "message": "The request could not be completed."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Database or payment provider is unavailable or not configured. */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 503,
+                     *       "error": {
+                     *         "code": "DEPENDENCY_UNAVAILABLE",
+                     *         "message": "Database or payment provider is unavailable or not configured."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+        };
+    };
+    setDefaultAddress: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Required with BackendSession cookies; obtain from GET /v1/auth/csrf. Not required with bearer-only authentication. */
+                "X-CSRF-Token"?: string;
+            };
+            path: {
+                identifier: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": true,
+                     *       "status": 200,
+                     *       "message": null,
+                     *       "data": {
+                     *         "label": "Home",
+                     *         "recipient_name": "Ada James",
+                     *         "phone": "+2348012345678",
+                     *         "address_line_1": "12 Example Street",
+                     *         "address_line_2": null,
+                     *         "country": "Nigeria",
+                     *         "state": "Lagos",
+                     *         "local_area": "Ikeja",
+                     *         "locality": null,
+                     *         "postal_code": null,
+                     *         "delivery_notes": null,
+                     *         "id": "00000000-0000-4000-8000-000000000001",
+                     *         "is_default": true,
+                     *         "created_at": "2026-11-18T12:00:00Z"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiSuccess_AddressData_"];
+                };
+            };
+            /** @description A valid Neon bearer token is required. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 401,
+                     *       "error": {
+                     *         "code": "UNAUTHENTICATED",
+                     *         "message": "A valid Neon bearer token is required."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Email verification or administrator access is required. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 403,
+                     *       "error": {
+                     *         "code": "FORBIDDEN",
+                     *         "message": "Email verification or administrator access is required."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description The requested resource was not found or does not belong to this customer. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 404,
+                     *       "error": {
+                     *         "code": "ORDER_NOT_FOUND",
+                     *         "message": "The requested resource was not found or does not belong to this customer."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Quote, stock, idempotency key or order state conflicts with the request. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 409,
+                     *       "error": {
+                     *         "code": "ORDER_CONFLICT",
+                     *         "message": "Quote, stock, idempotency key or order state conflicts with the request."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Invalid fields; see error.fieldErrors. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 422,
+                     *       "error": {
+                     *         "code": "VALIDATION_ERROR",
+                     *         "message": "Invalid fields; see error.fieldErrors.",
+                     *         "fieldErrors": {
+                     *           "items.0.quantity": [
+                     *             "Quantity must be a positive whole number."
+                     *           ]
+                     *         }
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description The request could not be completed. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 500,
+                     *       "error": {
+                     *         "code": "INTERNAL_SERVER_ERROR",
+                     *         "message": "The request could not be completed."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Database or payment provider is unavailable or not configured. */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 503,
+                     *       "error": {
+                     *         "code": "DEPENDENCY_UNAVAILABLE",
+                     *         "message": "Database or payment provider is unavailable or not configured."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+        };
+    };
+    listOwnedWishlist: {
+        parameters: {
+            query?: {
+                /** @description One-based page number. */
+                page?: number;
+                /** @description Items per page; maximum 100. */
+                page_size?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": true,
+                     *       "status": 200,
+                     *       "message": null,
+                     *       "data": {
+                     *         "items": [
+                     *           {
+                     *             "product_id": "00000000-0000-4000-8000-000000000001",
+                     *             "name": "Gold pendant",
+                     *             "slug": "gold-pendant",
+                     *             "display_price": {
+                     *               "amount": 120000,
+                     *               "currency": "NGN",
+                     *               "available": true,
+                     *               "reason": null,
+                     *               "karat": null
+                     *             },
+                     *             "image_url": null,
+                     *             "image_alt": null,
+                     *             "available": true,
+                     *             "created_at": "2026-11-18T12:00:00Z"
+                     *           }
+                     *         ],
+                     *         "total": 1,
+                     *         "page": 1,
+                     *         "page_size": 24
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiSuccess_Page_WishlistData__"];
+                };
+            };
+            /** @description A valid Neon bearer token is required. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 401,
+                     *       "error": {
+                     *         "code": "UNAUTHENTICATED",
+                     *         "message": "A valid Neon bearer token is required."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Email verification or administrator access is required. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 403,
+                     *       "error": {
+                     *         "code": "FORBIDDEN",
+                     *         "message": "Email verification or administrator access is required."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description The requested resource was not found or does not belong to this customer. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 404,
+                     *       "error": {
+                     *         "code": "ORDER_NOT_FOUND",
+                     *         "message": "The requested resource was not found or does not belong to this customer."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Quote, stock, idempotency key or order state conflicts with the request. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 409,
+                     *       "error": {
+                     *         "code": "ORDER_CONFLICT",
+                     *         "message": "Quote, stock, idempotency key or order state conflicts with the request."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Invalid fields; see error.fieldErrors. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 422,
+                     *       "error": {
+                     *         "code": "VALIDATION_ERROR",
+                     *         "message": "Invalid fields; see error.fieldErrors.",
+                     *         "fieldErrors": {
+                     *           "items.0.quantity": [
+                     *             "Quantity must be a positive whole number."
+                     *           ]
+                     *         }
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description The request could not be completed. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 500,
+                     *       "error": {
+                     *         "code": "INTERNAL_SERVER_ERROR",
+                     *         "message": "The request could not be completed."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Database or payment provider is unavailable or not configured. */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 503,
+                     *       "error": {
+                     *         "code": "DEPENDENCY_UNAVAILABLE",
+                     *         "message": "Database or payment provider is unavailable or not configured."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+        };
+    };
+    addWishlistProduct: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Required with BackendSession cookies; obtain from GET /v1/auth/csrf. Not required with bearer-only authentication. */
+                "X-CSRF-Token"?: string;
+            };
+            path: {
+                product_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": true,
+                     *       "status": 200,
+                     *       "message": null,
+                     *       "data": {
+                     *         "changed": 1
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiSuccess_ChangedData_"];
+                };
+            };
+            /** @description A valid Neon bearer token is required. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 401,
+                     *       "error": {
+                     *         "code": "UNAUTHENTICATED",
+                     *         "message": "A valid Neon bearer token is required."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Email verification or administrator access is required. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 403,
+                     *       "error": {
+                     *         "code": "FORBIDDEN",
+                     *         "message": "Email verification or administrator access is required."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description The requested resource was not found or does not belong to this customer. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 404,
+                     *       "error": {
+                     *         "code": "ORDER_NOT_FOUND",
+                     *         "message": "The requested resource was not found or does not belong to this customer."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Quote, stock, idempotency key or order state conflicts with the request. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 409,
+                     *       "error": {
+                     *         "code": "ORDER_CONFLICT",
+                     *         "message": "Quote, stock, idempotency key or order state conflicts with the request."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Invalid fields; see error.fieldErrors. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 422,
+                     *       "error": {
+                     *         "code": "VALIDATION_ERROR",
+                     *         "message": "Invalid fields; see error.fieldErrors.",
+                     *         "fieldErrors": {
+                     *           "items.0.quantity": [
+                     *             "Quantity must be a positive whole number."
+                     *           ]
+                     *         }
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description The request could not be completed. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 500,
+                     *       "error": {
+                     *         "code": "INTERNAL_SERVER_ERROR",
+                     *         "message": "The request could not be completed."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Database or payment provider is unavailable or not configured. */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 503,
+                     *       "error": {
+                     *         "code": "DEPENDENCY_UNAVAILABLE",
+                     *         "message": "Database or payment provider is unavailable or not configured."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+        };
+    };
+    removeWishlistProduct: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Required with BackendSession cookies; obtain from GET /v1/auth/csrf. Not required with bearer-only authentication. */
+                "X-CSRF-Token"?: string;
+            };
+            path: {
+                product_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": true,
+                     *       "status": 200,
+                     *       "message": null,
+                     *       "data": {
+                     *         "changed": 1
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiSuccess_ChangedData_"];
+                };
+            };
+            /** @description A valid Neon bearer token is required. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 401,
+                     *       "error": {
+                     *         "code": "UNAUTHENTICATED",
+                     *         "message": "A valid Neon bearer token is required."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Email verification or administrator access is required. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 403,
+                     *       "error": {
+                     *         "code": "FORBIDDEN",
+                     *         "message": "Email verification or administrator access is required."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description The requested resource was not found or does not belong to this customer. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 404,
+                     *       "error": {
+                     *         "code": "ORDER_NOT_FOUND",
+                     *         "message": "The requested resource was not found or does not belong to this customer."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Quote, stock, idempotency key or order state conflicts with the request. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 409,
+                     *       "error": {
+                     *         "code": "ORDER_CONFLICT",
+                     *         "message": "Quote, stock, idempotency key or order state conflicts with the request."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Invalid fields; see error.fieldErrors. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 422,
+                     *       "error": {
+                     *         "code": "VALIDATION_ERROR",
+                     *         "message": "Invalid fields; see error.fieldErrors.",
+                     *         "fieldErrors": {
+                     *           "items.0.quantity": [
+                     *             "Quantity must be a positive whole number."
+                     *           ]
+                     *         }
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description The request could not be completed. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 500,
+                     *       "error": {
+                     *         "code": "INTERNAL_SERVER_ERROR",
+                     *         "message": "The request could not be completed."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Database or payment provider is unavailable or not configured. */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 503,
+                     *       "error": {
+                     *         "code": "DEPENDENCY_UNAVAILABLE",
+                     *         "message": "Database or payment provider is unavailable or not configured."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+        };
+    };
+    listOwnedReviews: {
+        parameters: {
+            query?: {
+                /** @description One-based page number. */
+                page?: number;
+                /** @description Items per page; maximum 100. */
+                page_size?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": true,
+                     *       "status": 200,
+                     *       "message": null,
+                     *       "data": {
+                     *         "items": [
+                     *           {
+                     *             "rating": 5,
+                     *             "comment": "The pendant matches the description and arrived safely.",
+                     *             "id": "00000000-0000-4000-8000-000000000001",
+                     *             "product_id": "00000000-0000-4000-8000-000000000001",
+                     *             "status": "pending",
+                     *             "verified_purchase": true,
+                     *             "created_at": "2026-11-18T12:00:00Z",
+                     *             "updated_at": "2026-11-18T12:00:00Z"
+                     *           }
+                     *         ],
+                     *         "total": 1,
+                     *         "page": 1,
+                     *         "page_size": 24
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiSuccess_Page_ReviewData__"];
+                };
+            };
+            /** @description A valid Neon bearer token is required. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 401,
+                     *       "error": {
+                     *         "code": "UNAUTHENTICATED",
+                     *         "message": "A valid Neon bearer token is required."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Email verification or administrator access is required. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 403,
+                     *       "error": {
+                     *         "code": "FORBIDDEN",
+                     *         "message": "Email verification or administrator access is required."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description The requested resource was not found or does not belong to this customer. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 404,
+                     *       "error": {
+                     *         "code": "ORDER_NOT_FOUND",
+                     *         "message": "The requested resource was not found or does not belong to this customer."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Quote, stock, idempotency key or order state conflicts with the request. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 409,
+                     *       "error": {
+                     *         "code": "ORDER_CONFLICT",
+                     *         "message": "Quote, stock, idempotency key or order state conflicts with the request."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Invalid fields; see error.fieldErrors. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 422,
+                     *       "error": {
+                     *         "code": "VALIDATION_ERROR",
+                     *         "message": "Invalid fields; see error.fieldErrors.",
+                     *         "fieldErrors": {
+                     *           "items.0.quantity": [
+                     *             "Quantity must be a positive whole number."
+                     *           ]
+                     *         }
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description The request could not be completed. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 500,
+                     *       "error": {
+                     *         "code": "INTERNAL_SERVER_ERROR",
+                     *         "message": "The request could not be completed."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Database or payment provider is unavailable or not configured. */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 503,
+                     *       "error": {
+                     *         "code": "DEPENDENCY_UNAVAILABLE",
+                     *         "message": "Database or payment provider is unavailable or not configured."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+        };
+    };
+    writePurchasedProductReview: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Required with BackendSession cookies; obtain from GET /v1/auth/csrf. Not required with bearer-only authentication. */
+                "X-CSRF-Token"?: string;
+            };
+            path: {
+                product_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                /**
+                 * @example {
+                 *       "rating": 5,
+                 *       "comment": "The pendant matches the description and arrived safely."
+                 *     }
+                 */
+                "application/json": components["schemas"]["ReviewBody"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": true,
+                     *       "status": 200,
+                     *       "message": null,
+                     *       "data": {
+                     *         "rating": 5,
+                     *         "comment": "The pendant matches the description and arrived safely.",
+                     *         "id": "00000000-0000-4000-8000-000000000001",
+                     *         "product_id": "00000000-0000-4000-8000-000000000001",
+                     *         "status": "pending",
+                     *         "verified_purchase": true,
+                     *         "created_at": "2026-11-18T12:00:00Z",
+                     *         "updated_at": "2026-11-18T12:00:00Z"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiSuccess_ReviewData_"];
+                };
+            };
+            /** @description A valid Neon bearer token is required. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 401,
+                     *       "error": {
+                     *         "code": "UNAUTHENTICATED",
+                     *         "message": "A valid Neon bearer token is required."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Email verification or administrator access is required. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 403,
+                     *       "error": {
+                     *         "code": "FORBIDDEN",
+                     *         "message": "Email verification or administrator access is required."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description The requested resource was not found or does not belong to this customer. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 404,
+                     *       "error": {
+                     *         "code": "ORDER_NOT_FOUND",
+                     *         "message": "The requested resource was not found or does not belong to this customer."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Quote, stock, idempotency key or order state conflicts with the request. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 409,
+                     *       "error": {
+                     *         "code": "ORDER_CONFLICT",
+                     *         "message": "Quote, stock, idempotency key or order state conflicts with the request."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Invalid fields; see error.fieldErrors. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 422,
+                     *       "error": {
+                     *         "code": "VALIDATION_ERROR",
+                     *         "message": "Invalid fields; see error.fieldErrors.",
+                     *         "fieldErrors": {
+                     *           "items.0.quantity": [
+                     *             "Quantity must be a positive whole number."
+                     *           ]
+                     *         }
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description The request could not be completed. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 500,
+                     *       "error": {
+                     *         "code": "INTERNAL_SERVER_ERROR",
+                     *         "message": "The request could not be completed."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Database or payment provider is unavailable or not configured. */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 503,
+                     *       "error": {
+                     *         "code": "DEPENDENCY_UNAVAILABLE",
+                     *         "message": "Database or payment provider is unavailable or not configured."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+        };
+    };
+    deleteOwnedProductReview: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Required with BackendSession cookies; obtain from GET /v1/auth/csrf. Not required with bearer-only authentication. */
+                "X-CSRF-Token"?: string;
+            };
+            path: {
+                product_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": true,
+                     *       "status": 200,
+                     *       "message": null,
+                     *       "data": {
+                     *         "deleted": true
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiSuccess_Deleted_"];
+                };
+            };
+            /** @description A valid Neon bearer token is required. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 401,
+                     *       "error": {
+                     *         "code": "UNAUTHENTICATED",
+                     *         "message": "A valid Neon bearer token is required."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Email verification or administrator access is required. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 403,
+                     *       "error": {
+                     *         "code": "FORBIDDEN",
+                     *         "message": "Email verification or administrator access is required."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description The requested resource was not found or does not belong to this customer. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 404,
+                     *       "error": {
+                     *         "code": "ORDER_NOT_FOUND",
+                     *         "message": "The requested resource was not found or does not belong to this customer."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Quote, stock, idempotency key or order state conflicts with the request. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 409,
+                     *       "error": {
+                     *         "code": "ORDER_CONFLICT",
+                     *         "message": "Quote, stock, idempotency key or order state conflicts with the request."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Invalid fields; see error.fieldErrors. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 422,
+                     *       "error": {
+                     *         "code": "VALIDATION_ERROR",
+                     *         "message": "Invalid fields; see error.fieldErrors.",
+                     *         "fieldErrors": {
+                     *           "items.0.quantity": [
+                     *             "Quantity must be a positive whole number."
+                     *           ]
+                     *         }
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description The request could not be completed. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 500,
+                     *       "error": {
+                     *         "code": "INTERNAL_SERVER_ERROR",
+                     *         "message": "The request could not be completed."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Database or payment provider is unavailable or not configured. */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 503,
+                     *       "error": {
+                     *         "code": "DEPENDENCY_UNAVAILABLE",
+                     *         "message": "Database or payment provider is unavailable or not configured."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+        };
+    };
+    listApprovedProductReviews: {
+        parameters: {
+            query?: {
+                /** @description One-based page number. */
+                page?: number;
+                /** @description Items per page; maximum 100. */
+                page_size?: number;
+            };
+            header?: never;
+            path: {
+                slug: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": true,
+                     *       "status": 200,
+                     *       "message": null,
+                     *       "data": {
+                     *         "items": [
+                     *           {
+                     *             "rating": 5,
+                     *             "comment": "The pendant matches the description and arrived safely.",
+                     *             "id": "00000000-0000-4000-8000-000000000001",
+                     *             "author_name": "Ada",
+                     *             "verified_purchase": true,
+                     *             "created_at": "2026-11-18T12:00:00Z"
+                     *           }
+                     *         ],
+                     *         "total": 1,
+                     *         "page": 1,
+                     *         "page_size": 24,
+                     *         "average_rating": "5.00",
+                     *         "rating_count": 1
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiSuccess_PublicReviewPage_"];
+                };
+            };
+            /** @description A valid Neon bearer token is required. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 401,
+                     *       "error": {
+                     *         "code": "UNAUTHENTICATED",
+                     *         "message": "A valid Neon bearer token is required."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Email verification or administrator access is required. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 403,
+                     *       "error": {
+                     *         "code": "FORBIDDEN",
+                     *         "message": "Email verification or administrator access is required."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description The requested resource was not found or does not belong to this customer. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 404,
+                     *       "error": {
+                     *         "code": "ORDER_NOT_FOUND",
+                     *         "message": "The requested resource was not found or does not belong to this customer."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Quote, stock, idempotency key or order state conflicts with the request. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 409,
+                     *       "error": {
+                     *         "code": "ORDER_CONFLICT",
+                     *         "message": "Quote, stock, idempotency key or order state conflicts with the request."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Invalid fields; see error.fieldErrors. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 422,
+                     *       "error": {
+                     *         "code": "VALIDATION_ERROR",
+                     *         "message": "Invalid fields; see error.fieldErrors.",
+                     *         "fieldErrors": {
+                     *           "items.0.quantity": [
+                     *             "Quantity must be a positive whole number."
+                     *           ]
+                     *         }
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description The request could not be completed. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 500,
+                     *       "error": {
+                     *         "code": "INTERNAL_SERVER_ERROR",
+                     *         "message": "The request could not be completed."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Database or payment provider is unavailable or not configured. */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 503,
+                     *       "error": {
+                     *         "code": "DEPENDENCY_UNAVAILABLE",
+                     *         "message": "Database or payment provider is unavailable or not configured."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+        };
+    };
+    listModerationReviews: {
+        parameters: {
+            query?: {
+                /** @description One-based page number. */
+                page?: number;
+                /** @description Items per page; maximum 100. */
+                page_size?: number;
+                status?: ("pending" | "approved" | "rejected") | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": true,
+                     *       "status": 200,
+                     *       "message": null,
+                     *       "data": {
+                     *         "items": [
+                     *           {
+                     *             "rating": 5,
+                     *             "comment": "The pendant matches the description and arrived safely.",
+                     *             "id": "00000000-0000-4000-8000-000000000001",
+                     *             "product_id": "00000000-0000-4000-8000-000000000001",
+                     *             "status": "pending",
+                     *             "verified_purchase": true,
+                     *             "created_at": "2026-11-18T12:00:00Z",
+                     *             "updated_at": "2026-11-18T12:00:00Z",
+                     *             "customer_id": "identity_example",
+                     *             "moderation_note": null,
+                     *             "moderated_by": null
+                     *           }
+                     *         ],
+                     *         "total": 1,
+                     *         "page": 1,
+                     *         "page_size": 24
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiSuccess_Page_AdminReviewData__"];
+                };
+            };
+            /** @description A valid Neon bearer token is required. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 401,
+                     *       "error": {
+                     *         "code": "UNAUTHENTICATED",
+                     *         "message": "A valid Neon bearer token is required."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Email verification or administrator access is required. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 403,
+                     *       "error": {
+                     *         "code": "FORBIDDEN",
+                     *         "message": "Email verification or administrator access is required."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description The requested resource was not found or does not belong to this customer. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 404,
+                     *       "error": {
+                     *         "code": "ORDER_NOT_FOUND",
+                     *         "message": "The requested resource was not found or does not belong to this customer."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Quote, stock, idempotency key or order state conflicts with the request. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 409,
+                     *       "error": {
+                     *         "code": "ORDER_CONFLICT",
+                     *         "message": "Quote, stock, idempotency key or order state conflicts with the request."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Invalid fields; see error.fieldErrors. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 422,
+                     *       "error": {
+                     *         "code": "VALIDATION_ERROR",
+                     *         "message": "Invalid fields; see error.fieldErrors.",
+                     *         "fieldErrors": {
+                     *           "items.0.quantity": [
+                     *             "Quantity must be a positive whole number."
+                     *           ]
+                     *         }
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description The request could not be completed. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 500,
+                     *       "error": {
+                     *         "code": "INTERNAL_SERVER_ERROR",
+                     *         "message": "The request could not be completed."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Database or payment provider is unavailable or not configured. */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 503,
+                     *       "error": {
+                     *         "code": "DEPENDENCY_UNAVAILABLE",
+                     *         "message": "Database or payment provider is unavailable or not configured."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+        };
+    };
+    moderateProductReview: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Required with BackendSession cookies; obtain from GET /v1/auth/csrf. Not required with bearer-only authentication. */
+                "X-CSRF-Token"?: string;
+            };
+            path: {
+                identifier: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                /**
+                 * @example {
+                 *       "status": "approved",
+                 *       "moderation_note": null
+                 *     }
+                 */
+                "application/json": components["schemas"]["ModerationBody"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": true,
+                     *       "status": 200,
+                     *       "message": null,
+                     *       "data": {
+                     *         "rating": 5,
+                     *         "comment": "The pendant matches the description and arrived safely.",
+                     *         "id": "00000000-0000-4000-8000-000000000001",
+                     *         "product_id": "00000000-0000-4000-8000-000000000001",
+                     *         "status": "approved",
+                     *         "verified_purchase": true,
+                     *         "created_at": "2026-11-18T12:00:00Z",
+                     *         "updated_at": "2026-11-18T12:00:00Z",
+                     *         "customer_id": "identity_example",
+                     *         "moderation_note": null,
+                     *         "moderated_by": "admin_example"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiSuccess_AdminReviewData_"];
+                };
+            };
+            /** @description A valid Neon bearer token is required. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 401,
+                     *       "error": {
+                     *         "code": "UNAUTHENTICATED",
+                     *         "message": "A valid Neon bearer token is required."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Email verification or administrator access is required. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 403,
+                     *       "error": {
+                     *         "code": "FORBIDDEN",
+                     *         "message": "Email verification or administrator access is required."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description The requested resource was not found or does not belong to this customer. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 404,
+                     *       "error": {
+                     *         "code": "ORDER_NOT_FOUND",
+                     *         "message": "The requested resource was not found or does not belong to this customer."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Quote, stock, idempotency key or order state conflicts with the request. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 409,
+                     *       "error": {
+                     *         "code": "ORDER_CONFLICT",
+                     *         "message": "Quote, stock, idempotency key or order state conflicts with the request."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Invalid fields; see error.fieldErrors. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 422,
+                     *       "error": {
+                     *         "code": "VALIDATION_ERROR",
+                     *         "message": "Invalid fields; see error.fieldErrors.",
+                     *         "fieldErrors": {
+                     *           "items.0.quantity": [
+                     *             "Quantity must be a positive whole number."
+                     *           ]
+                     *         }
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description The request could not be completed. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 500,
+                     *       "error": {
+                     *         "code": "INTERNAL_SERVER_ERROR",
+                     *         "message": "The request could not be completed."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Database or payment provider is unavailable or not configured. */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 503,
+                     *       "error": {
+                     *         "code": "DEPENDENCY_UNAVAILABLE",
+                     *         "message": "Database or payment provider is unavailable or not configured."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+        };
+    };
+    bulkModerateProductReviews: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Required with BackendSession cookies; obtain from GET /v1/auth/csrf. Not required with bearer-only authentication. */
+                "X-CSRF-Token"?: string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                /**
+                 * @example {
+                 *       "review_ids": [
+                 *         "00000000-0000-4000-8000-000000000001"
+                 *       ],
+                 *       "status": "approved"
+                 *     }
+                 */
+                "application/json": components["schemas"]["BulkModeration"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": true,
+                     *       "status": 200,
+                     *       "message": null,
+                     *       "data": [
+                     *         {
+                     *           "rating": 5,
+                     *           "comment": "The pendant matches the description and arrived safely.",
+                     *           "id": "00000000-0000-4000-8000-000000000001",
+                     *           "product_id": "00000000-0000-4000-8000-000000000001",
+                     *           "status": "approved",
+                     *           "verified_purchase": true,
+                     *           "created_at": "2026-11-18T12:00:00Z",
+                     *           "updated_at": "2026-11-18T12:00:00Z",
+                     *           "customer_id": "identity_example",
+                     *           "moderation_note": null,
+                     *           "moderated_by": "admin_example"
+                     *         }
+                     *       ]
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiSuccess_list_AdminReviewData__"];
+                };
+            };
+            /** @description A valid Neon bearer token is required. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 401,
+                     *       "error": {
+                     *         "code": "UNAUTHENTICATED",
+                     *         "message": "A valid Neon bearer token is required."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Email verification or administrator access is required. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 403,
+                     *       "error": {
+                     *         "code": "FORBIDDEN",
+                     *         "message": "Email verification or administrator access is required."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description The requested resource was not found or does not belong to this customer. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 404,
+                     *       "error": {
+                     *         "code": "ORDER_NOT_FOUND",
+                     *         "message": "The requested resource was not found or does not belong to this customer."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Quote, stock, idempotency key or order state conflicts with the request. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 409,
+                     *       "error": {
+                     *         "code": "ORDER_CONFLICT",
+                     *         "message": "Quote, stock, idempotency key or order state conflicts with the request."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Invalid fields; see error.fieldErrors. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 422,
+                     *       "error": {
+                     *         "code": "VALIDATION_ERROR",
+                     *         "message": "Invalid fields; see error.fieldErrors.",
+                     *         "fieldErrors": {
+                     *           "items.0.quantity": [
+                     *             "Quantity must be a positive whole number."
+                     *           ]
+                     *         }
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description The request could not be completed. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 500,
+                     *       "error": {
+                     *         "code": "INTERNAL_SERVER_ERROR",
+                     *         "message": "The request could not be completed."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Database or payment provider is unavailable or not configured. */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 503,
+                     *       "error": {
+                     *         "code": "DEPENDENCY_UNAVAILABLE",
+                     *         "message": "Database or payment provider is unavailable or not configured."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+        };
+    };
+    listCustomerNotifications: {
+        parameters: {
+            query?: {
+                /** @description One-based page number. */
+                page?: number;
+                /** @description Items per page; maximum 100. */
+                page_size?: number;
+                unread_only?: boolean;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": true,
+                     *       "status": 200,
+                     *       "message": null,
+                     *       "data": {
+                     *         "items": [
+                     *           {
+                     *             "id": "00000000-0000-4000-8000-000000000001",
+                     *             "kind": "payment",
+                     *             "message": "Payment confirmed for your order.",
+                     *             "resource_id": "00000000-0000-4000-8000-000000000001",
+                     *             "is_read": false,
+                     *             "created_at": "2026-11-18T12:00:00Z"
+                     *           }
+                     *         ],
+                     *         "total": 1,
+                     *         "page": 1,
+                     *         "page_size": 24
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiSuccess_Page_NotificationData__"];
+                };
+            };
+            /** @description A valid Neon bearer token is required. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 401,
+                     *       "error": {
+                     *         "code": "UNAUTHENTICATED",
+                     *         "message": "A valid Neon bearer token is required."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Email verification or administrator access is required. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 403,
+                     *       "error": {
+                     *         "code": "FORBIDDEN",
+                     *         "message": "Email verification or administrator access is required."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description The requested resource was not found or does not belong to this customer. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 404,
+                     *       "error": {
+                     *         "code": "ORDER_NOT_FOUND",
+                     *         "message": "The requested resource was not found or does not belong to this customer."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Quote, stock, idempotency key or order state conflicts with the request. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 409,
+                     *       "error": {
+                     *         "code": "ORDER_CONFLICT",
+                     *         "message": "Quote, stock, idempotency key or order state conflicts with the request."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Invalid fields; see error.fieldErrors. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 422,
+                     *       "error": {
+                     *         "code": "VALIDATION_ERROR",
+                     *         "message": "Invalid fields; see error.fieldErrors.",
+                     *         "fieldErrors": {
+                     *           "items.0.quantity": [
+                     *             "Quantity must be a positive whole number."
+                     *           ]
+                     *         }
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description The request could not be completed. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 500,
+                     *       "error": {
+                     *         "code": "INTERNAL_SERVER_ERROR",
+                     *         "message": "The request could not be completed."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Database or payment provider is unavailable or not configured. */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 503,
+                     *       "error": {
+                     *         "code": "DEPENDENCY_UNAVAILABLE",
+                     *         "message": "Database or payment provider is unavailable or not configured."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+        };
+    };
+    readCustomerNotification: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Required with BackendSession cookies; obtain from GET /v1/auth/csrf. Not required with bearer-only authentication. */
+                "X-CSRF-Token"?: string;
+            };
+            path: {
+                identifier: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                /**
+                 * @example {
+                 *       "is_read": true
+                 *     }
+                 */
+                "application/json": components["schemas"]["ReadBody"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": true,
+                     *       "status": 200,
+                     *       "message": null,
+                     *       "data": {
+                     *         "changed": 1
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiSuccess_ChangedData_"];
+                };
+            };
+            /** @description A valid Neon bearer token is required. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 401,
+                     *       "error": {
+                     *         "code": "UNAUTHENTICATED",
+                     *         "message": "A valid Neon bearer token is required."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Email verification or administrator access is required. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 403,
+                     *       "error": {
+                     *         "code": "FORBIDDEN",
+                     *         "message": "Email verification or administrator access is required."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description The requested resource was not found or does not belong to this customer. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 404,
+                     *       "error": {
+                     *         "code": "ORDER_NOT_FOUND",
+                     *         "message": "The requested resource was not found or does not belong to this customer."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Quote, stock, idempotency key or order state conflicts with the request. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 409,
+                     *       "error": {
+                     *         "code": "ORDER_CONFLICT",
+                     *         "message": "Quote, stock, idempotency key or order state conflicts with the request."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Invalid fields; see error.fieldErrors. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 422,
+                     *       "error": {
+                     *         "code": "VALIDATION_ERROR",
+                     *         "message": "Invalid fields; see error.fieldErrors.",
+                     *         "fieldErrors": {
+                     *           "items.0.quantity": [
+                     *             "Quantity must be a positive whole number."
+                     *           ]
+                     *         }
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description The request could not be completed. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 500,
+                     *       "error": {
+                     *         "code": "INTERNAL_SERVER_ERROR",
+                     *         "message": "The request could not be completed."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Database or payment provider is unavailable or not configured. */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 503,
+                     *       "error": {
+                     *         "code": "DEPENDENCY_UNAVAILABLE",
+                     *         "message": "Database or payment provider is unavailable or not configured."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+        };
+    };
+    readAllCustomerNotifications: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Required with BackendSession cookies; obtain from GET /v1/auth/csrf. Not required with bearer-only authentication. */
+                "X-CSRF-Token"?: string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": true,
+                     *       "status": 200,
+                     *       "message": null,
+                     *       "data": {
+                     *         "changed": 1
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiSuccess_ChangedData_"];
+                };
+            };
+            /** @description A valid Neon bearer token is required. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 401,
+                     *       "error": {
+                     *         "code": "UNAUTHENTICATED",
+                     *         "message": "A valid Neon bearer token is required."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Email verification or administrator access is required. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 403,
+                     *       "error": {
+                     *         "code": "FORBIDDEN",
+                     *         "message": "Email verification or administrator access is required."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description The requested resource was not found or does not belong to this customer. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 404,
+                     *       "error": {
+                     *         "code": "ORDER_NOT_FOUND",
+                     *         "message": "The requested resource was not found or does not belong to this customer."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Quote, stock, idempotency key or order state conflicts with the request. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 409,
+                     *       "error": {
+                     *         "code": "ORDER_CONFLICT",
+                     *         "message": "Quote, stock, idempotency key or order state conflicts with the request."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Invalid fields; see error.fieldErrors. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 422,
+                     *       "error": {
+                     *         "code": "VALIDATION_ERROR",
+                     *         "message": "Invalid fields; see error.fieldErrors.",
+                     *         "fieldErrors": {
+                     *           "items.0.quantity": [
+                     *             "Quantity must be a positive whole number."
+                     *           ]
+                     *         }
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description The request could not be completed. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 500,
+                     *       "error": {
+                     *         "code": "INTERNAL_SERVER_ERROR",
+                     *         "message": "The request could not be completed."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Database or payment provider is unavailable or not configured. */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 503,
+                     *       "error": {
+                     *         "code": "DEPENDENCY_UNAVAILABLE",
+                     *         "message": "Database or payment provider is unavailable or not configured."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+        };
+    };
+    listAdminNotifications: {
+        parameters: {
+            query?: {
+                /** @description One-based page number. */
+                page?: number;
+                /** @description Items per page; maximum 100. */
+                page_size?: number;
+                unread_only?: boolean;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": true,
+                     *       "status": 200,
+                     *       "message": null,
+                     *       "data": {
+                     *         "items": [
+                     *           {
+                     *             "id": "00000000-0000-4000-8000-000000000001",
+                     *             "kind": "payment",
+                     *             "message": "Payment confirmed for your order.",
+                     *             "resource_id": "00000000-0000-4000-8000-000000000001",
+                     *             "is_read": false,
+                     *             "created_at": "2026-11-18T12:00:00Z"
+                     *           }
+                     *         ],
+                     *         "total": 1,
+                     *         "page": 1,
+                     *         "page_size": 24
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiSuccess_Page_NotificationData__"];
+                };
+            };
+            /** @description A valid Neon bearer token is required. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 401,
+                     *       "error": {
+                     *         "code": "UNAUTHENTICATED",
+                     *         "message": "A valid Neon bearer token is required."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Email verification or administrator access is required. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 403,
+                     *       "error": {
+                     *         "code": "FORBIDDEN",
+                     *         "message": "Email verification or administrator access is required."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description The requested resource was not found or does not belong to this customer. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 404,
+                     *       "error": {
+                     *         "code": "ORDER_NOT_FOUND",
+                     *         "message": "The requested resource was not found or does not belong to this customer."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Quote, stock, idempotency key or order state conflicts with the request. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 409,
+                     *       "error": {
+                     *         "code": "ORDER_CONFLICT",
+                     *         "message": "Quote, stock, idempotency key or order state conflicts with the request."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Invalid fields; see error.fieldErrors. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 422,
+                     *       "error": {
+                     *         "code": "VALIDATION_ERROR",
+                     *         "message": "Invalid fields; see error.fieldErrors.",
+                     *         "fieldErrors": {
+                     *           "items.0.quantity": [
+                     *             "Quantity must be a positive whole number."
+                     *           ]
+                     *         }
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description The request could not be completed. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 500,
+                     *       "error": {
+                     *         "code": "INTERNAL_SERVER_ERROR",
+                     *         "message": "The request could not be completed."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Database or payment provider is unavailable or not configured. */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 503,
+                     *       "error": {
+                     *         "code": "DEPENDENCY_UNAVAILABLE",
+                     *         "message": "Database or payment provider is unavailable or not configured."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+        };
+    };
+    readAdminNotification: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Required with BackendSession cookies; obtain from GET /v1/auth/csrf. Not required with bearer-only authentication. */
+                "X-CSRF-Token"?: string;
+            };
+            path: {
+                identifier: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                /**
+                 * @example {
+                 *       "is_read": true
+                 *     }
+                 */
+                "application/json": components["schemas"]["ReadBody"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": true,
+                     *       "status": 200,
+                     *       "message": null,
+                     *       "data": {
+                     *         "changed": 1
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiSuccess_ChangedData_"];
+                };
+            };
+            /** @description A valid Neon bearer token is required. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 401,
+                     *       "error": {
+                     *         "code": "UNAUTHENTICATED",
+                     *         "message": "A valid Neon bearer token is required."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Email verification or administrator access is required. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 403,
+                     *       "error": {
+                     *         "code": "FORBIDDEN",
+                     *         "message": "Email verification or administrator access is required."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description The requested resource was not found or does not belong to this customer. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 404,
+                     *       "error": {
+                     *         "code": "ORDER_NOT_FOUND",
+                     *         "message": "The requested resource was not found or does not belong to this customer."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Quote, stock, idempotency key or order state conflicts with the request. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 409,
+                     *       "error": {
+                     *         "code": "ORDER_CONFLICT",
+                     *         "message": "Quote, stock, idempotency key or order state conflicts with the request."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Invalid fields; see error.fieldErrors. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 422,
+                     *       "error": {
+                     *         "code": "VALIDATION_ERROR",
+                     *         "message": "Invalid fields; see error.fieldErrors.",
+                     *         "fieldErrors": {
+                     *           "items.0.quantity": [
+                     *             "Quantity must be a positive whole number."
+                     *           ]
+                     *         }
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description The request could not be completed. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 500,
+                     *       "error": {
+                     *         "code": "INTERNAL_SERVER_ERROR",
+                     *         "message": "The request could not be completed."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Database or payment provider is unavailable or not configured. */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 503,
+                     *       "error": {
+                     *         "code": "DEPENDENCY_UNAVAILABLE",
+                     *         "message": "Database or payment provider is unavailable or not configured."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+        };
+    };
+    readAllAdminNotifications: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Required with BackendSession cookies; obtain from GET /v1/auth/csrf. Not required with bearer-only authentication. */
+                "X-CSRF-Token"?: string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": true,
+                     *       "status": 200,
+                     *       "message": null,
+                     *       "data": {
+                     *         "changed": 1
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiSuccess_ChangedData_"];
+                };
+            };
+            /** @description A valid Neon bearer token is required. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 401,
+                     *       "error": {
+                     *         "code": "UNAUTHENTICATED",
+                     *         "message": "A valid Neon bearer token is required."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Email verification or administrator access is required. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 403,
+                     *       "error": {
+                     *         "code": "FORBIDDEN",
+                     *         "message": "Email verification or administrator access is required."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description The requested resource was not found or does not belong to this customer. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 404,
+                     *       "error": {
+                     *         "code": "ORDER_NOT_FOUND",
+                     *         "message": "The requested resource was not found or does not belong to this customer."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Quote, stock, idempotency key or order state conflicts with the request. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 409,
+                     *       "error": {
+                     *         "code": "ORDER_CONFLICT",
+                     *         "message": "Quote, stock, idempotency key or order state conflicts with the request."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Invalid fields; see error.fieldErrors. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 422,
+                     *       "error": {
+                     *         "code": "VALIDATION_ERROR",
+                     *         "message": "Invalid fields; see error.fieldErrors.",
+                     *         "fieldErrors": {
+                     *           "items.0.quantity": [
+                     *             "Quantity must be a positive whole number."
+                     *           ]
+                     *         }
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description The request could not be completed. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 500,
+                     *       "error": {
+                     *         "code": "INTERNAL_SERVER_ERROR",
+                     *         "message": "The request could not be completed."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Database or payment provider is unavailable or not configured. */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 503,
+                     *       "error": {
+                     *         "code": "DEPENDENCY_UNAVAILABLE",
+                     *         "message": "Database or payment provider is unavailable or not configured."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+        };
+    };
+    listAdminCustomers: {
+        parameters: {
+            query?: {
+                /** @description One-based page number. */
+                page?: number;
+                /** @description Items per page; maximum 100. */
+                page_size?: number;
+                q?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": true,
+                     *       "status": 200,
+                     *       "message": null,
+                     *       "data": {
+                     *         "items": [
+                     *           {
+                     *             "profile": {
+                     *               "id": "identity_example",
+                     *               "email": "ada@example.com",
+                     *               "name": "Ada James",
+                     *               "first_name": "Ada",
+                     *               "last_name": "James",
+                     *               "phone": "+2348012345678",
+                     *               "role": "customer",
+                     *               "created_at": "2026-11-18T12:00:00Z",
+                     *               "updated_at": "2026-11-18T12:00:00Z"
+                     *             },
+                     *             "order_count": 1,
+                     *             "paid_order_count": 1,
+                     *             "paid_total": "125000.00"
+                     *           }
+                     *         ],
+                     *         "total": 1,
+                     *         "page": 1,
+                     *         "page_size": 24
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiSuccess_Page_CustomerData__"];
+                };
+            };
+            /** @description A valid Neon bearer token is required. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 401,
+                     *       "error": {
+                     *         "code": "UNAUTHENTICATED",
+                     *         "message": "A valid Neon bearer token is required."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Email verification or administrator access is required. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 403,
+                     *       "error": {
+                     *         "code": "FORBIDDEN",
+                     *         "message": "Email verification or administrator access is required."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description The requested resource was not found or does not belong to this customer. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 404,
+                     *       "error": {
+                     *         "code": "ORDER_NOT_FOUND",
+                     *         "message": "The requested resource was not found or does not belong to this customer."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Quote, stock, idempotency key or order state conflicts with the request. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 409,
+                     *       "error": {
+                     *         "code": "ORDER_CONFLICT",
+                     *         "message": "Quote, stock, idempotency key or order state conflicts with the request."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Invalid fields; see error.fieldErrors. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 422,
+                     *       "error": {
+                     *         "code": "VALIDATION_ERROR",
+                     *         "message": "Invalid fields; see error.fieldErrors.",
+                     *         "fieldErrors": {
+                     *           "items.0.quantity": [
+                     *             "Quantity must be a positive whole number."
+                     *           ]
+                     *         }
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description The request could not be completed. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 500,
+                     *       "error": {
+                     *         "code": "INTERNAL_SERVER_ERROR",
+                     *         "message": "The request could not be completed."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Database or payment provider is unavailable or not configured. */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 503,
+                     *       "error": {
+                     *         "code": "DEPENDENCY_UNAVAILABLE",
+                     *         "message": "Database or payment provider is unavailable or not configured."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+        };
+    };
+    getAdminCustomer: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                identifier: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": true,
+                     *       "status": 200,
+                     *       "message": null,
+                     *       "data": {
+                     *         "profile": {
+                     *           "id": "identity_example",
+                     *           "email": "ada@example.com",
+                     *           "name": "Ada James",
+                     *           "first_name": "Ada",
+                     *           "last_name": "James",
+                     *           "phone": "+2348012345678",
+                     *           "role": "customer",
+                     *           "created_at": "2026-11-18T12:00:00Z",
+                     *           "updated_at": "2026-11-18T12:00:00Z"
+                     *         },
+                     *         "order_count": 1,
+                     *         "paid_order_count": 1,
+                     *         "paid_total": "125000.00"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiSuccess_CustomerData_"];
+                };
+            };
+            /** @description A valid Neon bearer token is required. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 401,
+                     *       "error": {
+                     *         "code": "UNAUTHENTICATED",
+                     *         "message": "A valid Neon bearer token is required."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Email verification or administrator access is required. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 403,
+                     *       "error": {
+                     *         "code": "FORBIDDEN",
+                     *         "message": "Email verification or administrator access is required."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description The requested resource was not found or does not belong to this customer. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 404,
+                     *       "error": {
+                     *         "code": "ORDER_NOT_FOUND",
+                     *         "message": "The requested resource was not found or does not belong to this customer."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Quote, stock, idempotency key or order state conflicts with the request. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 409,
+                     *       "error": {
+                     *         "code": "ORDER_CONFLICT",
+                     *         "message": "Quote, stock, idempotency key or order state conflicts with the request."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Invalid fields; see error.fieldErrors. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 422,
+                     *       "error": {
+                     *         "code": "VALIDATION_ERROR",
+                     *         "message": "Invalid fields; see error.fieldErrors.",
+                     *         "fieldErrors": {
+                     *           "items.0.quantity": [
+                     *             "Quantity must be a positive whole number."
+                     *           ]
+                     *         }
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description The request could not be completed. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 500,
+                     *       "error": {
+                     *         "code": "INTERNAL_SERVER_ERROR",
+                     *         "message": "The request could not be completed."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Database or payment provider is unavailable or not configured. */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 503,
+                     *       "error": {
+                     *         "code": "DEPENDENCY_UNAVAILABLE",
+                     *         "message": "Database or payment provider is unavailable or not configured."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+        };
+    };
+    transitionOrderFulfilment: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Required with BackendSession cookies; obtain from GET /v1/auth/csrf. Not required with bearer-only authentication. */
+                "X-CSRF-Token"?: string;
+            };
+            path: {
+                identifier: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                /**
+                 * @example {
+                 *       "status": "processing"
+                 *     }
+                 */
+                "application/json": components["schemas"]["TransitionBody"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": true,
+                     *       "status": 200,
+                     *       "message": null,
+                     *       "data": {
+                     *         "items": [
+                     *           {
+                     *             "product_id": "00000000-0000-4000-8000-000000000001",
+                     *             "name": "Gold pendant",
+                     *             "slug": "gold-pendant",
+                     *             "quantity": 1,
+                     *             "size": null,
+                     *             "color": null,
+                     *             "karat": null,
+                     *             "unit_price": "120000.00",
+                     *             "line_total": "120000.00"
+                     *           }
+                     *         ],
+                     *         "shipping": {
+                     *           "name": "Ada James",
+                     *           "phone": "+2348012345678",
+                     *           "address": "12 Example Street",
+                     *           "country": "Nigeria",
+                     *           "state": "Lagos",
+                     *           "local_area": "Ikeja"
+                     *         },
+                     *         "subtotal": "120000.00",
+                     *         "delivery": "5000.00",
+                     *         "total": "125000.00",
+                     *         "currency": "NGN",
+                     *         "id": "00000000-0000-4000-8000-000000000001",
+                     *         "status": "paid",
+                     *         "review_reason": null,
+                     *         "expires_at": "2026-11-13T12:30:00Z",
+                     *         "created_at": "2026-11-13T12:00:00Z",
+                     *         "payment_attempts": [
+                     *           {
+                     *             "id": "00000000-0000-4000-8000-000000000001",
+                     *             "status": "pending",
+                     *             "checkout_id": "chk_example",
+                     *             "checkout_url": "https://checkout.bachs.io/c/example",
+                     *             "expires_at": "2026-11-13T12:30:00Z"
+                     *           }
+                     *         ],
+                     *         "fulfilment_status": "processing",
+                     *         "carrier": null,
+                     *         "tracking_reference": null,
+                     *         "fulfilment_history": [],
+                     *         "customer_id": "identity_example",
+                     *         "customer_email": "ada@example.com",
+                     *         "audit": []
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiSuccess_AdminOrderData_"];
+                };
+            };
+            /** @description A valid Neon bearer token is required. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 401,
+                     *       "error": {
+                     *         "code": "UNAUTHENTICATED",
+                     *         "message": "A valid Neon bearer token is required."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Email verification or administrator access is required. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 403,
+                     *       "error": {
+                     *         "code": "FORBIDDEN",
+                     *         "message": "Email verification or administrator access is required."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description The requested resource was not found or does not belong to this customer. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 404,
+                     *       "error": {
+                     *         "code": "ORDER_NOT_FOUND",
+                     *         "message": "The requested resource was not found or does not belong to this customer."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Quote, stock, idempotency key or order state conflicts with the request. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 409,
+                     *       "error": {
+                     *         "code": "ORDER_CONFLICT",
+                     *         "message": "Quote, stock, idempotency key or order state conflicts with the request."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Invalid fields; see error.fieldErrors. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 422,
+                     *       "error": {
+                     *         "code": "VALIDATION_ERROR",
+                     *         "message": "Invalid fields; see error.fieldErrors.",
+                     *         "fieldErrors": {
+                     *           "items.0.quantity": [
+                     *             "Quantity must be a positive whole number."
+                     *           ]
+                     *         }
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description The request could not be completed. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 500,
+                     *       "error": {
+                     *         "code": "INTERNAL_SERVER_ERROR",
+                     *         "message": "The request could not be completed."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Database or payment provider is unavailable or not configured. */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 503,
+                     *       "error": {
+                     *         "code": "DEPENDENCY_UNAVAILABLE",
+                     *         "message": "Database or payment provider is unavailable or not configured."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+        };
+    };
+    bulkTransitionOrderFulfilment: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Required with BackendSession cookies; obtain from GET /v1/auth/csrf. Not required with bearer-only authentication. */
+                "X-CSRF-Token"?: string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                /**
+                 * @example {
+                 *       "order_ids": [
+                 *         "00000000-0000-4000-8000-000000000001"
+                 *       ],
+                 *       "status": "processing"
+                 *     }
+                 */
+                "application/json": components["schemas"]["BulkTransition"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": true,
+                     *       "status": 200,
+                     *       "message": null,
+                     *       "data": [
+                     *         {
+                     *           "items": [
+                     *             {
+                     *               "product_id": "00000000-0000-4000-8000-000000000001",
+                     *               "name": "Gold pendant",
+                     *               "slug": "gold-pendant",
+                     *               "quantity": 1,
+                     *               "size": null,
+                     *               "color": null,
+                     *               "karat": null,
+                     *               "unit_price": "120000.00",
+                     *               "line_total": "120000.00"
+                     *             }
+                     *           ],
+                     *           "shipping": {
+                     *             "name": "Ada James",
+                     *             "phone": "+2348012345678",
+                     *             "address": "12 Example Street",
+                     *             "country": "Nigeria",
+                     *             "state": "Lagos",
+                     *             "local_area": "Ikeja"
+                     *           },
+                     *           "subtotal": "120000.00",
+                     *           "delivery": "5000.00",
+                     *           "total": "125000.00",
+                     *           "currency": "NGN",
+                     *           "id": "00000000-0000-4000-8000-000000000001",
+                     *           "status": "paid",
+                     *           "review_reason": null,
+                     *           "expires_at": "2026-11-13T12:30:00Z",
+                     *           "created_at": "2026-11-13T12:00:00Z",
+                     *           "payment_attempts": [
+                     *             {
+                     *               "id": "00000000-0000-4000-8000-000000000001",
+                     *               "status": "pending",
+                     *               "checkout_id": "chk_example",
+                     *               "checkout_url": "https://checkout.bachs.io/c/example",
+                     *               "expires_at": "2026-11-13T12:30:00Z"
+                     *             }
+                     *           ],
+                     *           "fulfilment_status": "processing",
+                     *           "carrier": null,
+                     *           "tracking_reference": null,
+                     *           "fulfilment_history": [],
+                     *           "customer_id": "identity_example",
+                     *           "customer_email": "ada@example.com",
+                     *           "audit": []
+                     *         }
+                     *       ]
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiSuccess_list_AdminOrderData__"];
+                };
+            };
+            /** @description A valid Neon bearer token is required. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 401,
+                     *       "error": {
+                     *         "code": "UNAUTHENTICATED",
+                     *         "message": "A valid Neon bearer token is required."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Email verification or administrator access is required. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 403,
+                     *       "error": {
+                     *         "code": "FORBIDDEN",
+                     *         "message": "Email verification or administrator access is required."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description The requested resource was not found or does not belong to this customer. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 404,
+                     *       "error": {
+                     *         "code": "ORDER_NOT_FOUND",
+                     *         "message": "The requested resource was not found or does not belong to this customer."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Quote, stock, idempotency key or order state conflicts with the request. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 409,
+                     *       "error": {
+                     *         "code": "ORDER_CONFLICT",
+                     *         "message": "Quote, stock, idempotency key or order state conflicts with the request."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Invalid fields; see error.fieldErrors. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 422,
+                     *       "error": {
+                     *         "code": "VALIDATION_ERROR",
+                     *         "message": "Invalid fields; see error.fieldErrors.",
+                     *         "fieldErrors": {
+                     *           "items.0.quantity": [
+                     *             "Quantity must be a positive whole number."
+                     *           ]
+                     *         }
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description The request could not be completed. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 500,
+                     *       "error": {
+                     *         "code": "INTERNAL_SERVER_ERROR",
+                     *         "message": "The request could not be completed."
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ApiFailure"];
+                };
+            };
+            /** @description Database or payment provider is unavailable or not configured. */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "status": 503,
+                     *       "error": {
+                     *         "code": "DEPENDENCY_UNAVAILABLE",
+                     *         "message": "Database or payment provider is unavailable or not configured."
                      *       }
                      *     }
                      */

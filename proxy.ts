@@ -3,6 +3,8 @@ import { NextResponse, type NextRequest } from 'next/server'
 import { createSupabaseProxyClient } from '@/lib/supabase/proxy'
 import { getAuthProvider } from '@/lib/auth/provider'
 import { neonProxy } from '@/lib/auth/neon-proxy'
+import { readSessionRole } from '@/lib/auth/backend-session'
+import { loginDestination } from '@/lib/auth/login-destination'
 import { isRemovedServiceRoute } from '@/lib/site/removed-services'
 
 const authRequiredRoutes = ['/profile', '/admin']
@@ -30,6 +32,17 @@ function redirectTo(
 }
 
 export async function proxy(request: NextRequest) {
+  if (request.nextUrl.pathname === '/login') {
+    try {
+      const role = await readSessionRole(request.headers.get('cookie'))
+      if (role) return NextResponse.redirect(new URL(loginDestination(role), request.url))
+    } catch {
+      if (!request.nextUrl.searchParams.has('error')) {
+        return NextResponse.redirect(new URL('/login?error=service_unavailable', request.url))
+      }
+    }
+    return NextResponse.next()
+  }
   if (isRemovedServiceRoute(request.nextUrl.pathname)) return NextResponse.next()
   if (getAuthProvider() === 'neon') return neonProxy(request)
   const pathname = request.nextUrl.pathname

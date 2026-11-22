@@ -15,7 +15,7 @@ router = APIRouter(tags=["identity"], responses=AUTH_RESPONSES)
 @router.post("/auth/bootstrap", operation_id="bootstrapProfile", response_model=ApiSuccess[ProfileData],
              responses={422: INVALID_FIELDS},
              summary="Initialize the signed-in customer's application profile",
-             description="Requires a verified Neon identity. Creates one profile per subject; retries return the existing profile. "
+             description="Requires a verified Neon identity through a bearer token or backend session cookie. Cookie requests also require X-CSRF-Token. Creates one profile per subject; retries return the existing profile. "
              "Never updates an existing role or profile. Initial admin email is server configuration only. Send {} when no optional names are available.")
 async def bootstrap(body: BootstrapBody, subject: str = Depends(require_subject),
                     session: AsyncSession = Depends(get_db_session)):
@@ -26,13 +26,13 @@ async def bootstrap(body: BootstrapBody, subject: str = Depends(require_subject)
 @router.get("/auth/me", operation_id="getCurrentProfile", response_model=ApiSuccess[ProfileData],
             responses={409: NOT_INITIALIZED},
             summary="Read your profile and current database role",
-            description="No body or query parameters. Identity is taken exclusively from the bearer token. Never returns another user's profile.")
+            description="No body or query parameters. Identity is taken exclusively from a validated bearer token or backend session cookie. Explicit Authorization headers take precedence. Never returns another user's profile.")
 async def me(profile: Profile = Depends(current_profile)):
     return ApiSuccess(status=200, data=ProfileData.model_validate(profile))
 
 
 @router.get("/admin/auth-check", operation_id="checkAdminAccess", response_model=ApiSuccess[ProfileData],
             responses={200: ADMIN_SUCCESS, 409: NOT_INITIALIZED},
-            summary="Verify administrator access", description="Requires a verified identity and an admin or super_admin application role.")
+            summary="Verify administrator access", description="Requires a verified bearer or backend cookie identity and an admin or super_admin application database role. Customers cannot assign roles.")
 async def admin_check(profile: Profile = Depends(require_admin)):
     return ApiSuccess(status=200, data=ProfileData.model_validate(profile))

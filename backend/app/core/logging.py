@@ -2,6 +2,16 @@ import logging
 from logging.config import dictConfig
 
 
+class RedactAuthQuery(logging.Filter):
+    def filter(self, record: logging.LogRecord) -> bool:
+        # Uvicorn's access record stores the URL (including OAuth verifier) in args[2].
+        if record.name == "uvicorn.access" and isinstance(record.args, tuple) and len(record.args) == 5:
+            args = list(record.args)
+            args[2] = str(args[2]).split("?", 1)[0]
+            record.args = tuple(args)
+        return True
+
+
 def configure_logging(level: str) -> None:
     dictConfig(
         {
@@ -26,6 +36,7 @@ def configure_logging(level: str) -> None:
     )
     # HTTP client URLs can contain short-lived storage signatures; never log them.
     logging.getLogger("httpx").setLevel(logging.WARNING)
+    logging.getLogger("uvicorn.access").addFilter(RedactAuthQuery())
 
 
 def get_logger(name: str) -> logging.Logger:

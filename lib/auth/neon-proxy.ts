@@ -17,8 +17,10 @@ export async function neonProxy(request: NextRequest) {
     }
     return NextResponse.redirect(new URL('/auth/preview/account', request.url))
   }
-  if (path === '/admin') return NextResponse.redirect(new URL('/admin/products', request.url))
-  if (path.startsWith('/auth/preview/') || catalogAdmin) {
+  if (path === '/admin') return NextResponse.redirect(new URL('/admin/categories', request.url))
+  // The admin layout and FastAPI validate the backend session and role.
+  if (catalogAdmin || path === '/login') return NextResponse.next()
+  if (path.startsWith('/auth/preview/')) {
     return getNeonAuth().middleware({ loginUrl: '/login' })(request)
   }
   return NextResponse.next()

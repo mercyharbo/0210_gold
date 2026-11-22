@@ -62,7 +62,7 @@ def test_openapi_commerce_contract_and_examples():
     schema = app.openapi()
     quote = schema["paths"]["/v1/checkout/quote"]["post"]
     assert quote["requestBody"]["content"]["application/json"]["example"]["shipping"]["country"] == "Nigeria"
-    assert quote["security"] == [{"HTTPBearer": []}]
+    assert quote["security"] == [{"HTTPBearer": []}, {"BackendSession": []}]
     for path in ("/v1/orders", "/v1/orders/{identifier}/payment-attempts"):
         operation = schema["paths"][path]["post"]
         assert any(parameter["name"] == "Idempotency-Key" and parameter["required"] for parameter in operation["parameters"])
