@@ -26,9 +26,15 @@ process.env.BACKEND_URL = 'http://backend.invalid:8000'
 
 test('allowlist accepts only the selected auth methods and callback path', () => {
   assert.equal(getBackendPath('POST', 'auth/login'), '/v1/auth/login')
+  assert.equal(getBackendPath('POST', 'auth/signup'), '/v1/auth/signup')
   assert.equal(getBackendPath('GET', 'auth/csrf'), '/v1/auth/csrf')
+  assert.equal(getBackendPath('POST', 'auth/email-verification/confirm'), '/v1/auth/email-verification/confirm')
+  assert.equal(getBackendPath('POST', 'auth/password-reset/request'), '/v1/auth/password-reset/request')
+  assert.equal(getBackendPath('GET', 'auth/password-reset/request'), null)
+  assert.equal(getBackendPath('POST', 'auth/password-reset/confirm'), '/v1/auth/password-reset/confirm')
+  assert.equal(getBackendPath('GET', 'auth/password-reset/confirm'), null)
   assert.equal(getBackendPath('GET', 'v1/auth/google/callback'), '/v1/auth/google/callback')
-  for (const [method, endpoint] of [['GET', 'auth/login'], ['POST', 'auth/signup'],
+  for (const [method, endpoint] of [['GET', 'auth/login'], ['GET', 'auth/signup'],
     ['POST', 'v1/auth/google/callback'], ['POST', 'auth/google/start/extra'], ['DELETE', 'admin/categories/invalid']]) {
     assert.equal(getBackendPath(method, endpoint), null)
   }

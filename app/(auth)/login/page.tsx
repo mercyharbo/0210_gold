@@ -12,7 +12,7 @@ import { Input } from '@/components/ui/input'
 import { Spinner } from '@/components/ui/spinner'
 import { useApiRequest } from '@/hooks/use-api-request'
 import { ApiError } from '@/lib/api/client'
-import { isUserScopedKey, resetSessionUi } from '@/lib/auth/client-session'
+import { resetSessionUi } from '@/lib/auth/client-session'
 import {
   loginDestination,
   verifiedSessionRole,
@@ -25,10 +25,8 @@ import type {
 import { zodResolver } from '@hookform/resolvers/zod'
 import { ArrowRight } from 'lucide-react'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
-import { useEffect, useRef, type FormEvent } from 'react'
+import { useEffect, useRef, useState, type SubmitEvent } from 'react'
 import { useForm } from 'react-hook-form'
-import { useSWRConfig } from 'swr'
 import { z } from 'zod'
 
 const schema = z.object({
@@ -40,8 +38,7 @@ const schema = z.object({
 })
 
 export default function LoginPage() {
-  const router = useRouter()
-  const { mutate } = useSWRConfig()
+  const [redirecting, setRedirecting] = useState(false)
   const form = useForm<LoginPayload>({
     resolver: zodResolver(schema),
     defaultValues: { email: '', password: '' },
@@ -58,7 +55,7 @@ export default function LoginPage() {
     formState: { errors, isSubmitting },
   } = form
 
-  const busy = isSubmitting || googleForm.formState.isSubmitting
+  const busy = redirecting || isSubmitting || googleForm.formState.isSubmitting
 
   // Handle error codes from Google sign-in redirect
   useEffect(() => {
@@ -75,10 +72,11 @@ export default function LoginPage() {
   }, [setError])
 
   // Handle error codes from email verification redirect
-  async function submit(event: FormEvent<HTMLFormElement>) {
+  async function submit(event: SubmitEvent<HTMLFormElement>) {
     event.preventDefault()
-    if (submitting.current) return
+    if (submitting.current || redirecting) return
     submitting.current = true
+
     try {
       await form.handleSubmit(async (values) => {
         form.clearErrors('root')
@@ -110,25 +108,25 @@ export default function LoginPage() {
             })
           return
         }
-        form.reset()
-        resetSessionUi()
-        try {
-          await mutate(isUserScopedKey, undefined, { revalidate: false })
-        } catch {
-          /* Login succeeded; navigation reloads private data. */
-        }
         const role = verifiedSessionRole(session)
-        router.replace(role ? loginDestination(role) : '/login')
-        router.refresh()
+        if (!role) {
+          setError('root', { message: 'Your account could not be loaded. Please try again.' })
+          return
+        }
+        setRedirecting(true)
+        resetSessionUi()
+        // One full navigation uses the new cookie and clears in-memory user caches.
+        // Do not refresh /login or await SWR cleanup before leaving the page.
+        window.location.replace(loginDestination(role))
       })(event)
     } finally {
       submitting.current = false
     }
   }
 
-  async function googleSubmit(event: FormEvent<HTMLFormElement>) {
+  async function googleSubmit(event: SubmitEvent<HTMLFormElement>) {
     event.preventDefault()
-    if (submitting.current) return
+    if (submitting.current || redirecting) return
     submitting.current = true
     try {
       await googleForm.handleSubmit(async () => {
@@ -158,12 +156,13 @@ export default function LoginPage() {
   return (
     <div className='flex flex-col gap-8'>
       <div className='flex flex-col gap-2'>
-        <p className='text-xs font-semibold uppercase text-gold'>
+        <p className='text-xs font-semibold text-gold'>
           Welcome back
         </p>
-        <h2 className='font-sans text-4xl font-semibold'>Login details</h2>
+        <h2 className='text-3xl font-semibold'>Login details</h2>
       </div>
-      <div className='flex flex-col gap-6'>
+      
+      <div className='flex flex-col gap-5'>
         <form onSubmit={googleSubmit} className='flex flex-col gap-3'>
           <Button
             type='submit'
@@ -177,6 +176,7 @@ export default function LoginPage() {
           </Button>
           <FieldError errors={[googleForm.formState.errors.root]} />
         </form>
+
         <form onSubmit={submit} className='flex flex-col gap-5' noValidate>
           <FieldGroup className='gap-5'>
             <Field className='gap-2' data-invalid={Boolean(errors.email)}>
@@ -195,6 +195,7 @@ export default function LoginPage() {
               />
               <FieldError id='login-email-error' errors={[errors.email]} />
             </Field>
+
             <Field className='gap-2' data-invalid={Boolean(errors.password)}>
               <FieldLabel htmlFor='login-password'>Password</FieldLabel>
               <PasswordInput
@@ -215,21 +216,24 @@ export default function LoginPage() {
               />
             </Field>
           </FieldGroup>
+
           <Link
             href='/forgot-password'
             className='flex justify-end text-sm font-semibold underline underline-offset-4'
           >
             Forgot password?
           </Link>
+
           <FieldError errors={[errors.root]} />
+
           <Button
             type='submit'
             disabled={busy}
-            aria-busy={isSubmitting}
+            aria-busy={isSubmitting || redirecting}
             className='w-full'
           >
-            {isSubmitting ? 'Signing in' : 'Sign in'}
-            {isSubmitting ? (
+            {redirecting ? 'Redirecting...' : isSubmitting ? 'Signing in' : 'Sign in'}
+            {isSubmitting || redirecting ? (
               <Spinner data-icon='inline-end' />
             ) : (
               <ArrowRight data-icon='inline-end' strokeWidth={1.8} />
@@ -237,6 +241,7 @@ export default function LoginPage() {
           </Button>
         </form>
       </div>
+
       <div className='flex flex-wrap gap-4 text-sm'>
         <Link className='underline underline-offset-4' href='/signup'>
           Create an account

@@ -16,8 +16,10 @@ in `app/(auth)/login/page.tsx`. There is no separate login form component.
    No Neon client, SQL call or Supabase action runs in the login page.
 6. FastAPI validates credentials, initializes the profile and returns an HttpOnly
    session cookie. Next.js preserves every `Set-Cookie` header separately.
-7. The page clears private SWR caches/UI selections and navigates by returned role:
-   admin/super_admin → `/admin/categories`; customer → `/`.
+7. The page validates the returned role, resets UI selections and calls
+   `window.location.replace`: admin/super_admin → `/admin/categories`; customer → `/`.
+   This single full navigation starts with the new cookie and fresh in-memory SWR
+   caches. Do not await SWR cleanup or call `router.refresh()` on the login page.
 
 `proxy.ts` independently checks `/login` sessions with FastAPI. An authenticated
 visitor is redirected by role. Invalid cookies allow the login UI to render;
@@ -30,8 +32,8 @@ permissions: a browser cookie or client-side redirect never grants admin access.
   shadcn `FieldError`, with the first invalid input focused.
 - Each `useApiRequest` owns its own POST lifecycle. Both login buttons are disabled
   while either flow runs; a local submission lock also prevents rapid duplicates.
-- Failed requests preserve the entered values. Cache refresh failures after a
-  successful login do not prompt another login submission.
+- Failed requests preserve the entered values. After success, inputs remain locked
+  and the button shows “Redirecting...” until the new document loads.
 - Credentials, codes and tokens are never saved in Zustand or localStorage.
 - Genuine local UI state, such as password visibility, remains local.
 

@@ -7,8 +7,13 @@ const routes: Partial<Record<ApiMethod, ReadonlyMap<string, string>>> = {
     ['auth/session', '/v1/auth/session'], ['v1/auth/google/callback', '/v1/auth/google/callback'],
   ]),
   POST: new Map([
+    ['auth/signup', '/v1/auth/signup'],
     ['identity/bootstrap', '/v1/auth/bootstrap'], ['auth/login', '/v1/auth/login'],
     ['auth/logout', '/v1/auth/logout'], ['auth/google/start', '/v1/auth/google/start'],
+    ['auth/email-verification/confirm', '/v1/auth/email-verification/confirm'],
+    ['auth/email-verification/request', '/v1/auth/email-verification/request'],
+    ['auth/password-reset/request', '/v1/auth/password-reset/request'],
+    ['auth/password-reset/confirm', '/v1/auth/password-reset/confirm'],
   ]),
 }
 
@@ -30,6 +35,8 @@ export function getBackendPath(method: ApiMethod, endpoint: string) {
 
 export function isPublicBackendPath(path: string) {
   return path === '/v1/health' || path.startsWith('/v1/catalog/') ||
-    ['/v1/auth/csrf', '/v1/auth/session', '/v1/auth/login', '/v1/auth/logout',
-      '/v1/auth/google/start', '/v1/auth/google/callback'].includes(path)
+    ['/v1/auth/csrf', '/v1/auth/session', '/v1/auth/login', '/v1/auth/logout', '/v1/auth/signup',
+      '/v1/auth/google/start', '/v1/auth/google/callback', '/v1/auth/email-verification/confirm',
+      '/v1/auth/email-verification/request', '/v1/auth/password-reset/request',
+      '/v1/auth/password-reset/confirm'].includes(path)
 }

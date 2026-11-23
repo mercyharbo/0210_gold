@@ -125,6 +125,8 @@ Use the `nextjs-api-state` skill for frontend request and state architecture.
 
 # FastAPI Documentation Rules
 
+- Every new or updated JSON endpoint must return a clear, safe, human-readable server message: top-level `message` for success and `error.message` for failure. Include stable error codes and field errors where applicable; never expose secrets or internal exceptions.
+- Frontend API feedback must display the server's messages instead of recreating business-success or business-error text. Keep client-side form validation; use fallback messages only for network failures, missing/malformed server messages, or unexpected responses. Document and verify the actual messages in OpenAPI examples alongside the response contract.
 - Update FastAPI's OpenAPI documentation in the same change as every added or changed endpoint. Documentation is part of implementation, not a later cleanup task.
 - Use explicit Pydantic request and response models. Describe fields, types, required/optional status, nullability, defaults, validation constraints, formats, and enum values accurately.
 - Document each endpoint's purpose, HTTP method, path, operation ID, tags, authentication requirements, required roles, and any relevant side effects.
