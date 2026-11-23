@@ -1,21 +1,20 @@
 'use client'
 
 import { useApiRequest } from '@/hooks/use-api-request'
+import { ApiError } from '@/lib/api/client'
+import { useToast } from '@/stores/hooks/use-toast'
 import type {
   RequestEmailVerificationPayload,
   VerifyEmailPayload,
   VerifyEmailResponse,
 } from '@/types/authentication'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { REGEXP_ONLY_DIGITS } from 'input-otp'
 import { useRouter } from 'next/navigation'
-import { useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { z } from 'zod'
-import { Alert, AlertDescription } from '../ui/alert'
 import { Button } from '../ui/button'
 import { Field, FieldError, FieldGroup, FieldLabel } from '../ui/field'
-import { InputOTP, InputOTPGroup, InputOTPSlot } from '../ui/input-otp'
+import { ConfirmationCodeInput } from './confirmation-code-input'
 import { Spinner } from '../ui/spinner'
 
 const schema = z.object({
@@ -43,12 +42,10 @@ export default function VerifyEmailComp({ email = '' }: { email?: string }) {
     VerifyEmailResponse,
     RequestEmailVerificationPayload
   >()
-  const [resendMessage, setResendMessage] = useState<string | null>(null)
+  const { toast } = useToast()
   const busy = isSubmitting || verifyRequest.loading || resendRequest.loading
 
   async function onSubmit(data: VerifyEmailPayload) {
-    setResendMessage(null)
-    form.clearErrors('root')
     try {
       const response = await verifyRequest.execute(
         'post',
@@ -60,23 +57,27 @@ export default function VerifyEmailComp({ email = '' }: { email?: string }) {
         response.data?.accepted &&
         response.data.next_action === 'sign_in'
       ) {
+        toast(response.message || 'Email verified. Sign in to continue.', 'success')
         router.replace('/login')
+      } else {
+        toast(response.message || 'Email verification could not be confirmed. Try again.', 'failure')
       }
     } catch (error: unknown) {
-      setError('root', {
-        message:
-          error instanceof Error
-            ? error.message
-            : 'Email verification failed. Try again.',
-      })
+      if (error instanceof ApiError && error.fieldErrors) {
+        for (const name of ['email', 'code'] as const) {
+          const message = error.fieldErrors[name]?.[0]
+          if (message) setError(name, { message })
+        }
+        const firstInvalid = (['email', 'code'] as const).find((name) => error.fieldErrors?.[name]?.length)
+        if (firstInvalid) form.setFocus(firstInvalid)
+      }
+      toast(error instanceof Error ? error.message : 'Email verification failed. Try again.', 'failure')
     }
   }
 
   //   Resend code function
   async function resendCode() {
     if (busy) return
-    form.clearErrors('root')
-    setResendMessage(null)
     if (!(await form.trigger('email'))) return
     try {
       const payload = { email: form.getValues('email') }
@@ -87,26 +88,24 @@ export default function VerifyEmailComp({ email = '' }: { email?: string }) {
       )
       if (response.success && response.data?.accepted) {
         form.resetField('code')
-        setResendMessage(
-          'Check your inbox and spam folder for a new verification code. If it does not arrive, wait a moment before requesting another.',
-        )
+        toast(response.message || 'Check your inbox and spam folder for a new verification code.', 'success')
+      } else {
+        toast(response.message || 'The verification-code request could not be confirmed.', 'failure')
       }
     } catch (error: unknown) {
-      setError('root', {
-        message:
-          error instanceof Error
-            ? error.message
-            : 'The verification code could not be requested. Try again.',
-      })
+      if (error instanceof ApiError && error.fieldErrors?.email?.[0]) {
+        setError('email', { message: error.fieldErrors.email[0] }, { shouldFocus: true })
+      }
+      toast(error instanceof Error ? error.message : 'The verification code could not be requested. Try again.', 'failure')
     }
   }
 
   return (
-    <main className='space-y-5'>
+    <div className='space-y-8'>
       <header className='space-y-2'>
-        <h2 className='text-3xl font-semibold'>Verify your email</h2>
+        <h1 className='account-title'>Verify your email</h1>
         <p className='text-sm text-muted-foreground'>
-          Request a verification code, then enter it below.
+          Check your inbox and spam folder for the verification code, then enter it below. You can request another code if needed.
         </p>
       </header>
 
@@ -125,57 +124,26 @@ export default function VerifyEmailComp({ email = '' }: { email?: string }) {
           </div>
 
           <Field data-invalid={Boolean(errors.code)}>
-            <FieldLabel htmlFor='code'>Verification Code</FieldLabel>
+            <FieldLabel htmlFor='code'>Verification code</FieldLabel>
             <Controller
               name='code'
               control={form.control}
               render={({ field, fieldState }) => (
-                <InputOTP
+                <ConfirmationCodeInput
                   {...field}
                   id='code'
-                  maxLength={6}
-                  pattern={REGEXP_ONLY_DIGITS}
-                  inputMode='numeric'
-                  autoComplete='one-time-code'
                   onComplete={() => {
                     if (!busy) void form.handleSubmit(onSubmit)()
                   }}
                   aria-invalid={fieldState.invalid}
-                  aria-describedby={
-                    fieldState.invalid ? 'code-error' : undefined
-                  }
+                  aria-describedby={fieldState.invalid ? 'code-error' : undefined}
                   disabled={busy}
-                  containerClassName='grid w-full max-w-72 grid-cols-6 gap-2'
-                >
-                  {Array.from({ length: 6 }, (_, index) => (
-                    <InputOTPGroup key={index} className='rounded-md'>
-                      <InputOTPSlot
-                        index={index}
-                        className='aspect-square size-auto w-full rounded-md border text-base first:rounded-l-md last:rounded-r-md'
-                        aria-invalid={fieldState.invalid}
-                      />
-                    </InputOTPGroup>
-                  ))}
-                </InputOTP>
+                />
               )}
             />
             <FieldError id='code-error' errors={[errors.code]} />
           </Field>
         </FieldGroup>
-
-        <FieldError errors={[errors.root]} />
-
-        {resendMessage && (
-          <Alert
-            role='status'
-            aria-live='polite'
-            className='bg-green-50 text-green-800'
-          >
-            <AlertDescription className='text-green-500 text-sm'>
-              {resendMessage}
-            </AlertDescription>
-          </Alert>
-        )}
 
         <div className='flex flex-col gap-2'>
           <Button type='submit' disabled={busy}>
@@ -184,7 +152,7 @@ export default function VerifyEmailComp({ email = '' }: { email?: string }) {
                 <Spinner /> Verifying...
               </div>
             ) : (
-              'Verify Email'
+              'Verify email'
             )}
           </Button>
           <Button
@@ -199,7 +167,7 @@ export default function VerifyEmailComp({ email = '' }: { email?: string }) {
                 <Spinner /> Resending…
               </div>
             ) : (
-              'Resend Code'
+              'Resend code'
             )}
           </Button>
           <Button
@@ -212,6 +180,6 @@ export default function VerifyEmailComp({ email = '' }: { email?: string }) {
           </Button>
         </div>
       </form>
-    </main>
+    </div>
   )
 }

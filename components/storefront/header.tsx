@@ -3,13 +3,14 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useEffect, useState, useSyncExternalStore } from 'react'
-import { Heart, Menu, Search, ShoppingCart, UserRound } from 'lucide-react'
+import { Heart, Menu, Search, ShoppingCart } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { useStorefrontNavigation } from '@/stores/storefront-navigation'
 import { StorefrontMenu } from './menu'
 import { StorefrontSearch } from './search'
 import { useCartStore } from '@/stores/hooks/use-cart'
 import { NavLabel } from './nav-label'
+import { StorefrontAccountMenu } from './account-menu'
 
 export function StorefrontHeader() {
   const pathname = usePathname()
@@ -57,7 +58,7 @@ export function StorefrontHeader() {
         <nav aria-label="Shopping navigation" className="meere-shopping-links">
           <Link className="meere-link" href="/profile?tab=wishlist" aria-label="Favorites"><Heart className="meere-nav-icon" /><NavLabel>Favorites</NavLabel></Link>
           <button className="meere-link" aria-label="Search" onClick={() => setSearchOpen(true)}><Search className="meere-nav-icon" /><NavLabel>Search</NavLabel></button>
-          <Link className="meere-link" href="/auth/preview/account" aria-label="Account"><UserRound className="meere-nav-icon" /><NavLabel>Account</NavLabel></Link>
+          <StorefrontAccountMenu />
           <Link className="meere-link" href="/cart" aria-label={`Cart, ${totalItems} items`}><ShoppingCart className="meere-nav-icon" /><NavLabel>Cart</NavLabel><b className="meere-cart-count">{totalItems}</b></Link>
         </nav>
       </div>

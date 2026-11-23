@@ -1,42 +1,44 @@
 import { create } from 'zustand'
+import { useShallow } from 'zustand/react/shallow'
 
-export type Toast = {
-  id: string
-  type: 'success' | 'error' | 'info'
-  text: string
-}
+export type ToastType = 'success' | 'warning' | 'failure' | 'info'
+export type Toast = { id: string; type: ToastType; text: string; open: boolean }
 
 type ToastState = {
   toasts: Toast[]
-  addToast: (text: string, type?: 'success' | 'error' | 'info') => void
+  queue: Toast[]
+  addToast: (text: string, type?: ToastType | 'error') => string
   removeToast: (id: string) => void
+  reset: () => void
 }
 
-export const useToastStore = create<ToastState>((set) => ({
+export const useToastStore = create<ToastState>((set, get) => ({
   toasts: [],
+  queue: [],
   addToast: (text, type = 'success') => {
-    const id = Math.random().toString(36).substring(2, 9)
-    set((state) => ({
-      toasts: [...state.toasts, { id, type, text }],
-    }))
-    // Auto-remove after 4 seconds
-    setTimeout(() => {
-      set((state) => ({
-        toasts: state.toasts.filter((t) => t.id !== id),
-      }))
-    }, 4000)
+    const toast: Toast = { id: crypto.randomUUID(), type: type === 'error' ? 'failure' : type, text, open: true }
+    set((state) => state.toasts.length < 3
+      ? { toasts: [...state.toasts, toast] }
+      : { queue: [...state.queue, toast] })
+    return toast.id
   },
-  removeToast: (id) =>
-    set((state) => ({
-      toasts: state.toasts.filter((t) => t.id !== id),
-    })),
+  removeToast: (id) => {
+    if (!get().toasts.some((toast) => toast.id === id && toast.open)) return
+    set((state) => ({ toasts: state.toasts.map((toast) => toast.id === id ? { ...toast, open: false } : toast) }))
+    // Keep the item mounted for its exit transition, including reduced-motion dismissal.
+    setTimeout(() => set((state) => {
+      const toasts = state.toasts.filter((toast) => toast.id !== id)
+      const available = 3 - toasts.length
+      return { toasts: [...toasts, ...state.queue.slice(0, available)], queue: state.queue.slice(available) }
+    }), 200)
+  },
+  reset: () => set({ toasts: [], queue: [] }),
 }))
 
 export function useToast() {
-  const store = useToastStore()
-  return {
-    toasts: store.toasts,
-    toast: store.addToast,
-    dismiss: store.removeToast,
-  }
+  return useToastStore(useShallow((state) => ({
+    toasts: state.toasts,
+    toast: state.addToast,
+    dismiss: state.removeToast,
+  })))
 }

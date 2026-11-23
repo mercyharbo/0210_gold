@@ -920,7 +920,7 @@ export interface paths {
         head?: never;
         /**
          * Update your contact profile
-         * @description Requires a verified Neon identity and initialized application profile. Customer data is owner-scoped; another customer's resource returns 404. Partial JSON update of first_name, last_name and phone. Null clears an optional value; omitted fields are unchanged. Identity email, role and verification are forbidden.
+         * @description Requires a verified Neon identity and initialized application profile. Customer data is owner-scoped; another customer's resource returns 404. Partial JSON update of first_name, last_name and phone. Null clears an optional value; omitted fields are unchanged. Identity name, email, role and verification are forbidden. Cookie-authenticated requests require a trusted Origin and X-CSRF-Token from GET /v1/auth/csrf. Returns the saved profile and a human-readable success message.
          */
         patch: operations["patchAccountProfile"];
         trace?: never;
@@ -3122,13 +3122,29 @@ export interface components {
              */
             updated_at: string;
         };
-        /** ProfilePatch */
+        /**
+         * ProfilePatch
+         * @example {
+         *       "first_name": "Ada",
+         *       "last_name": "James",
+         *       "phone": "+2348012345678"
+         *     }
+         */
         ProfilePatch: {
-            /** First Name */
+            /**
+             * First Name
+             * @description Contact given name, 1–100 characters. Null clears it; omitted leaves it unchanged.
+             */
             first_name?: string | null;
-            /** Last Name */
+            /**
+             * Last Name
+             * @description Contact family name, 1–100 characters. Null clears it; omitted leaves it unchanged.
+             */
             last_name?: string | null;
-            /** Phone */
+            /**
+             * Phone
+             * @description Optional leading + followed by 7–30 digits, spaces, parentheses or hyphens. Null clears it; omitted leaves it unchanged.
+             */
             phone?: string | null;
         };
         /** PublicReview */
@@ -13387,7 +13403,7 @@ export interface operations {
             };
         };
         responses: {
-            /** @description Successful Response */
+            /** @description Contact details saved; identity fields remain unchanged. */
             200: {
                 headers: {
                     [name: string]: unknown;
@@ -13397,7 +13413,7 @@ export interface operations {
                      * @example {
                      *       "success": true,
                      *       "status": 200,
-                     *       "message": null,
+                     *       "message": "Profile updated successfully.",
                      *       "data": {
                      *         "id": "identity_example",
                      *         "email": "ada@example.com",
@@ -13407,7 +13423,7 @@ export interface operations {
                      *         "phone": "+2348012345678",
                      *         "role": "customer",
                      *         "created_at": "2026-11-18T12:00:00Z",
-                     *         "updated_at": "2026-11-18T12:00:00Z"
+                     *         "updated_at": "2026-11-23T12:00:00Z"
                      *       }
                      *     }
                      */

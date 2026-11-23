@@ -32,6 +32,16 @@ function redirectTo(
 }
 
 export async function proxy(request: NextRequest) {
+  if (matchesRoute(request.nextUrl.pathname, ['/profile'])) {
+    try {
+      const role = await readSessionRole(request.headers.get('cookie'))
+      return role ? NextResponse.next() : redirectTo(request, '/login')
+    } catch {
+      return new NextResponse('Unable to verify your session. Please try again.', {
+        status: 503, headers: { 'Cache-Control': 'no-store', 'Content-Type': 'text/plain; charset=utf-8' },
+      })
+    }
+  }
   if (request.nextUrl.pathname === '/login') {
     try {
       const role = await readSessionRole(request.headers.get('cookie'))

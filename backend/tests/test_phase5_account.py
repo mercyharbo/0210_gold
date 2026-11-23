@@ -8,7 +8,9 @@ ADDRESS = {'recipient_name': 'Ada James', 'phone': '08012345678', 'address_line_
 
 
 def test_profile_preferences_and_wishlist_ownership(commerce):
-    result = commerce.call('PATCH', 'account/profile', {'first_name': 'Ada', 'phone': None})['data']
+    response = commerce.call('PATCH', 'account/profile', {'first_name': 'Ada', 'phone': None})
+    assert response['message'] == 'Profile updated successfully.'
+    result = response['data']
     assert result['first_name'] == 'Ada' and result['phone'] is None
     commerce.call('PATCH', 'account/profile', {'role': 'admin'}, status=422)
     commerce.call('PUT', 'account/category-preferences', {'category_ids': [commerce.category.id]})

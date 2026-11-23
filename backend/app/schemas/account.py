@@ -18,9 +18,14 @@ class Page(StrictBody, Generic[T]):
 
 
 class ProfilePatch(StrictBody):
-    first_name: str | None = Field(None, min_length=1, max_length=100)
-    last_name: str | None = Field(None, min_length=1, max_length=100)
-    phone: str | None = Field(None, pattern=r"^\+?[0-9 ()-]{7,30}$")
+    first_name: str | None = Field(None, min_length=1, max_length=100,
+        description="Contact given name, 1–100 characters. Null clears it; omitted leaves it unchanged.")
+    last_name: str | None = Field(None, min_length=1, max_length=100,
+        description="Contact family name, 1–100 characters. Null clears it; omitted leaves it unchanged.")
+    phone: str | None = Field(None, pattern=r"^\+?[0-9 ()-]{7,30}$",
+        description="Optional leading + followed by 7–30 digits, spaces, parentheses or hyphens. Null clears it; omitted leaves it unchanged.")
+    model_config = {"extra": "forbid", "json_schema_extra": {"examples": [{
+        "first_name": "Ada", "last_name": "James", "phone": "+2348012345678"}]}}
 
 
 class PreferencesBody(StrictBody):

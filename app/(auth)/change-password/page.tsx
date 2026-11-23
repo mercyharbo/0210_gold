@@ -4,16 +4,15 @@ import Link from 'next/link'
 import { useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { REGEXP_ONLY_DIGITS } from 'input-otp'
 import { z } from 'zod'
 import { PasswordInput } from '@/components/auth/password-input'
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import { Field, FieldError, FieldGroup, FieldLabel } from '@/components/ui/field'
 import { Input } from '@/components/ui/input'
-import { InputOTP, InputOTPGroup, InputOTPSlot } from '@/components/ui/input-otp'
+import { ConfirmationCodeInput } from '@/components/auth/confirmation-code-input'
 import { Spinner } from '@/components/ui/spinner'
 import { useApiRequest } from '@/hooks/use-api-request'
+import { useToast } from '@/stores/hooks/use-toast'
 import { ApiError } from '@/lib/api/client'
 import type { PasswordResetConfirmPayload, PasswordResetResponse } from '@/types/authentication'
 
@@ -29,8 +28,8 @@ const schema = z.object({
 type FormValues = z.infer<typeof schema>
 
 export default function ChangePasswordPage() {
-  // React Hook Form owns inputs; only the success message needs local state.
-  const [successMessage, setSuccessMessage] = useState<string | null>(null)
+  const { toast } = useToast()
+  const [completed, setCompleted] = useState(false)
   const form = useForm<FormValues>({
     resolver: zodResolver(schema),
     defaultValues: { email: '', code: '', password: '', confirmPassword: '' },
@@ -41,17 +40,16 @@ export default function ChangePasswordPage() {
   const busy = isSubmitting || passwordRequest.loading
 
   async function onSubmit(values: FormValues) {
-    form.clearErrors('root')
-    setSuccessMessage(null)
     try {
       const payload = { email: values.email, code: values.code, password: values.password }
       const response = await passwordRequest.execute('post', '/auth/password-reset/confirm', payload)
       if (response.success && response.data?.accepted && response.data.next_action === 'sign_in') {
-        setSuccessMessage(response.message || 'Your password has been changed. Sign in with your new password.')
+        toast(response.message || 'Your password has been changed. Sign in with your new password.', 'success')
+        setCompleted(true)
         // Clear sensitive fields only after FastAPI confirms the change.
         form.reset()
       } else {
-        setError('root', { message: response.message || 'The password change could not be confirmed. Try again.' })
+        toast(response.message || 'The password change could not be confirmed. Try again.', 'failure')
       }
     } catch (error: unknown) {
       // Keep input on failure and show backend field errors beside the relevant input.
@@ -64,25 +62,19 @@ export default function ChangePasswordPage() {
         const firstInvalid = fields.find((name) => error.fieldErrors?.[name]?.length)
         if (firstInvalid) form.setFocus(firstInvalid)
       }
-      setError('root', {
-        message: error instanceof Error ? error.message : 'Unable to change your password. Try again.',
-      })
+      toast(error instanceof Error ? error.message : 'Unable to change your password. Try again.', 'failure')
     }
   }
 
   return (
     <div className='flex flex-col gap-8'>
       <div className='space-y-2'>
-        <p className='text-xs font-semibold text-gold'>Reset password</p>
-        <h2 className='text-3xl font-semibold'>New password</h2>
+        <h1 className='account-title'>Choose a new password</h1>
         <p className='text-sm text-muted-foreground'>Enter your email, the code from your reset email and a new password.</p>
       </div>
-      {successMessage ? (
+      {completed ? (
         <div className='space-y-5'>
-          <Alert role='status' aria-live='polite' className='border-green-200 bg-green-50 text-green-900'>
-            <AlertTitle>Password changed</AlertTitle>
-            <AlertDescription className='text-green-800'>{successMessage}</AlertDescription>
-          </Alert>
+          <p className='text-sm text-muted-foreground'>Sign in with your new password to continue.</p>
           <Button asChild className='w-full'><Link href='/login'>Sign in</Link></Button>
         </div>
       ) : (
@@ -103,22 +95,11 @@ export default function ChangePasswordPage() {
               <Controller
                 name='code' control={form.control}
                 render={({ field, fieldState }) => (
-                  <InputOTP
-                    {...field} id='reset-code' maxLength={6} pattern={REGEXP_ONLY_DIGITS}
-                    inputMode='numeric' autoComplete='one-time-code' disabled={busy}
+                  <ConfirmationCodeInput
+                    {...field} id='reset-code' disabled={busy}
                     aria-invalid={fieldState.invalid}
                     aria-describedby={fieldState.invalid ? 'reset-code-error' : undefined}
-                    containerClassName='grid w-full max-w-72 grid-cols-6 gap-2'
-                  >
-                    {Array.from({ length: 6 }, (_, index) => (
-                      <InputOTPGroup key={index} className='rounded-md'>
-                        <InputOTPSlot
-                          index={index} aria-invalid={fieldState.invalid}
-                          className='aspect-square size-auto w-full rounded-md border text-base first:rounded-l-md last:rounded-r-md'
-                        />
-                      </InputOTPGroup>
-                    ))}
-                  </InputOTP>
+                  />
                 )}
               />
               <FieldError id='reset-code-error' errors={[errors.code]} />
@@ -144,7 +125,6 @@ export default function ChangePasswordPage() {
               <FieldError id='reset-confirm-error' errors={[errors.confirmPassword]} />
             </Field>
           </FieldGroup>
-          <FieldError role='alert' errors={[errors.root]} />
           <Button type='submit' disabled={busy} aria-busy={busy} className='w-full'>
             {busy ? <><Spinner /> Changing password...</> : 'Change password'}
           </Button>

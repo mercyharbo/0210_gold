@@ -25,6 +25,9 @@ const { loginDestination, verifiedSessionRole } = load('lib/auth/login-destinati
 process.env.BACKEND_URL = 'http://backend.invalid:8000'
 
 test('allowlist accepts only the selected auth methods and callback path', () => {
+  assert.equal(getBackendPath('GET', 'account/profile'), '/v1/account/profile')
+  assert.equal(getBackendPath('PATCH', 'account/profile'), '/v1/account/profile')
+  for (const method of ['POST', 'PUT', 'DELETE']) assert.equal(getBackendPath(method, 'account/profile'), null)
   assert.equal(getBackendPath('POST', 'auth/login'), '/v1/auth/login')
   assert.equal(getBackendPath('POST', 'auth/signup'), '/v1/auth/signup')
   assert.equal(getBackendPath('GET', 'auth/csrf'), '/v1/auth/csrf')
@@ -38,6 +41,36 @@ test('allowlist accepts only the selected auth methods and callback path', () =>
     ['POST', 'v1/auth/google/callback'], ['POST', 'auth/google/start/extra'], ['DELETE', 'admin/categories/invalid']]) {
     assert.equal(getBackendPath(method, endpoint), null)
   }
+})
+
+test('profile proxy requires a session and preserves PATCH field errors and cookies', async (t) => {
+  const fetch = t.mock.method(globalThis, 'fetch', async (url, options) => {
+    assert.equal(url.pathname, '/v1/account/profile')
+    assert.equal(options.headers.get('cookie'), 'fmluxe_session=opaque; fmluxe_csrf=csrf')
+    assert.equal(options.headers.get('x-csrf-token'), 'csrf')
+    return Response.json({ success: false, status: 422, error: {
+      code: 'VALIDATION_ERROR', message: 'The request contains invalid fields.', fieldErrors: { phone: ['Invalid phone.'] },
+    } }, { status: 422 })
+  })
+  const guest = await proxyBackendRequest(new Request('http://localhost:4100/api/account/profile'), 'GET', '/v1/account/profile')
+  assert.equal(guest.status, 401)
+  assert.equal(fetch.mock.callCount(), 0)
+  const response = await proxyBackendRequest(new Request('http://localhost:4100/api/account/profile', {
+    method: 'PATCH', headers: { Origin: 'http://localhost:4100', Cookie: 'fmluxe_session=opaque; fmluxe_csrf=csrf',
+      'X-CSRF-Token': 'csrf' }, body: '{"phone":"bad"}',
+  }), 'PATCH', '/v1/account/profile')
+  assert.equal(response.status, 422)
+  assert.deepEqual((await response.json()).error.fieldErrors, { phone: ['Invalid phone.'] })
+})
+
+test('profile changes send only contact edits and null clears; validation rejects invalid values', () => {
+  const { changedProfileFields, profileFormSchema } = load('lib/validations/account-profile.ts')
+  const profile = { first_name: 'Ada', last_name: 'James', phone: '+2348012345678' }
+  assert.deepEqual(changedProfileFields({ first_name: ' Ada ', last_name: 'James', phone: '' }, profile), { phone: null })
+  assert.deepEqual(changedProfileFields({ ...profile }, profile), {})
+  assert.equal(profileFormSchema.safeParse({ first_name: '', last_name: '', phone: '' }).success, true)
+  assert.equal(profileFormSchema.safeParse({ ...profile, phone: 'letters' }).success, false)
+  assert.equal(profileFormSchema.safeParse({ ...profile, first_name: 'A'.repeat(101) }).success, false)
 })
 
 test('login forwards CSRF and backend cookies; preserves distinct HttpOnly cookies', async (t) => {

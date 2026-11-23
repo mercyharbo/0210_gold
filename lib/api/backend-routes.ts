@@ -2,6 +2,7 @@ import type { ApiMethod } from './types'
 
 const routes: Partial<Record<ApiMethod, ReadonlyMap<string, string>>> = {
   GET: new Map([
+    ['account/profile', '/v1/account/profile'],
     ['health', '/v1/health'], ['identity/me', '/v1/auth/me'],
     ['admin/auth-check', '/v1/admin/auth-check'], ['auth/csrf', '/v1/auth/csrf'],
     ['auth/session', '/v1/auth/session'], ['v1/auth/google/callback', '/v1/auth/google/callback'],
@@ -14,6 +15,9 @@ const routes: Partial<Record<ApiMethod, ReadonlyMap<string, string>>> = {
     ['auth/email-verification/request', '/v1/auth/email-verification/request'],
     ['auth/password-reset/request', '/v1/auth/password-reset/request'],
     ['auth/password-reset/confirm', '/v1/auth/password-reset/confirm'],
+  ]),
+  PATCH: new Map([
+    ['account/profile', '/v1/account/profile'],
   ]),
 }
 

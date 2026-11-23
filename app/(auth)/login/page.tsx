@@ -1,6 +1,7 @@
 'use client'
 
 import { PasswordInput } from '@/components/auth/password-input'
+import { GoogleButton } from '@/components/auth/google-button'
 import { Button } from '@/components/ui/button'
 import {
   Field,
@@ -11,6 +12,7 @@ import {
 import { Input } from '@/components/ui/input'
 import { Spinner } from '@/components/ui/spinner'
 import { useApiRequest } from '@/hooks/use-api-request'
+import { useToast } from '@/stores/hooks/use-toast'
 import { ApiError } from '@/lib/api/client'
 import { resetSessionUi } from '@/lib/auth/client-session'
 import {
@@ -25,26 +27,18 @@ import type {
 import { zodResolver } from '@hookform/resolvers/zod'
 import { ArrowRight } from 'lucide-react'
 import Link from 'next/link'
-import { useEffect, useRef, useState, type SubmitEvent } from 'react'
+import { useRef, useState } from 'react'
 import { useForm } from 'react-hook-form'
-import { z } from 'zod'
-
-const schema = z.object({
-  email: z.email('Enter a valid email address.'),
-  password: z
-    .string()
-    .min(1, 'Enter your password.')
-    .max(1024, 'Password is too long.'),
-})
+import { loginSchema } from '@/lib/validations/authentication'
 
 export default function LoginPage() {
+  const { toast } = useToast()
   const [redirecting, setRedirecting] = useState(false)
   const form = useForm<LoginPayload>({
-    resolver: zodResolver(schema),
+    resolver: zodResolver(loginSchema),
     defaultValues: { email: '', password: '' },
   })
 
-  const googleForm = useForm()
   const passwordRequest = useApiRequest<AuthSession, LoginPayload>()
   const googleRequest = useApiRequest<GoogleAuthorization>()
   const submitting = useRef(false)
@@ -55,99 +49,47 @@ export default function LoginPage() {
     formState: { errors, isSubmitting },
   } = form
 
-  const busy = redirecting || isSubmitting || googleForm.formState.isSubmitting
+  const busy = redirecting || isSubmitting || googleRequest.loading
 
-  // Handle error codes from Google sign-in redirect
-  useEffect(() => {
-    const code = new URLSearchParams(window.location.search).get('error')
-    if (code === 'google_sign_in')
-      setError('root', {
-        message:
-          'Google sign-in was cancelled or could not finish. Please try again.',
-      })
-    if (code === 'service_unavailable')
-      setError('root', {
-        message: 'The sign-in service is unavailable. Please try again.',
-      })
-  }, [setError])
-
-  // Handle error codes from email verification redirect
-  async function submit(event: SubmitEvent<HTMLFormElement>) {
-    event.preventDefault()
+  async function submit(values: LoginPayload) {
     if (submitting.current || redirecting) return
     submitting.current = true
-
     try {
-      await form.handleSubmit(async (values) => {
-        form.clearErrors('root')
-        let session: AuthSession | undefined
-        try {
-          const response = await passwordRequest.execute(
-            'post',
-            '/auth/login',
-            values,
-          )
-          session = response.data
-        } catch (error: unknown) {
-          const fields =
-            error instanceof ApiError ? error.fieldErrors : undefined
-          let focused = false
-          for (const name of ['email', 'password'] as const) {
-            const message = fields?.[name]?.[0]
-            if (message) {
-              setError(name, { message }, { shouldFocus: !focused })
-              focused = true
-            }
-          }
-          if (!focused)
-            setError('root', {
-              message:
-                error instanceof Error
-                  ? error.message
-                  : 'Sign-in failed. Try again.',
-            })
-          return
+      const response = await passwordRequest.execute('post', '/auth/login', values)
+      const role = verifiedSessionRole(response.data)
+      if (!role) {
+        toast('Your account could not be loaded. Please try again.', 'failure')
+        return
+      }
+      setRedirecting(true)
+      resetSessionUi()
+      // A full navigation uses the new cookie and starts with fresh private caches.
+      window.location.replace(loginDestination(role))
+    } catch (error: unknown) {
+      if (error instanceof ApiError && error.fieldErrors) {
+        const fields = ['email', 'password'] as const
+        for (const name of fields) {
+          const message = error.fieldErrors[name]?.[0]
+          if (message) setError(name, { message })
         }
-        const role = verifiedSessionRole(session)
-        if (!role) {
-          setError('root', { message: 'Your account could not be loaded. Please try again.' })
-          return
-        }
-        setRedirecting(true)
-        resetSessionUi()
-        // One full navigation uses the new cookie and clears in-memory user caches.
-        // Do not refresh /login or await SWR cleanup before leaving the page.
-        window.location.replace(loginDestination(role))
-      })(event)
+        const firstInvalid = fields.find((name) => error.fieldErrors?.[name]?.length)
+        if (firstInvalid) form.setFocus(firstInvalid)
+      }
+      toast(error instanceof Error ? error.message : 'Sign-in failed. Try again.', 'failure')
     } finally {
       submitting.current = false
     }
   }
 
-  async function googleSubmit(event: SubmitEvent<HTMLFormElement>) {
-    event.preventDefault()
+  async function googleSubmit() {
     if (submitting.current || redirecting) return
     submitting.current = true
     try {
-      await googleForm.handleSubmit(async () => {
-        googleForm.clearErrors('root')
-        try {
-          const response = await googleRequest.execute(
-            'post',
-            '/auth/google/start',
-          )
-          if (!response.data?.authorization_url)
-            throw new Error('Google sign-in is unavailable. Try again.')
-          window.location.assign(response.data.authorization_url)
-        } catch (error: unknown) {
-          googleForm.setError('root', {
-            message:
-              error instanceof Error
-                ? error.message
-                : 'Google sign-in failed. Try again.',
-          })
-        }
-      })(event)
+      const response = await googleRequest.execute('post', '/auth/google/start')
+      if (!response.data?.authorization_url) throw new Error('Google sign-in is unavailable. Try again.')
+      window.location.assign(response.data.authorization_url)
+    } catch (error: unknown) {
+      toast(error instanceof Error ? error.message : 'Google sign-in failed. Try again.', 'failure')
     } finally {
       submitting.current = false
     }
@@ -156,28 +98,15 @@ export default function LoginPage() {
   return (
     <div className='flex flex-col gap-8'>
       <div className='flex flex-col gap-2'>
-        <p className='text-xs font-semibold text-gold'>
-          Welcome back
-        </p>
-        <h2 className='text-3xl font-semibold'>Login details</h2>
+        <h1 className='account-title'>Sign in</h1>
+        <p className='text-sm text-muted-foreground'>Welcome back. Sign in to your FM LUXE account.</p>
       </div>
       
       <div className='flex flex-col gap-5'>
-        <form onSubmit={googleSubmit} className='flex flex-col gap-3'>
-          <Button
-            type='submit'
-            variant='outline'
-            disabled={busy}
-            aria-busy={googleForm.formState.isSubmitting}
-          >
-            {googleForm.formState.isSubmitting
-              ? 'Connecting to Google…'
-              : 'Continue with Google'}
-          </Button>
-          <FieldError errors={[googleForm.formState.errors.root]} />
-        </form>
+        <GoogleButton onClick={googleSubmit} disabled={busy} loading={googleRequest.loading} />
 
-        <form onSubmit={submit} className='flex flex-col gap-5' noValidate>
+        <div className='account-divider' aria-hidden='true'>Or</div>
+        <form onSubmit={form.handleSubmit(submit)} className='flex flex-col gap-5' noValidate>
           <FieldGroup className='gap-5'>
             <Field className='gap-2' data-invalid={Boolean(errors.email)}>
               <FieldLabel htmlFor='login-email'>Email address</FieldLabel>
@@ -202,7 +131,7 @@ export default function LoginPage() {
                 id='login-password'
                 autoComplete='current-password'
                 placeholder='Enter your password'
-                className='rounded-md'
+                className='rounded-none'
                 aria-invalid={Boolean(errors.password)}
                 aria-describedby={
                   errors.password ? 'login-password-error' : undefined
@@ -224,7 +153,6 @@ export default function LoginPage() {
             Forgot password?
           </Link>
 
-          <FieldError errors={[errors.root]} />
 
           <Button
             type='submit'

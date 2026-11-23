@@ -1,0 +1,178 @@
+/* Account surfaces inherit Meere's General Sans and neutral storefront palette. */
+.meere-account {
+  color: #000;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.meere-account .account-title {
+  font-size: 28px;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.meere-account .account-section-title {
+  font-size: 22px;
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+.meere-account [data-slot='field-label'] {
+  color: #000;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.meere-account [data-slot='input'] {
+  height: 48px;
+  border: 1px solid transparent;
+  border-radius: 0;
+  background: #eee;
+  color: #000;
+  font-size: 16px;
+  box-shadow: none;
+}
+
+.meere-account [data-slot='input']::placeholder {
+  color: #666;
+}
+
+.meere-account [data-slot='input']:focus-visible {
+  border-color: #e10600;
+  outline: 1px solid #e10600;
+  outline-offset: 2px;
+}
+
+.meere-account [data-slot='input'][aria-invalid='true'] {
+  border-color: #e10600;
+}
+
+.meere-account [data-slot='input']:disabled {
+  color: #595959;
+  opacity: 1;
+}
+
+.meere-account [data-slot='select-trigger'] {
+  height: 48px;
+  border-color: #d1d5db;
+  border-radius: 0;
+  font-size: 14px;
+  box-shadow: none;
+}
+
+.meere-account [data-slot='field-description'],
+.meere-account .text-muted-foreground {
+  color: #595959;
+}
+
+.meere-account [data-slot='button']:is([data-variant='default'], [data-variant='outline']) {
+  min-height: 48px;
+  border-radius: 0;
+  font-size: 14px;
+  font-weight: 500;
+  box-shadow: none;
+  transition: background-color .2s ease, color .2s ease, border-color .2s ease;
+}
+
+.meere-account [data-slot='button'][data-variant='default'] {
+  background: #000;
+  color: #fff;
+}
+
+.meere-account [data-slot='button'][data-variant='default']:hover:not(:disabled) {
+  background: #e10600;
+}
+
+.meere-account [data-slot='button'][data-variant='outline'] {
+  border-color: #d1d5db;
+  background: #fff;
+  color: #000;
+}
+
+.meere-account [data-slot='button'][data-variant='outline']:hover:not(:disabled) {
+  border-color: #000;
+  background: #000;
+  color: #fff;
+}
+
+.meere-account [data-slot='button'].account-google-button:hover:not(:disabled) {
+  border-color: #9ca3af;
+  background: #f3f4f6;
+  color: #000;
+}
+
+.meere-account a:not([data-slot='button']) {
+  text-underline-offset: 4px;
+  transition: color .2s ease;
+}
+
+.meere-account a:not([data-slot='button']):hover {
+  color: #e10600;
+}
+
+.meere-account :is(a, button):focus-visible {
+  outline: 2px solid #e10600;
+  outline-offset: 4px;
+}
+
+.account-divider {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  color: #595959;
+  font-size: 14px;
+}
+
+.account-divider::before,
+.account-divider::after {
+  content: '';
+  height: 1px;
+  flex: 1;
+  background: #e5e7eb;
+}
+
+.meere-account .account-tab {
+  flex: none;
+  height: 44px;
+  min-height: 44px;
+  width: 100%;
+  justify-content: flex-start;
+  border: 0;
+  border-left: 1px solid transparent;
+  border-radius: 0;
+  padding: 0 16px;
+  background: transparent;
+  color: #595959;
+  font-size: 14px;
+  font-weight: 400;
+  box-shadow: none;
+}
+
+.meere-account .account-tab[data-state='active'] {
+  border-left-color: #e10600;
+  color: #000;
+  font-weight: 500;
+}
+
+.meere-account .account-tab:hover {
+  color: #000;
+}
+
+.account-profile-section {
+  display: flex;
+  max-width: 672px;
+  flex-direction: column;
+  gap: 24px;
+}
+
+@media (min-width: 640px) {
+  .meere-account .account-title { font-size: 34px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .meere-account *, .meere-account *::before, .meere-account *::after {
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
+  }
+}

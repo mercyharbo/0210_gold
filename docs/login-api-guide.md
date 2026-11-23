@@ -30,6 +30,8 @@ permissions: a browser cookie or client-side redirect never grants admin access.
 
 - Field values and validation stay in React Hook Form. Field errors render using
   shadcn `FieldError`, with the first invalid input focused.
+- General API errors are toasted directly in the owning handler. The shared
+  `QueryParamToast` adapter handles readable Google callback errors once.
 - Each `useApiRequest` owns its own POST lifecycle. Both login buttons are disabled
   while either flow runs; a local submission lock also prevents rapid duplicates.
 - Failed requests preserve the entered values. After success, inputs remain locked
@@ -49,7 +51,7 @@ AUTH_PUBLIC_API_URL=http://localhost:4100/api
 AUTH_SUCCESS_PATH=/login
 ```
 
-Google's button visibly calls `/auth/google/start` in the page; the shared hook
+Google's buttons on login and signup visibly call `/auth/google/start` in their pages; the shared hook
 handles CSRF. The browser visits the returned authorization URL. Google returns through
 Neon to `/api/v1/auth/google/callback`, which is explicitly proxied to FastAPI.
 FastAPI sets the session and returns to `/login`; Next.js proxy selects the role's
@@ -62,9 +64,10 @@ private caches/UI state and returns to login.
 
 ## What remains for manual integration
 
-Signup keeps its existing design but cannot submit. Verification and recovery keep
-their previous implementation until their separate integration. The shared
-credentials form was removed completely.
+Signup, email verification and password recovery now use FastAPI with the shared
+request hook. Signup sends name/email/password, explicitly requests an email code,
+and navigates to verification; verification then sends the customer to login.
+The shared credentials form was removed completely.
 
 Existing and future `useApiRequest` mutations receive CSRF automatically. Follow
 the page's visible method/path/payload pattern; do not hide feature writes in SWR

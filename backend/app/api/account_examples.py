@@ -1,5 +1,6 @@
 from copy import deepcopy
 from app.api.commerce_examples import ID, ORDER
+from app.api.account_docs import PROFILE_UPDATE_EXAMPLE
 
 PROFILE = {"id": "identity_example", "email": "ada@example.com", "name": "Ada James", "first_name": "Ada",
     "last_name": "James", "phone": "+2348012345678", "role": "customer",
@@ -66,4 +67,6 @@ def add_account_examples(schema):
             status = "201" if identifier == "createOwnedAddress" else "200"
             operation["responses"][status]["content"]["application/json"]["example"] = {
                 "success": True, "status": int(status), "message": None, "data": deepcopy(data)}
+            if identifier == "patchAccountProfile":
+                operation["responses"][status]["content"]["application/json"]["example"] = deepcopy(PROFILE_UPDATE_EXAMPLE)
     return schema

@@ -141,6 +141,12 @@ Phase 5 product-sales APIs and their integration boundary are documented in
 
 ## Verification and rollback
 
+Customer profile GET/PATCH integration is described in `../docs/profile-api-guide.md`.
+PATCH `/v1/account/profile` accepts only changed contact names/phone (null clears a
+field) and returns the saved profile with `message: "Profile updated successfully."`.
+Cookie-authenticated mutations require a trusted Origin and fresh CSRF; email,
+identity name and roles remain server-owned.
+
 `python -m pytest` runs isolated unit/contract/permissions tests. The optional
 `RUN_NEON_CATALOG_TESTS=1 python -m pytest tests/test_catalog_live.py -s` checks
 real database and storage integration using temporary records, then removes them.

@@ -2,17 +2,20 @@
 
 import Image from 'next/image'
 import { useEffect } from 'react'
+import { usePathname } from 'next/navigation'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { generalSans } from '@/lib/fonts/storefront'
 import { useStorefrontNavigation } from '@/stores/storefront-navigation'
 
-export function HomeNewsletter() {
+export function HomeNewsletter({ autoOpen = true }: { autoOpen?: boolean }) {
+  const pathname = usePathname()
   const open = useStorefrontNavigation((state) => state.newsletterOpen)
   const setOpen = useStorefrontNavigation((state) => state.setNewsletterOpen)
 
   useEffect(() => {
+    if (!autoOpen || pathname === '/profile' || pathname.startsWith('/profile/')) return
     if (sessionStorage.getItem('fm-luxe-newsletter-seen')) return
     const timer = window.setTimeout(() => {
       const state = useStorefrontNavigation.getState()
@@ -22,7 +25,7 @@ export function HomeNewsletter() {
       }
     }, 8000)
     return () => window.clearTimeout(timer)
-  }, [setOpen])
+  }, [autoOpen, pathname, setOpen])
 
   return (
     <Dialog open={open} onOpenChange={(value) => {

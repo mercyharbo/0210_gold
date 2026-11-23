@@ -1,6 +1,6 @@
 from uuid import UUID
 from fastapi import APIRouter
-from app.api.account_docs import Customer, Session, ERRORS, PRIVATE, PageNumber, PageSize
+from app.api.account_docs import Customer, Session, ERRORS, PRIVATE, PageNumber, PageSize, PROFILE_UPDATE_EXAMPLE
 from app.schemas.account import AddressCreate, AddressData, AddressPatch, Page, PreferencesBody, ProfilePatch, WishlistData
 from app.schemas.auth import ProfileData
 from app.schemas.catalog import Deleted
@@ -18,9 +18,15 @@ async def profile(customer: Customer):
 
 
 @router.patch("/profile", response_model=ApiSuccess[ProfileData], operation_id="patchAccountProfile",
-    summary="Update your contact profile", description=PRIVATE + "Partial JSON update of first_name, last_name and phone. Null clears an optional value; omitted fields are unchanged. Identity email, role and verification are forbidden.")
+    summary="Update your contact profile", description=PRIVATE +
+    "Partial JSON update of first_name, last_name and phone. Null clears an optional value; omitted fields are unchanged. "
+    "Identity name, email, role and verification are forbidden. Cookie-authenticated requests require a trusted Origin "
+    "and X-CSRF-Token from GET /v1/auth/csrf. Returns the saved profile and a human-readable success message.",
+    responses={200: {"description": "Contact details saved; identity fields remain unchanged.",
+        "content": {"application/json": {"example": PROFILE_UPDATE_EXAMPLE}}}})
 async def update_profile(body: ProfilePatch, session: Session, customer: Customer):
-    return ApiSuccess(status=200, data=await account.patch_profile(session, customer, body))
+    return ApiSuccess(status=200, data=await account.patch_profile(session, customer, body),
+        message="Profile updated successfully.")
 
 
 @router.get("/category-preferences", response_model=ApiSuccess[PreferencesBody], operation_id="getCategoryPreferences",
