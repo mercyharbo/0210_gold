@@ -84,6 +84,8 @@ Use the `nextjs-api-state` skill for frontend request and state architecture.
 
 ## Traceable Requests
 - Use SWR for client-side GET requests through focused read hooks, such as `hooks/use-user-endpoint.ts`. Keep request keys, query parameters, response types, and SWR configuration there.
+- All client GET hooks use `useApiRead<T>(key, options?)` from `hooks/use-api-read.ts`, backed by the single `apiFetcher` in `lib/api/client.ts`. Pass initial data, optional response-data schemas and SWR options there; do not define feature-local fetchers or parallel read wrappers.
+- Keep admin GET hooks in `hooks/use-admin-endpoint.ts`, separate from public catalog, customer account, identity and auth read hooks. Use explicit hook names such as `useAdminCategories`; do not switch between admin/customer endpoints with boolean flags. A shared public resource may still be consumed by an admin screen without changing its cache key.
 - Import and call `useApiRequest` directly inside the component or form that owns a mutation. Keep `execute`, the HTTP method, endpoint, and payload visible in that file's event handler.
 - Never hide feature mutations inside read hooks, endpoint hooks, Zustand stores, or one-off mutation hooks such as `useUpdateUser`.
 - The shared implementation of `useApiRequest` stays in `hooks/use-api-request.ts`; the restriction above concerns feature-level call sites.

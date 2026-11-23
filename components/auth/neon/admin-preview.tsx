@@ -8,7 +8,7 @@ import {
   CardContent,
 } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
-import { useAdminCheck } from '@/hooks/use-user-endpoint'
+import { useAdminCheck } from '@/hooks/use-admin-endpoint'
 import { AuthFeedback } from './auth-feedback'
 
 export function AdminPreview() {

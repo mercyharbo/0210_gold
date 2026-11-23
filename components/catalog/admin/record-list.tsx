@@ -14,9 +14,9 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import { Skeleton } from '@/components/ui/skeleton'
-import { useCatalogRead } from '@/hooks/use-catalog-endpoint'
+import { useAdminCatalogRecords } from '@/hooks/use-admin-endpoint'
 import { useApiRequest } from '@/hooks/use-api-request'
-import type { CatalogPage, CatalogKind } from '@/types/catalog'
+import type { CatalogKind } from '@/types/catalog'
 import type { CatalogRecord } from '@/lib/catalog/editor'
 import { CatalogFeedback } from '../feedback'
 
@@ -25,9 +25,7 @@ export function CatalogRecordList({ kind }: { kind: CatalogKind }) {
   const [deleteTarget, setDeleteTarget] = useState<CatalogRecord | null>(null)
   const { mutate } = useSWRConfig()
   
-  const { data, error, isLoading } = useCatalogRead<CatalogRecord[] | CatalogPage>(
-    `/api/admin/${kind}${kind === 'products' ? `?page=${page}&page_size=24` : ''}`,
-  )
+  const { data, error, isLoading } = useAdminCatalogRecords(kind, page)
   const mutation = useApiRequest()
   const [refreshMessage, setRefreshMessage] = useState('')
   const rows = Array.isArray(data?.data) ? data.data : (data?.data?.items ?? [])

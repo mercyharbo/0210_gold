@@ -1,22 +1,22 @@
 'use client'
 
-import { useCatalogRead } from './use-catalog-endpoint'
+import { useApiRead } from './use-api-read'
 import type { CatalogBanner, CatalogCategory, CatalogPage, CatalogSettings } from '@/types/catalog'
 
 export function useHomeBanners(initial?: CatalogBanner[]) {
-  return useCatalogRead<CatalogBanner[]>('/api/catalog/banners', initial)
+  return useApiRead<CatalogBanner[]>('/api/catalog/banners', { initialData: initial, shouldRetryOnError: false })
 }
 
 export function useHomeCollections(initial?: CatalogCategory[]) {
-  return useCatalogRead<CatalogCategory[]>('/api/catalog/categories', initial)
+  return useApiRead<CatalogCategory[]>('/api/catalog/categories', { initialData: initial, shouldRetryOnError: false })
 }
 
 export function useHomeProducts(initial?: CatalogPage) {
-  return useCatalogRead<CatalogPage>(
-    '/api/catalog/products?sort=newest&page=1&page_size=8', initial,
-  )
+  return useApiRead<CatalogPage>('/api/catalog/products?sort=newest&page=1&page_size=8', {
+    initialData: initial, shouldRetryOnError: false,
+  })
 }
 
 export function useStoreSettings(initial?: CatalogSettings) {
-  return useCatalogRead<CatalogSettings>('/api/catalog/settings', initial)
+  return useApiRead<CatalogSettings>('/api/catalog/settings', { initialData: initial, shouldRetryOnError: false })
 }

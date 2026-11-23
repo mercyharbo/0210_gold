@@ -1,4 +1,8 @@
-import type { ApiErrorDetail, ApiMethod, ApiResponse } from './types'
+import type { ZodType } from 'zod'
+import type { ApiMethod, ApiResponse } from './types'
+import { ApiError, getErrorDetails } from './error'
+
+export { ApiError } from './error'
 
 export type ApiRequestOptions = Omit<
   RequestInit,
@@ -7,33 +11,6 @@ export type ApiRequestOptions = Omit<
 
 export type ApiRequestMethod = Lowercase<ApiMethod> | ApiMethod
 export type ApiRequestBody = BodyInit | Record<string, unknown> | unknown[] | null
-
-type ErrorPayload = {
-  error?: string | ApiErrorDetail
-  message?: string
-}
-
-export class ApiError extends Error {
-  readonly status: number
-  readonly code: string
-  readonly fieldErrors?: Record<string, string[]>
-  readonly payload?: unknown
-
-  constructor(options: {
-    message: string
-    status: number
-    code: string
-    fieldErrors?: Record<string, string[]>
-    payload?: unknown
-  }) {
-    super(options.message)
-    this.name = 'ApiError'
-    this.status = options.status
-    this.code = options.code
-    this.fieldErrors = options.fieldErrors
-    this.payload = options.payload
-  }
-}
 
 function normalizeApiUrl(endpoint: string) {
   const trimmedEndpoint = endpoint.trim()
@@ -108,35 +85,6 @@ async function parseResponseBody(response: Response): Promise<unknown> {
   }
 }
 
-function isErrorPayload(payload: unknown): payload is ErrorPayload {
-  return typeof payload === 'object' && payload !== null
-}
-
-function getErrorDetails(response: Response, payload: unknown) {
-  if (!isErrorPayload(payload)) {
-    return {
-      code: response.status === 0 ? 'NETWORK_ERROR' : 'REQUEST_FAILED',
-      message: response.statusText || 'The request could not be completed.',
-    }
-  }
-
-  if (typeof payload.error === 'object' && payload.error !== null) {
-    return {
-      code: payload.error.code,
-      message: payload.error.message,
-      fieldErrors: payload.error.fieldErrors,
-    }
-  }
-
-  return {
-    code: 'REQUEST_FAILED',
-    message:
-      typeof payload.error === 'string'
-        ? payload.error
-        : (payload.message ?? response.statusText ?? 'The request failed.'),
-  }
-}
-
 function isApiResponse<TData>(payload: unknown): payload is ApiResponse<TData> {
   return (
     typeof payload === 'object' &&
@@ -201,6 +149,12 @@ export async function apiRequest<TData = unknown>(
   return normalizedResponse
 }
 
-export function apiFetcher<TData>(url: string) {
-  return apiRequest<TData>('GET', url)
+export async function apiFetcher<TData>(url: string, schema?: ZodType<TData>): Promise<ApiResponse<TData>> {
+  const response = await apiRequest<TData>('GET', url)
+  if (!schema) return response
+  const parsed = schema.safeParse(response.data)
+  if (!parsed.success) {
+    throw new ApiError({ status: 502, code: 'INVALID_API_RESPONSE', message: 'The server returned invalid data. Please try again.' })
+  }
+  return { ...response, data: parsed.data }
 }

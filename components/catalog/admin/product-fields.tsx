@@ -1,6 +1,6 @@
 'use client'
 import { FieldGroup } from '@/components/ui/field'
-import { useCatalogCategories } from '@/hooks/use-catalog-endpoint'
+import { useAdminCategories } from '@/hooks/use-admin-endpoint'
 import { categoryTypeOptions } from '@/lib/categories/category-options'
 import { productColorOptions, productSizeOptions, productKaratOptions } from '@/lib/products/product-options'
 import { CatalogFeedback } from '../feedback'
@@ -9,7 +9,7 @@ import { EditorCheck, EditorField } from './editor-field'
 const options = (values: readonly string[]) =>
   values.map((value) => ({ value, label: value.replaceAll('_', ' ') }))
 export function ProductFields() {
-  const categories = useCatalogCategories(true)
+  const categories = useAdminCategories()
   return (
     <FieldGroup>
       <CatalogFeedback message={categories.error?.message} error />

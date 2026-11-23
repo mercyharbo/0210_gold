@@ -1,55 +1,25 @@
 'use client'
-import { apiFetcher } from '@/lib/api/client'
-import type { ApiResponse } from '@/lib/api/types'
-import type {
-  CatalogBanner,
-  CatalogCategory,
-  CatalogPage,
-  CatalogPrice,
-  CatalogRate,
-  CatalogSettings,
-} from '@/types/catalog'
-import useSWR from 'swr'
 
-export function useCatalogRead<T>(endpoint: string | null, initial?: T) {
-  return useSWR(endpoint, apiFetcher<T>, {
-    fallbackData:
-      initial === undefined
-        ? undefined
-        : ({
-            success: true,
-            status: 200,
-            data: initial,
-          } satisfies ApiResponse<T>),
-    shouldRetryOnError: false,
-  })
-}
+import { useApiRead } from './use-api-read'
+import type { CatalogCategory, CatalogPage, CatalogPrice, CatalogRate, CatalogSettings } from '@/types/catalog'
 
 export function useCatalogProducts(query: string, initial?: CatalogPage) {
-  return useCatalogRead<CatalogPage>(`/api/catalog/products?${query}`, initial)
+  return useApiRead<CatalogPage>(`/api/catalog/products?${query}`, { initialData: initial, shouldRetryOnError: false })
 }
 
-export function useCatalogCategories(admin = false) {
-  return useCatalogRead<CatalogCategory[]>(
-    admin ? '/api/admin/categories' : '/api/catalog/categories',
-  )
-}
-
-export function useCatalogBanners() {
-  return useCatalogRead<CatalogBanner[]>('/api/admin/banners')
+export function useCatalogCategories() {
+  return useApiRead<CatalogCategory[]>('/api/catalog/categories', { shouldRetryOnError: false })
 }
 
 export function useCatalogSettings() {
-  return useCatalogRead<CatalogSettings>('/api/catalog/settings')
+  return useApiRead<CatalogSettings>('/api/catalog/settings', { shouldRetryOnError: false })
 }
 
 export function useCatalogRates() {
-  return useCatalogRead<CatalogRate[]>('/api/catalog/gold-rates')
+  return useApiRead<CatalogRate[]>('/api/catalog/gold-rates', { shouldRetryOnError: false })
 }
 
 export function useCatalogPrice(slug: string, karat: string | null) {
   const query = karat ? `?karat=${encodeURIComponent(karat)}` : ''
-  return useCatalogRead<CatalogPrice>(
-    `/api/catalog/products/${encodeURIComponent(slug)}/price${query}`,
-  )
+  return useApiRead<CatalogPrice>(`/api/catalog/products/${encodeURIComponent(slug)}/price${query}`, { shouldRetryOnError: false })
 }
