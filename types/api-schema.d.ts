@@ -310,7 +310,30 @@ export interface paths {
         };
         /**
          * Search published products
-         * @description Public. Only active products in active categories. Prices are whole NGN; unavailable prices sort last.
+         * @description Public; no login required. Only active products in active categories.
+         *     All filters are optional, single-valued and combined with AND before counting or
+         *     pagination. `category` is an exact slug; `q` searches product names literally,
+         *     ignoring case. Option filters require membership without duplicating products.
+         *     Price bounds are inclusive NGN amounts (not kobo), compared to the same rounded
+         *     display price returned in each item. Gold products use their lowest priced
+         *     available karat. `gold_karat` filters offered options; it does not change price.
+         *     Unavailable prices are excluded only when a price bound is supplied, and sort
+         *     last in either price sort direction. Fixed pricing never switches to gold rates.
+         *
+         *     `in_stock` subtracts held reservations whose expiry is still in the future.
+         *     Expired reservations are ignored without writing to the database. Availability
+         *     can change before checkout; `stock` in the response remains recorded stock.
+         *
+         *     Defaults: newest, page 1, page_size 24 (maximum 100). Sorting ties use product ID.
+         *     An unknown category/valid but unmatched filter returns an empty page, not 404.
+         *     Invalid values/ranges return 422 with `error.fieldErrors`. Unknown query names
+         *     are ignored for compatibility. Existing requests without filters are unchanged.
+         *
+         *     Example: `?category=gold-necklaces&label=featured&sort=newest&page_size=4`.
+         *     Example: `?min_price=50000&max_price=200000&gold_karat=18k&in_stock=true`.
+         *
+         *     Admin-only filters such as `status` and `category_active` are not supported here
+         *     and cannot override public visibility. Admin-only sort values return 422.
          */
         get: operations["listPublicProducts"];
         put?: never;
@@ -410,7 +433,38 @@ export interface paths {
         };
         /**
          * List products for administration
-         * @description Requires admin or super_admin. Includes unpublished records.
+         * @description Requires a verified admin or super_admin identity through
+         *     the HttpOnly backend session cookie or a validated bearer token. Customer access
+         *     returns 403; missing/invalid authentication returns 401. Cookie reads require no
+         *     CSRF token. Includes unpublished products and inactive categories by default.
+         *
+         *     All filters are optional, single-valued and combined with AND before counting or
+         *     pagination. `category` is an exact slug; `q` searches product names literally,
+         *     ignoring case. Option filters require membership without duplicating products.
+         *     Price bounds are inclusive NGN amounts (not kobo), compared to the same rounded
+         *     display price returned in each item. Gold products use their lowest priced
+         *     available karat. `gold_karat` filters offered options; it does not change price.
+         *     Unavailable prices are excluded only when a price bound is supplied, and sort
+         *     last in either price sort direction. Fixed pricing never switches to gold rates.
+         *
+         *     `in_stock` subtracts held reservations whose expiry is still in the future.
+         *     Expired reservations are ignored without writing to the database. Availability
+         *     can change before checkout; `stock` in the response remains recorded stock.
+         *
+         *     Defaults: newest, page 1, page_size 24 (maximum 100). Sorting ties use product ID.
+         *     An unknown category/valid but unmatched filter returns an empty page, not 404.
+         *     Invalid values/ranges return 422 with `error.fieldErrors`. Unknown query names
+         *     are ignored for compatibility. Existing requests without filters are unchanged.
+         *
+         *     Example: `?category=gold-necklaces&label=featured&sort=newest&page_size=4`.
+         *     Example: `?min_price=50000&max_price=200000&gold_karat=18k&in_stock=true`.
+         *
+         *     Admin-only filters: `status`, `category_active`, `stock_min`, `stock_max`,
+         *     `created_from` and `created_to`. Stock bounds use recorded quantities before
+         *     reservations; bounds are inclusive. Creation bounds are inclusive ISO 8601
+         *     timestamps with timezone, compared as UTC instants. Omitted bounds are unbounded.
+         *     Extra sorts: stock_asc, stock_desc and updated_desc.
+         *     Example: `?status=draft&category_active=false&stock_max=5&sort=updated_desc`.
          */
         get: operations["listAdminProducts"];
         put?: never;
@@ -6320,10 +6374,35 @@ export interface operations {
     listPublicProducts: {
         parameters: {
             query?: {
+                /** @description Case-insensitive product-name substring; %, _ and backslashes are literal characters. */
                 q?: string;
+                /** @description Exact category slug, for example gold-necklaces. */
                 category?: string | null;
-                sort?: "newest" | "price_asc" | "price_desc" | "name";
+                /** @description Exact category type. */
+                category_type?: ("Fashion" | "Gold" | "Accessories" | "Bags" | "Footwear" | "Modest Wear") | null;
+                /** @description Exact merchandising label; omitted includes unlabeled products. */
+                label?: ("best seller" | "new in" | "featured") | null;
+                /** @description Inclusive minimum NGN price, not kobo; compared to the whole-NGN display price. Unavailable prices are excluded. */
+                min_price?: (number | string) | null;
+                /** @description Inclusive maximum displayed price in NGN. Uses the API display price, including gold-rate pricing and rounding. */
+                max_price?: (number | string) | null;
+                /** @description Product must offer this karat. Does not select or change the displayed price. */
+                gold_karat?: ("18k" | "22k" | "24k") | null;
+                /** @description Product must offer this exact size. */
+                size?: ("one size" | "xs" | "s" | "m" | "l" | "xl" | "xxl" | "37" | "38" | "39" | "40" | "41" | "42") | null;
+                /** @description Product must offer this exact color. */
+                color?: ("gold" | "black" | "cream" | "ivory" | "white" | "brown" | "neutral" | "sage" | "blush" | "rose" | "taupe" | "lavender" | "slate") | null;
+                /** @description Supported fixed/starting-from presentation; does not enable gold-rate pricing. */
+                pricing_type?: ("fixed" | "starting_from") | null;
+                /** @description Whether pricing uses weight, manual gold rates and making charge. */
+                is_gold_karat_priced?: boolean | null;
+                /** @description True: stock minus unexpired held reservations > 0. False: <= 0. Read-only snapshot; checkout remains authoritative. */
+                in_stock?: boolean | null;
+                /** @description Name sorts ignore case; unavailable prices sort last. Product ID breaks ties. */
+                sort?: "newest" | "oldest" | "price_asc" | "price_desc" | "name" | "name_desc";
+                /** @description One-based page after applying all filters. */
                 page?: number;
+                /** @description Maximum products per page; total counts all matching products. */
                 page_size?: number;
             };
             header?: never;
@@ -6332,7 +6411,7 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description Successful Response */
+            /** @description Filtered products and total matching count. */
             200: {
                 headers: {
                     [name: string]: unknown;
@@ -6342,56 +6421,13 @@ export interface operations {
                      * @example {
                      *       "success": true,
                      *       "status": 200,
+                     *       "message": "Products retrieved successfully.",
                      *       "data": {
-                     *         "items": [
-                     *           {
-                     *             "name": "Gold pendant",
-                     *             "slug": "gold-pendant",
-                     *             "category_id": "00000000-0000-4000-8000-000000000001",
-                     *             "description": "A polished gold pendant.",
-                     *             "pricing_type": "fixed",
-                     *             "price": "120000.00",
-                     *             "stock": 3,
-                     *             "status": "active",
-                     *             "images": [
-                     *               {
-                     *                 "media_id": "00000000-0000-4000-8000-000000000001",
-                     *                 "alt": "Gold pendant on a neutral background",
-                     *                 "url": "https://storage.example.com/catalog-images/product/image.png",
-                     *                 "position": 0
-                     *               }
-                     *             ],
-                     *             "sizes": [
-                     *               "one size"
-                     *             ],
-                     *             "colors": [
-                     *               "gold"
-                     *             ],
-                     *             "gold_karats": [
-                     *               "18k"
-                     *             ],
-                     *             "is_gold_karat_priced": false,
-                     *             "id": "00000000-0000-4000-8000-000000000001",
-                     *             "created_at": "2026-10-30T12:00:00Z",
-                     *             "updated_at": "2026-10-30T12:00:00Z",
-                     *             "category": {
-                     *               "name": "Gold jewellery",
-                     *               "slug": "gold-jewellery"
-                     *             },
-                     *             "display_price": {
-                     *               "amount": 120000,
-                     *               "currency": "NGN",
-                     *               "available": true,
-                     *               "reason": null,
-                     *               "karat": null
-                     *             }
-                     *           }
-                     *         ],
-                     *         "total": 1,
+                     *         "items": [],
+                     *         "total": 0,
                      *         "page": 1,
                      *         "page_size": 24
-                     *       },
-                     *       "message": null
+                     *       }
                      *     }
                      */
                     "application/json": components["schemas"]["ApiSuccess_ProductPage_"];
@@ -6485,13 +6521,10 @@ export interface operations {
                      *       "status": 422,
                      *       "error": {
                      *         "code": "VALIDATION_ERROR",
-                     *         "message": "Invalid fields; error.fieldErrors maps field names to messages.",
+                     *         "message": "Check the product filters.",
                      *         "fieldErrors": {
-                     *           "name": [
-                     *             "Enter a product name."
-                     *           ],
-                     *           "stock": [
-                     *             "Stock cannot be negative."
+                     *           "max_price": [
+                     *             "Must be greater than or equal to min_price."
                      *           ]
                      *         }
                      *       }
@@ -7211,9 +7244,48 @@ export interface operations {
     listAdminProducts: {
         parameters: {
             query?: {
-                page?: number;
-                page_size?: number;
+                /** @description Case-insensitive product-name substring; %, _ and backslashes are literal characters. */
                 q?: string;
+                /** @description Exact category slug, for example gold-necklaces. */
+                category?: string | null;
+                /** @description Exact category type. */
+                category_type?: ("Fashion" | "Gold" | "Accessories" | "Bags" | "Footwear" | "Modest Wear") | null;
+                /** @description Exact merchandising label; omitted includes unlabeled products. */
+                label?: ("best seller" | "new in" | "featured") | null;
+                /** @description Inclusive minimum NGN price, not kobo; compared to the whole-NGN display price. Unavailable prices are excluded. */
+                min_price?: (number | string) | null;
+                /** @description Inclusive maximum displayed price in NGN. Uses the API display price, including gold-rate pricing and rounding. */
+                max_price?: (number | string) | null;
+                /** @description Product must offer this karat. Does not select or change the displayed price. */
+                gold_karat?: ("18k" | "22k" | "24k") | null;
+                /** @description Product must offer this exact size. */
+                size?: ("one size" | "xs" | "s" | "m" | "l" | "xl" | "xxl" | "37" | "38" | "39" | "40" | "41" | "42") | null;
+                /** @description Product must offer this exact color. */
+                color?: ("gold" | "black" | "cream" | "ivory" | "white" | "brown" | "neutral" | "sage" | "blush" | "rose" | "taupe" | "lavender" | "slate") | null;
+                /** @description Supported fixed/starting-from presentation; does not enable gold-rate pricing. */
+                pricing_type?: ("fixed" | "starting_from") | null;
+                /** @description Whether pricing uses weight, manual gold rates and making charge. */
+                is_gold_karat_priced?: boolean | null;
+                /** @description True: stock minus unexpired held reservations > 0. False: <= 0. Read-only snapshot; checkout remains authoritative. */
+                in_stock?: boolean | null;
+                /** @description Includes raw-stock ascending/descending and most recently updated; product ID breaks ties. */
+                sort?: "newest" | "oldest" | "price_asc" | "price_desc" | "name" | "name_desc" | "stock_asc" | "stock_desc" | "updated_desc";
+                /** @description One-based page after applying all filters. */
+                page?: number;
+                /** @description Maximum products per page; total counts all matching products. */
+                page_size?: number;
+                /** @description Admin only. Omitted includes draft, active and archived products. */
+                status?: ("draft" | "active" | "archived") | null;
+                /** @description Admin only. Filter the parent category's active state. */
+                category_active?: boolean | null;
+                /** @description Admin only. Inclusive minimum recorded stock, before reservation subtraction. */
+                stock_min?: number | null;
+                /** @description Admin only. Inclusive maximum recorded stock, before reservation subtraction. */
+                stock_max?: number | null;
+                /** @description Admin only. Inclusive creation timestamp, ISO 8601 with timezone; compared as UTC instants. */
+                created_from?: string | null;
+                /** @description Admin only. Inclusive upper creation timestamp; must be >= created_from. */
+                created_to?: string | null;
             };
             header?: never;
             path?: never;
@@ -7221,7 +7293,7 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description Successful Response */
+            /** @description Filtered products and total matching count. */
             200: {
                 headers: {
                     [name: string]: unknown;
@@ -7231,62 +7303,19 @@ export interface operations {
                      * @example {
                      *       "success": true,
                      *       "status": 200,
+                     *       "message": "Products retrieved successfully.",
                      *       "data": {
-                     *         "items": [
-                     *           {
-                     *             "name": "Gold pendant",
-                     *             "slug": "gold-pendant",
-                     *             "category_id": "00000000-0000-4000-8000-000000000001",
-                     *             "description": "A polished gold pendant.",
-                     *             "pricing_type": "fixed",
-                     *             "price": "120000.00",
-                     *             "stock": 3,
-                     *             "status": "active",
-                     *             "images": [
-                     *               {
-                     *                 "media_id": "00000000-0000-4000-8000-000000000001",
-                     *                 "alt": "Gold pendant on a neutral background",
-                     *                 "url": "https://storage.example.com/catalog-images/product/image.png",
-                     *                 "position": 0
-                     *               }
-                     *             ],
-                     *             "sizes": [
-                     *               "one size"
-                     *             ],
-                     *             "colors": [
-                     *               "gold"
-                     *             ],
-                     *             "gold_karats": [
-                     *               "18k"
-                     *             ],
-                     *             "is_gold_karat_priced": false,
-                     *             "id": "00000000-0000-4000-8000-000000000001",
-                     *             "created_at": "2026-10-30T12:00:00Z",
-                     *             "updated_at": "2026-10-30T12:00:00Z",
-                     *             "category": {
-                     *               "name": "Gold jewellery",
-                     *               "slug": "gold-jewellery"
-                     *             },
-                     *             "display_price": {
-                     *               "amount": 120000,
-                     *               "currency": "NGN",
-                     *               "available": true,
-                     *               "reason": null,
-                     *               "karat": null
-                     *             }
-                     *           }
-                     *         ],
-                     *         "total": 1,
+                     *         "items": [],
+                     *         "total": 0,
                      *         "page": 1,
                      *         "page_size": 24
-                     *       },
-                     *       "message": null
+                     *       }
                      *     }
                      */
                     "application/json": components["schemas"]["ApiSuccess_ProductPage_"];
                 };
             };
-            /** @description A valid Neon bearer token is required. */
+            /** @description A verified backend cookie session or valid bearer identity is required. */
             401: {
                 headers: {
                     [name: string]: unknown;
@@ -7298,7 +7327,7 @@ export interface operations {
                      *       "status": 401,
                      *       "error": {
                      *         "code": "UNAUTHENTICATED",
-                     *         "message": "A valid Neon bearer token is required."
+                     *         "message": "Sign in to continue."
                      *       }
                      *     }
                      */
@@ -7374,13 +7403,10 @@ export interface operations {
                      *       "status": 422,
                      *       "error": {
                      *         "code": "VALIDATION_ERROR",
-                     *         "message": "Invalid fields; error.fieldErrors maps field names to messages.",
+                     *         "message": "Check the product filters.",
                      *         "fieldErrors": {
-                     *           "name": [
-                     *             "Enter a product name."
-                     *           ],
-                     *           "stock": [
-                     *             "Stock cannot be negative."
+                     *           "max_price": [
+                     *             "Must be greater than or equal to min_price."
                      *           ]
                      *         }
                      *       }

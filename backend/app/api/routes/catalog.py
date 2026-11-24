@@ -1,4 +1,4 @@
-from typing import Literal
+from typing import Annotated
 
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy import select
@@ -12,17 +12,17 @@ from app.schemas.envelope import ApiSuccess
 from app.services.catalog import fail, output, rates
 from app.services.catalog_page import product_page
 from app.services.pricing import calculate_price
+from app.schemas.catalog_filters import ProductFilters
+from app.api.product_filter_docs import PUBLIC_DESCRIPTION, PRODUCT_LIST_RESPONSES
 
 router = APIRouter(prefix="/catalog", tags=["catalog"], responses=ERRORS)
 
 
 @router.get("/products", response_model=ApiSuccess[ProductPage], operation_id="listPublicProducts",
-            summary="Search published products", description="Public. Only active products in active categories. Prices are whole NGN; unavailable prices sort last.")
-async def products(q: str = Query("", max_length=100), category: str | None = Query(None, max_length=180),
-                   sort: Literal["newest", "price_asc", "price_desc", "name"] = "newest",
-                   page: int = Query(1, ge=1), page_size: int = Query(24, ge=1, le=100),
-                   session: AsyncSession = Depends(get_db_session)):
-    return ApiSuccess(status=200, data=await product_page(session, q=q, category=category, sort=sort, page=page, page_size=page_size))
+            summary="Search published products", description=PUBLIC_DESCRIPTION, responses=PRODUCT_LIST_RESPONSES)
+async def products(filters: Annotated[ProductFilters, Query()], session: AsyncSession = Depends(get_db_session)):
+    return ApiSuccess(status=200, message="Products retrieved successfully.",
+                      data=await product_page(session, filters=filters))
 
 
 async def public_product(session: AsyncSession, slug: str):

@@ -123,6 +123,10 @@
   grid-template-columns: repeat(2,minmax(0,1fr));
 }
 
+.meere-collections[data-count='1'] {
+  grid-template-columns: 1fr;
+}
+
 .meere-collection {
   position: relative;
   min-height: 100svh;

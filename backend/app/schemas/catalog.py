@@ -4,6 +4,7 @@ from typing import Annotated, Literal
 from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
+from app.schemas.catalog_options import CategoryType, ProductLabel, ProductSize, ProductColor, ProductStatus, ProductPricing
 
 Money = Annotated[Decimal, Field(ge=0, max_digits=16, decimal_places=2, description="NGN amount, not kobo.")]
 Karat = Literal["18k", "22k", "24k"]
@@ -22,7 +23,7 @@ class ImageInput(CatalogBody):
 class CategoryBody(CatalogBody):
     name: str = Field(min_length=1, max_length=150)
     slug: Slug
-    category_type: Literal["Fashion", "Gold", "Accessories", "Bags", "Footwear", "Modest Wear"]
+    category_type: CategoryType
     description: str | None = Field(default=None, max_length=5000)
     is_active: bool = True
     is_featured: bool = False
@@ -44,12 +45,12 @@ class ProductFields(CatalogBody):
     pricing_type: Literal["fixed", "starting_from", "price_on_request"] = "fixed"
     price: Money | None = None
     stock: int = Field(default=0, ge=0)
-    status: Literal["draft", "active", "archived"] = "draft"
+    status: ProductStatus = "draft"
     description: str = Field(min_length=1, max_length=20000)
-    label: Literal["best seller", "new in", "featured"] | None = None
+    label: ProductLabel | None = None
     details: list[Annotated[str, Field(max_length=500)]] = Field(default_factory=list, max_length=30)
-    sizes: list[Literal["one size", "xs", "s", "m", "l", "xl", "xxl", "37", "38", "39", "40", "41", "42"]] = Field(default_factory=list)
-    colors: list[Literal["gold", "black", "cream", "ivory", "white", "brown", "neutral", "sage", "blush", "rose", "taupe", "lavender", "slate"]] = Field(default_factory=list)
+    sizes: list[ProductSize] = Field(default_factory=list)
+    colors: list[ProductColor] = Field(default_factory=list)
     gold_karats: list[Karat] = Field(default_factory=list, max_length=3)
     gold_weight_grams: Annotated[Decimal, Field(gt=0, max_digits=12, decimal_places=3)] | None = None
     making_charge: Money = Decimal(0)
@@ -73,7 +74,7 @@ class ProductFields(CatalogBody):
 
 
 class ProductBody(ProductFields):
-    pricing_type: Literal["fixed", "starting_from"] = "fixed"
+    pricing_type: ProductPricing = "fixed"
 
     @model_validator(mode="after")
     def starting_price(self):

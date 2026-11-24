@@ -1,33 +1,21 @@
 """Bounded catalog reads: sort and paginate in PostgreSQL, then load associations in batches."""
-from sqlalchemy import case, func, select
+from sqlalchemy import func, select
 
 from app.models.catalog import Category, GoldRate, Product, ProductOption
 from app.models.media import Media, MediaLink
 from app.schemas.catalog import ProductData
 from app.services.pricing import calculate_price
 from app.services.storage import public_url
+from app.schemas.catalog_filters import ProductFilters
+from app.services.catalog_filters import product_query, product_ordering
 
 
-async def product_page(session, *, public=True, q="", category=None, sort="newest", page=1, page_size=24):
-    query = select(Product).join(Category)
-    if public:
-        query = query.where(Product.status == "active", Category.is_active.is_(True))
-    if q:
-        escaped = q.replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_")
-        query = query.where(Product.name.ilike(f"%{escaped}%", escape="\\"))
-    if category:
-        query = query.where(Category.slug == category)
+async def product_page(session, *, public=True, filters: ProductFilters | None = None):
+    filters = filters or ProductFilters()
+    page, page_size = filters.page, filters.page_size
+    query = product_query(filters, public=public)
     total = await session.scalar(select(func.count()).select_from(query.subquery()))
-    minimum_rate = select(func.min(GoldRate.rate)).join(
-        ProductOption, ProductOption.value == GoldRate.karat).where(
-        ProductOption.product_id == Product.id, ProductOption.kind == "gold_karats").correlate(Product).scalar_subquery()
-    effective = case(
-        (Product.pricing_type == "price_on_request", None),
-        (Product.is_gold_karat_priced.is_(True), func.round(Product.gold_weight_grams * minimum_rate + Product.making_charge)),
-        else_=func.round(Product.price),
-    )
-    ordering = {"price_asc": effective.asc().nullslast(), "price_desc": effective.desc().nullslast(),
-                "name": func.lower(Product.name).asc(), "newest": Product.created_at.desc()}[sort]
+    ordering = product_ordering(filters)
     products = (await session.scalars(query.order_by(ordering, Product.id).offset((page - 1) * page_size).limit(page_size))).all()
     if not products:
         return {"items": [], "total": total, "page": page, "page_size": page_size}

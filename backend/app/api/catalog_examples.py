@@ -39,6 +39,6 @@ def add_catalog_examples(schema):
                 elif path.endswith(f"/{kind}") and method == "get":
                     data = {"items": [data], "total": 1, "page": 1, "page_size": 24} if kind == "products" else [data]
                 status = "201" if method == "post" else "200"
-                operation["responses"][status]["content"]["application/json"]["example"] = {
-                    "success": True, "status": int(status), "data": data, "message": None}
+                operation["responses"][status]["content"]["application/json"].setdefault("example", {
+                    "success": True, "status": int(status), "data": data, "message": None})
     return schema

@@ -80,6 +80,11 @@ test('home fallback and profile keys stay stable; identity and admin policies st
   assert.equal(reads.at(-1).options.shouldRetryOnError, false)
   home.useHomeProducts()
   assert.equal(reads.at(-1).key, '/api/catalog/products?sort=newest&page=1&page_size=8')
+  home.useHomeFeaturedNecklaces({ items: [], total: 0, page: 1, page_size: 4 })
+  assert.equal(reads.at(-1).key, '/api/catalog/products?category=gold-necklaces&label=featured&sort=newest&page=1&page_size=4')
+  assert.equal(reads.at(-1).options.fallbackData.data.page_size, 4)
+  home.useHomeFeaturedProducts()
+  assert.equal(reads.at(-1).key, '/api/catalog/products?label=featured&sort=newest&page=1&page_size=4')
   const account = load('hooks/use-account-endpoint.ts')
   account.useAccountProfile()
   assert.equal(reads.at(-1).key, '/api/account/profile')
@@ -98,6 +103,30 @@ test('home fallback and profile keys stay stable; identity and admin policies st
   assert.equal(reads.at(-1).key, '/api/admin/categories/00000000-0000-4000-8000-000000000001')
   admin.useAdminCategory(null)
   assert.equal(reads.at(-1).key, null)
+})
+
+test('home collections split at four without repeats, mutate no data and preserve tied ordering', () => {
+  const { selectHomeCollections } = load('lib/catalog/home-collections.ts')
+  for (const count of [0, 1, 2, 3, 4, 7]) {
+    const categories = Array.from({ length: count }, (_, index) => ({
+      id: String(index), is_active: true, is_featured: true, featured_sort_order: index,
+    }))
+    const first = selectHomeCollections(categories, 0)
+    const second = selectHomeCollections(categories, 2)
+    assert.equal(first.length, Math.min(count, 2))
+    assert.equal(second.length, Math.min(Math.max(count - 2, 0), 2))
+    assert.equal(new Set([...first, ...second].map((category) => category.id)).size, Math.min(count, 4))
+  }
+  const categories = [
+    { id: 'later', is_active: true, is_featured: true, featured_sort_order: 2 },
+    { id: 'first', is_active: true, is_featured: true, featured_sort_order: 1 },
+    { id: 'tie', is_active: true, is_featured: true, featured_sort_order: 1 },
+    { id: 'hidden', is_active: false, is_featured: true, featured_sort_order: 0 },
+    { id: 'ordinary', is_active: true, is_featured: false, featured_sort_order: 0 },
+  ]
+  assert.deepEqual(selectHomeCollections(categories, 0).map(({ id }) => id), ['first', 'tie'])
+  assert.deepEqual(selectHomeCollections(categories, 2).map(({ id }) => id), ['later'])
+  assert.equal(categories[0].id, 'later')
 })
 
 test('CSRF remains on-demand and profile schema validation uses the shared fetcher', async (t) => {

@@ -1,24 +1,25 @@
 from uuid import UUID
+from typing import Annotated
 from fastapi import APIRouter, Depends, Query
-from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.api.catalog_docs import ERRORS
 from app.db.session import get_db_session
-from app.models.catalog import Product
 from app.services.identity import require_admin
 from app.schemas.catalog import ProductBody, ProductData, Deleted, ProductPage
 from app.schemas.envelope import ApiSuccess
 from app.services.catalog import output, record, save, remove
 from app.services.catalog_page import product_page
+from app.schemas.catalog_filters import AdminProductFilters
+from app.api.product_filter_docs import ADMIN_DESCRIPTION, ADMIN_LIST_RESPONSES
 
 router = APIRouter(prefix="/admin/products", tags=["admin products"],
                    dependencies=[Depends(require_admin)], responses=ERRORS)
 
 @router.get("", response_model=ApiSuccess[ProductPage], operation_id="listAdminProducts",
-            summary="List products for administration", description="Requires admin or super_admin. Includes unpublished records.")
-async def listing(session: AsyncSession = Depends(get_db_session), page: int = Query(1, ge=1), page_size: int = Query(24, ge=1, le=100), q: str = Query('', max_length=100)):
-    data = await product_page(session, public=False, page=page, page_size=page_size, q=q)
-    return ApiSuccess(status=200, data=data)
+            summary="List products for administration", description=ADMIN_DESCRIPTION, responses=ADMIN_LIST_RESPONSES)
+async def listing(filters: Annotated[AdminProductFilters, Query()], session: AsyncSession = Depends(get_db_session)):
+    data = await product_page(session, public=False, filters=filters)
+    return ApiSuccess(status=200, message="Products retrieved successfully.", data=data)
 
 @router.get("/{identifier}", response_model=ApiSuccess[ProductData], operation_id="getAdminProduct",
             summary="Read a product for editing", description="Requires administrator. Identifier is a catalog UUID.")
