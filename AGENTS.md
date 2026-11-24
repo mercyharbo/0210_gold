@@ -95,6 +95,7 @@ Use the `nextjs-api-state` skill for frontend request and state architecture.
 - Where OAuth redirects or session-cookie protocols require the official provider SDK, keep those SDK calls visible in the owning auth form and document the exception. Do not force protocol operations through an incompatible wrapper.
 
 ## State Ownership and Prop Drilling
+- Components access shared UI stores through purpose-specific hooks under `stores/hooks/`, such as `const { menuOpen, setMenuOpen, reset } = useStoreHeader()`. Keep selective subscriptions and shallow object selectors inside those hooks instead of repeating subscriptions in components.
 - Use small, feature-specific Zustand stores for shared UI state: selected IDs, filters, dialogs, workflow steps, and cross-component controls.
 - Components needing shared state select it directly from the relevant store. Do not pass it through intermediate components that do not use it.
 - Keep stores in the existing `stores/` directory. Do not introduce a competing `store/` directory.
@@ -108,6 +109,8 @@ Use the `nextjs-api-state` skill for frontend request and state architecture.
 - Props remain appropriate for reusable presentation components and short parent-child communication.
 
 ## Small Files and Predictable Folders
+- Separate imports, state, derived values, handlers, effects and JSX with blank lines. Expand conditional blocks and multi-prop JSX for readability; do not compress code to fit a line limit.
+- Use inline Tailwind utilities in each component's `className` for storefront layout and appearance. Do not introduce feature CSS selectors or class-string helper files; retain minimal custom CSS only for animation definitions that require it.
 - Keep handwritten feature files below 200 lines. Split components and responsibilities before files become difficult to follow. Generated files, lockfiles, and vendored shadcn primitives are exempt; do not compress code to meet the limit.
 - Keep route pages thin. Extract forms, dialogs, sections, and tables into named components.
 - Compose headers, footers and page content directly in Next.js layouts. Avoid presentation-only shell wrappers; reserve provider wrappers for actual context, state or theme responsibilities.

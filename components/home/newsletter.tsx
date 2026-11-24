@@ -1,56 +1,83 @@
 'use client'
 
 import Image from 'next/image'
-import { useEffect } from 'react'
-import { usePathname } from 'next/navigation'
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { generalSans } from '@/lib/fonts/storefront'
-import { useStorefrontNavigation } from '@/stores/storefront-navigation'
+import { useStoreNewsletter } from '@/stores/hooks/use-storefront-navigation'
 
 export function HomeNewsletter({ autoOpen = true }: { autoOpen?: boolean }) {
-  const pathname = usePathname()
-  const open = useStorefrontNavigation((state) => state.newsletterOpen)
-  const setOpen = useStorefrontNavigation((state) => state.setNewsletterOpen)
-
-  useEffect(() => {
-    if (!autoOpen || pathname === '/profile' || pathname.startsWith('/profile/')) return
-    if (sessionStorage.getItem('fm-luxe-newsletter-seen')) return
-    const timer = window.setTimeout(() => {
-      const state = useStorefrontNavigation.getState()
-      if (!state.menuOpen && !state.searchOpen) {
-        setOpen(true)
-        sessionStorage.setItem('fm-luxe-newsletter-seen', '1')
-      }
-    }, 8000)
-    return () => window.clearTimeout(timer)
-  }, [autoOpen, pathname, setOpen])
+  const { newsletterOpen, handleNewsletterOpenChange } = useStoreNewsletter(autoOpen)
 
   return (
-    <Dialog open={open} onOpenChange={(value) => {
-      setOpen(value)
-      sessionStorage.setItem('fm-luxe-newsletter-seen', '1')
-    }}>
-      <DialogContent overlayClassName="bg-black/80 backdrop-blur-none supports-backdrop-filter:backdrop-blur-none" className={`${generalSans.className} meere-newsletter`}>
-        <div className="meere-newsletter-image">
-          <Image src="/images/hero-editorial-jewellery.png" alt="FM LUXE jewellery collection"
-            fill sizes="(max-width: 767px) 100vw, 380px" className="object-cover" />
+    <Dialog open={newsletterOpen} onOpenChange={handleNewsletterOpenChange}>
+      <DialogContent
+        overlayClassName='bg-black/80 backdrop-blur-none supports-backdrop-filter:backdrop-blur-none motion-reduce:animate-none'
+        className={`${generalSans.className} grid w-[min(760px,calc(100vw-32px))] max-w-[760px]
+          grid-cols-1 gap-0 overflow-y-auto rounded-none border-0 p-0 text-black ring-0
+          motion-reduce:animate-none motion-reduce:transition-none max-md:max-h-[calc(100svh-32px)]
+          md:grid-cols-2 md:overflow-hidden sm:max-w-[760px]
+          motion-reduce:[&_*]:animate-none motion-reduce:[&_*]:transition-none`}
+      >
+        <div className='relative min-h-[220px] md:min-h-[550px]'>
+          <Image
+            src='/images/hero-editorial-jewellery.png'
+            alt='FM LUXE jewellery collection'
+            fill
+            sizes='(max-width: 767px) 100vw, 380px'
+            className='object-cover'
+          />
         </div>
-        <div className="meere-newsletter-content">
-          <p className="meere-logo">fm luxe</p>
+
+        <div className='flex flex-col justify-between gap-6 p-6 md:gap-8'>
+          <p className='text-left text-2xl font-semibold leading-none max-[390px]:text-[22px]'>
+            fm luxe
+          </p>
+
           <DialogHeader>
-            <DialogTitle className="meere-newsletter-title">Join the Collection</DialogTitle>
+            <DialogTitle className='text-[28px] font-semibold leading-[1.1] [font-family:inherit] md:text-[34px]'>
+              Join the Collection
+            </DialogTitle>
+
             <DialogDescription>New arrivals and collection updates from FM LUXE.</DialogDescription>
           </DialogHeader>
-          <div className="flex flex-col gap-4">
-            <label htmlFor="newsletter-email" className="sr-only">Email address</label>
-            <Input id="newsletter-email" type="email" placeholder="Email" disabled
-              aria-describedby="newsletter-status" className="meere-newsletter-input" />
-            <label htmlFor="newsletter-name" className="sr-only">Name</label>
-            <Input id="newsletter-name" placeholder="Name" disabled className="meere-newsletter-input" />
-            <Button disabled className="meere-newsletter-submit">Join Now</Button>
-            <p id="newsletter-status" className="text-xs text-gray-600">Newsletter signup coming soon.</p>
+
+          <div className='flex flex-col gap-4'>
+            <label htmlFor='newsletter-email' className='sr-only'>Email address</label>
+
+            <Input
+              id='newsletter-email'
+              type='email'
+              placeholder='Email'
+              disabled
+              aria-describedby='newsletter-status'
+              className='h-10 rounded-none border-0 bg-[#e6e6e6] px-3 text-black disabled:opacity-100'
+            />
+
+            <label htmlFor='newsletter-name' className='sr-only'>Name</label>
+
+            <Input
+              id='newsletter-name'
+              placeholder='Name'
+              disabled
+              className='h-10 rounded-none border-0 bg-[#e6e6e6] px-3 text-black disabled:opacity-100'
+            />
+
+            <Button disabled className='min-h-10 rounded-none bg-[#e10600] text-white disabled:opacity-50'>
+              Join Now
+            </Button>
+
+            <p id='newsletter-status' className='text-xs text-gray-600'>
+              Newsletter signup coming soon.
+            </p>
           </div>
         </div>
       </DialogContent>
