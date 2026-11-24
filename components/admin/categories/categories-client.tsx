@@ -42,7 +42,7 @@ export function CategoriesClient() {
       category.slug.includes(query),
   )
 
-  async function destroy() {
+  async function handleDeleteCategories() {
     if (!deleting || request.loading) return
     try {
       const response = await request.execute(
@@ -73,6 +73,8 @@ export function CategoriesClient() {
       )
     }
   }
+
+  if (isLoading) return <p role='status' className='text-sm'>Loading...</p>
 
   return (
     <section className='flex flex-col gap-6'>
@@ -111,11 +113,7 @@ export function CategoriesClient() {
           />
         </div>
 
-        {isLoading ? (
-          <p role='status' className='p-5 text-sm'>
-            Loading...
-          </p>
-        ) : data ? (
+        {data ? (
           <>
             <Table className='min-w-2xl'>
               <TableHeader className='bg-gray-50'>
@@ -234,7 +232,7 @@ export function CategoriesClient() {
         description={`Delete "${deleting?.name ?? ''}"? Categories used by products cannot be deleted.`}
         confirmText='Delete category'
         isPending={request.loading}
-        onConfirm={() => void destroy()}
+        onConfirm={() => void handleDeleteCategories()}
         onCloseAutoFocus={(event) => {
           event.preventDefault()
           const target = deleteTrigger.current?.isConnected
