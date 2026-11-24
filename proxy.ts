@@ -32,6 +32,19 @@ function redirectTo(
 }
 
 export async function proxy(request: NextRequest) {
+  // Admin routes always validate backend sessions, including unavailable sections.
+  if (matchesRoute(request.nextUrl.pathname, ['/admin'])) {
+    try {
+      const role = await readSessionRole(request.headers.get('cookie'))
+      if (!role) return redirectTo(request, '/login')
+      return role === 'admin' || role === 'super_admin'
+        ? NextResponse.next() : redirectTo(request, '/')
+    } catch {
+      return new NextResponse('Unable to verify administrator access. Please try again.', {
+        status: 503, headers: { 'Cache-Control': 'no-store' },
+      })
+    }
+  }
   if (matchesRoute(request.nextUrl.pathname, ['/profile'])) {
     try {
       const role = await readSessionRole(request.headers.get('cookie'))

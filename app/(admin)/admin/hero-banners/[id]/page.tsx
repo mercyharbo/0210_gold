@@ -1,4 +1,5 @@
-import { CatalogEditorLoader } from '@/components/catalog/admin/editor-loader'
-export default async function Page({ params }: { params: Promise<{ id: string }> }) {
-  return <CatalogEditorLoader kind="banners" id={(await params).id} />
+import { AdminUnavailable } from '@/components/admin/admin-unavailable'
+
+export default function Page() {
+  return <AdminUnavailable title='Edit banner' />
 }

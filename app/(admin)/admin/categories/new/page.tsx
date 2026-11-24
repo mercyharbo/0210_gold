@@ -1,4 +1,4 @@
-import { CatalogEditorLoader } from '@/components/catalog/admin/editor-loader'
+import { CategoryForm } from '@/components/admin/categories/category-form'
 export default function Page() {
-  return <CatalogEditorLoader kind="categories" />
+  return <CategoryForm />
 }

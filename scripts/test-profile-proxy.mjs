@@ -17,12 +17,12 @@ function profileProxy(readSessionRole) {
     '@/lib/auth/login-destination': {},
     '@/lib/site/removed-services': {},
   }
-  const module = { exports: {} }
+  const compiled = { exports: {} }
   new Function('require', 'module', 'exports', source)((name) => {
     assert.ok(name in modules, `Unexpected dependency: ${name}`)
     return modules[name]
-  }, module, module.exports)
-  return module.exports.proxy
+  }, compiled, compiled.exports)
+  return compiled.exports.proxy
 }
 
 for (const role of [null, 'customer', 'admin', 'super_admin']) {
@@ -42,6 +42,25 @@ for (const role of [null, 'customer', 'admin', 'super_admin']) {
 test('profile session service failure returns 503 without granting page access', async () => {
   const proxy = profileProxy(async () => { throw new Error('Service unavailable') })
   const response = await proxy(new NextRequest('http://localhost:4100/profile'))
+  assert.equal(response.status, 503)
+  assert.equal(response.headers.get('cache-control'), 'no-store')
+})
+
+for (const role of [null, 'customer', 'admin', 'super_admin']) {
+  test(`every admin route validates backend permissions: ${role ?? 'guest'}`, async () => {
+    const proxy = profileProxy(async () => role)
+    for (const path of ['/admin', '/admin/categories', '/admin/orders', '/admin/settings']) {
+      const response = await proxy(new NextRequest(`http://localhost:4100${path}`))
+      assert.equal(response.status, role === 'admin' || role === 'super_admin' ? 200 : 307)
+      assert.equal(response.headers.get('location'), !role ? 'http://localhost:4100/login'
+        : role === 'customer' ? 'http://localhost:4100/' : null)
+    }
+  })
+}
+
+test('admin session failures fail closed instead of showing a preview', async () => {
+  const proxy = profileProxy(async () => { throw new Error('Unavailable') })
+  const response = await proxy(new NextRequest('http://localhost:4100/admin/categories'))
   assert.equal(response.status, 503)
   assert.equal(response.headers.get('cache-control'), 'no-store')
 })

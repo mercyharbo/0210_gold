@@ -1,4 +1,5 @@
-import { CatalogSettingsForm } from '@/components/catalog/admin/settings-form'
+import { AdminUnavailable } from '@/components/admin/admin-unavailable'
+
 export default function Page() {
-  return <CatalogSettingsForm />
+  return <AdminUnavailable title='Settings' />
 }

@@ -16,13 +16,13 @@ function load(file) {
   const source = ts.transpileModule(fs.readFileSync(resolved, 'utf8'), {
     compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022, esModuleInterop: true },
   }).outputText
-  const module = { exports: {} }
+  const compiled = { exports: {} }
   const localRequire = (name) => name === 'react' ? { useCallback: (callback) => callback } : name === 'swr' ? swr :
     name.startsWith('@/') ? load(`${name.slice(2)}.ts`) : name.startsWith('.') ?
       load(path.resolve(path.dirname(resolved), `${name}.ts`)) : require(name)
-  new Function('require', 'module', 'exports', source)(localRequire, module, module.exports)
-  loaded.set(resolved, module.exports)
-  return module.exports
+  new Function('require', 'module', 'exports', source)(localRequire, compiled, compiled.exports)
+  loaded.set(resolved, compiled.exports)
+  return compiled.exports
 }
 const { apiFetcher, ApiError } = load('lib/api/client.ts')
 const { accountProfileSchema } = load('lib/validations/account-profile.ts')
@@ -94,9 +94,9 @@ test('home fallback and profile keys stay stable; identity and admin policies st
   assert.equal(reads.at(-1).key, null)
   admin.useAdminCategories()
   assert.equal(reads.at(-1).key, '/api/admin/categories')
-  admin.useAdminCatalogRecords('products', 2)
-  assert.equal(reads.at(-1).key, '/api/admin/products?page=2&page_size=24')
-  admin.useAdminCatalogRecord('categories')
+  admin.useAdminCategory('00000000-0000-4000-8000-000000000001')
+  assert.equal(reads.at(-1).key, '/api/admin/categories/00000000-0000-4000-8000-000000000001')
+  admin.useAdminCategory(null)
   assert.equal(reads.at(-1).key, null)
 })
 

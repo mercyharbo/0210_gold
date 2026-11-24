@@ -1,5 +1,5 @@
-import { CatalogRecordList } from '@/components/catalog/admin/record-list'
+import { CategoriesClient } from '@/components/admin/categories/categories-client'
 
 export default function Page() {
-  return <CatalogRecordList kind='categories' />
+  return <CategoriesClient />
 }

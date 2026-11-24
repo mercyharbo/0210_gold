@@ -1,4 +1,5 @@
-import { redirect } from 'next/navigation'
-export default async function Page({ params }: { params: Promise<{ id: string }> }) {
-  redirect(`/admin/products/${(await params).id}`)
+import { AdminUnavailable } from '@/components/admin/admin-unavailable'
+
+export default function Page() {
+  return <AdminUnavailable title='Edit product' />
 }

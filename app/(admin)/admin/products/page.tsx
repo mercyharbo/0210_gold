@@ -1,4 +1,5 @@
-import { CatalogRecordList } from '@/components/catalog/admin/record-list'
+import { AdminUnavailable } from '@/components/admin/admin-unavailable'
+
 export default function Page() {
-  return <CatalogRecordList kind="products" />
+  return <AdminUnavailable title='Products' />
 }

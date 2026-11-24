@@ -1,4 +1,5 @@
-import { CatalogEditorLoader } from '@/components/catalog/admin/editor-loader'
+import { AdminUnavailable } from '@/components/admin/admin-unavailable'
+
 export default function Page() {
-  return <CatalogEditorLoader kind="products" />
+  return <AdminUnavailable title='Add product' />
 }
