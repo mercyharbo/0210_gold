@@ -1,16 +1,22 @@
-import { FeaturedCollections } from '@/components/index/featured-collections'
-import { FeaturedProducts } from '@/components/index/featured-products'
-import { HeroBanner } from '@/components/index/hero-banner'
-import { getAuthProvider } from '@/lib/auth/provider'
-import { CatalogHome } from '@/components/catalog/home'
+import { HomeCollections } from '@/components/home/collections'
+import { HomeEditorial } from '@/components/home/editorial'
+import { HomeHero } from '@/components/home/hero'
+import { HomeProductSection } from '@/components/home/product-section'
+import { readHomeContent } from '@/lib/catalog/home'
 
-export default function page() {
-  if (getAuthProvider() === 'neon') return <CatalogHome />
+export default async function Page() {
+  const { banners, categories, products, necklaces, featuredProducts } =
+    await readHomeContent()
+
   return (
-    <main className=''>
-      <HeroBanner />
-      <FeaturedCollections />
-      <FeaturedProducts />
-    </main>
+    <>
+      <HomeHero initial={banners} />
+      <HomeProductSection section='arrivals' initial={products} />
+      <HomeCollections initial={categories} start={0} />
+      <HomeProductSection section='necklaces' initial={necklaces} />
+      <HomeCollections initial={categories} start={2} />
+      <HomeProductSection section='featured' initial={featuredProducts} />
+      <HomeEditorial />
+    </>
   )
 }

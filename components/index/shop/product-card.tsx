@@ -1,6 +1,6 @@
+import { getEffectiveProductPrice } from '@/lib/products/gold-pricing'
 import Image from 'next/image'
 import Link from 'next/link'
-import { getEffectiveProductPrice } from '@/lib/products/gold-pricing'
 import {
   formatProductPrice,
   getProductLabelClassName,
@@ -35,10 +35,13 @@ export function ProductCard({ product }: ProductCardProps) {
       </div>
 
       <div className='flex flex-col gap-0.5 text-black'>
-        <h3 className='font-sans text-[13px] font-medium leading-5'>{product.name}</h3>
-        <p className='text-[12px] font-medium text-muted-foreground'>{formatProductPrice(product, computedPrice)}</p>
+        <h3 className='font-sans text-base font-medium leading-5'>
+          {product.name}
+        </h3>
+        <p className='text-sm font-semibold text-muted-foreground'>
+          {formatProductPrice(product, computedPrice)}
+        </p>
       </div>
     </Link>
   )
 }
-

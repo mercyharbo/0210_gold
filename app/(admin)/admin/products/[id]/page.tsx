@@ -1,5 +1,6 @@
-import { AdminUnavailable } from '@/components/admin/admin-unavailable'
+import { ProductEditor } from '@/components/admin/products/product-editor'
 
-export default function Page() {
-  return <AdminUnavailable title='Product details' />
+export default async function Page({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params
+  return <ProductEditor id={id} />
 }

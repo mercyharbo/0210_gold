@@ -499,7 +499,7 @@ export interface paths {
         post?: never;
         /**
          * Delete a product
-         * @description Requires administrator. Referenced categories return 409. Detached images are retained for cleanup after 24 hours.
+         * @description Requires administrator. Active stock reservations return 409. Historical order snapshots are preserved. Detached images are retained for safe cleanup after 24 hours.
          */
         delete: operations["deleteProduct"];
         options?: never;
@@ -7480,7 +7480,7 @@ export interface operations {
             };
         };
         responses: {
-            /** @description Successful Response */
+            /** @description Product created successfully. */
             201: {
                 headers: {
                     [name: string]: unknown;
@@ -7490,6 +7490,7 @@ export interface operations {
                      * @example {
                      *       "success": true,
                      *       "status": 201,
+                     *       "message": "Product created successfully.",
                      *       "data": {
                      *         "name": "Gold pendant",
                      *         "slug": "gold-pendant",
@@ -7518,8 +7519,8 @@ export interface operations {
                      *         ],
                      *         "is_gold_karat_priced": false,
                      *         "id": "00000000-0000-4000-8000-000000000001",
-                     *         "created_at": "2026-10-30T12:00:00Z",
-                     *         "updated_at": "2026-10-30T12:00:00Z",
+                     *         "created_at": "2026-11-24T12:00:00Z",
+                     *         "updated_at": "2026-11-24T12:00:00Z",
                      *         "category": {
                      *           "name": "Gold jewellery",
                      *           "slug": "gold-jewellery"
@@ -7527,12 +7528,9 @@ export interface operations {
                      *         "display_price": {
                      *           "amount": 120000,
                      *           "currency": "NGN",
-                     *           "available": true,
-                     *           "reason": null,
-                     *           "karat": null
+                     *           "available": true
                      *         }
-                     *       },
-                     *       "message": null
+                     *       }
                      *     }
                      */
                     "application/json": components["schemas"]["ApiSuccess_ProductData_"];
@@ -7673,7 +7671,7 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description Successful Response */
+            /** @description Product retrieved successfully. */
             200: {
                 headers: {
                     [name: string]: unknown;
@@ -7683,6 +7681,7 @@ export interface operations {
                      * @example {
                      *       "success": true,
                      *       "status": 200,
+                     *       "message": "Product retrieved successfully.",
                      *       "data": {
                      *         "name": "Gold pendant",
                      *         "slug": "gold-pendant",
@@ -7711,8 +7710,8 @@ export interface operations {
                      *         ],
                      *         "is_gold_karat_priced": false,
                      *         "id": "00000000-0000-4000-8000-000000000001",
-                     *         "created_at": "2026-10-30T12:00:00Z",
-                     *         "updated_at": "2026-10-30T12:00:00Z",
+                     *         "created_at": "2026-11-24T12:00:00Z",
+                     *         "updated_at": "2026-11-24T12:00:00Z",
                      *         "category": {
                      *           "name": "Gold jewellery",
                      *           "slug": "gold-jewellery"
@@ -7720,12 +7719,9 @@ export interface operations {
                      *         "display_price": {
                      *           "amount": 120000,
                      *           "currency": "NGN",
-                     *           "available": true,
-                     *           "reason": null,
-                     *           "karat": null
+                     *           "available": true
                      *         }
-                     *       },
-                     *       "message": null
+                     *       }
                      *     }
                      */
                     "application/json": components["schemas"]["ApiSuccess_ProductData_"];
@@ -7901,7 +7897,7 @@ export interface operations {
             };
         };
         responses: {
-            /** @description Successful Response */
+            /** @description Product updated successfully. */
             200: {
                 headers: {
                     [name: string]: unknown;
@@ -7911,6 +7907,7 @@ export interface operations {
                      * @example {
                      *       "success": true,
                      *       "status": 200,
+                     *       "message": "Product updated successfully.",
                      *       "data": {
                      *         "name": "Gold pendant",
                      *         "slug": "gold-pendant",
@@ -7939,8 +7936,8 @@ export interface operations {
                      *         ],
                      *         "is_gold_karat_priced": false,
                      *         "id": "00000000-0000-4000-8000-000000000001",
-                     *         "created_at": "2026-10-30T12:00:00Z",
-                     *         "updated_at": "2026-10-30T12:00:00Z",
+                     *         "created_at": "2026-11-24T12:00:00Z",
+                     *         "updated_at": "2026-11-24T12:00:00Z",
                      *         "category": {
                      *           "name": "Gold jewellery",
                      *           "slug": "gold-jewellery"
@@ -7948,12 +7945,9 @@ export interface operations {
                      *         "display_price": {
                      *           "amount": 120000,
                      *           "currency": "NGN",
-                     *           "available": true,
-                     *           "reason": null,
-                     *           "karat": null
+                     *           "available": true
                      *         }
-                     *       },
-                     *       "message": null
+                     *       }
                      *     }
                      */
                     "application/json": components["schemas"]["ApiSuccess_ProductData_"];
@@ -8097,12 +8091,22 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description Successful Response */
+            /** @description Product deleted successfully. */
             200: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "success": true,
+                     *       "status": 200,
+                     *       "message": "Product deleted successfully.",
+                     *       "data": {
+                     *         "deleted": true
+                     *       }
+                     *     }
+                     */
                     "application/json": components["schemas"]["ApiSuccess_Deleted_"];
                 };
             };

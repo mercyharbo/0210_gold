@@ -11,18 +11,21 @@ type ImageDropzoneProps = {
   replacing: boolean
   invalid: boolean
   onSelect: (files: FileList | null) => void
+  inputId?: string
+  multiple?: boolean
 }
 
-export function ImageDropzone({ disabled, replacing, invalid, onSelect }: ImageDropzoneProps) {
+export function ImageDropzone({ disabled, replacing, invalid, onSelect, inputId = 'category-image', multiple = false }: ImageDropzoneProps) {
   const input = useRef<HTMLInputElement>(null)
   const [dragging, setDragging] = useState(false)
   return (
     <>
       <Button
         type='button'
+        id={`${inputId}-button`}
         variant='outline'
         disabled={disabled}
-        aria-describedby='category-image-help'
+        aria-describedby={`${inputId}-help`}
         aria-invalid={invalid}
         className={cn(
           'h-auto w-full gap-3 whitespace-normal rounded-md border border-dashed border-gray-300 bg-gray-50/50 text-sm font-normal hover:border-gold hover:bg-gold/5',
@@ -45,13 +48,14 @@ export function ImageDropzone({ disabled, replacing, invalid, onSelect }: ImageD
         }}
       >
         <ImagePlus className={replacing ? 'size-5 text-gray-500' : 'size-6 text-gray-500'} aria-hidden='true' />
-        <span>Drop {replacing ? 'a replacement' : 'your image'} here, or <span className='font-medium text-gold underline underline-offset-4'>browse files</span></span>
+        <span>Drop {replacing ? 'a replacement' : multiple ? 'your images' : 'your image'} here, or <span className='font-medium text-gold underline underline-offset-4'>browse files</span></span>
       </Button>
-      <p id='category-image-help' className='text-xs text-gray-600'>One JPEG, PNG, WebP or AVIF image, up to 5 MB.</p>
+      <p id={`${inputId}-help`} className='text-xs text-gray-600'>{multiple ? 'Up to 8 JPEG, PNG, WebP or AVIF images, up to 5 MB each.' : 'One JPEG, PNG, WebP or AVIF image, up to 5 MB.'}</p>
       <Input
-        id='category-image'
+        id={inputId}
         ref={input}
         type='file'
+        multiple={multiple}
         className='hidden'
         tabIndex={-1}
         disabled={disabled}

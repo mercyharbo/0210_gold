@@ -12,7 +12,7 @@ import { useApiRequest } from '@/hooks/use-api-request'
 import { useToast } from '@/stores/hooks/use-toast'
 import type { UploadAuthorization } from '@/types/catalog'
 import type { CategoryFormValues } from '@/lib/validations/admin-category'
-import { ImageDropzone } from './image-dropzone'
+import { ImageDropzone } from '@/components/admin/media/image-dropzone'
 
 export function CategoryImage({ onBusy, disabled }: { onBusy: (busy: boolean) => void; disabled: boolean }) {
   const { control, register, setValue, formState: { errors } } = useFormContext<CategoryFormValues>()

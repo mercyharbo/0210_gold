@@ -17,65 +17,7 @@
   outline-offset: 4px;
 }
 
-.meere-hero, .meere-editorial {
-  position: relative;
-  color: #fff;
-  background: #000;
-}
-
-.home-hero-track {
-  display: flex;
-  overflow-x: auto;
-  scroll-snap-type: x mandatory;
-  scrollbar-width: none;
-}
-
-.home-hero-track::-webkit-scrollbar {
-  display: none;
-}
-
-.meere-hero-slide {
-  position: relative;
-  flex: 0 0 100%;
-  min-width: 0;
-  height: 120svh;
-  scroll-snap-align: start;
-}
-
-.meere-image-shade {
-  position: absolute;
-  inset: 0;
-  background: rgb(0 0 0 / .18);
-  pointer-events: none;
-}
-
-.meere-hero-copy {
-  position: sticky;
-  top: 0;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-end;
-  align-items: flex-start;
-  gap: 16px;
-  height: 100svh;
-  padding: 64px 24px;
-}
-
-.meere-display {
-  font-size: 9.737vw;
-  font-weight: 600;
-  line-height: 1;
-  letter-spacing: -.04em;
-}
-
-.meere-hero-copy > p {
-  max-width: 520px;
-  font-size: 16px;
-  font-weight: 500;
-  line-height: 1.6;
-}
-
-.meere-white-button, .meere-black-button {
+.meere-black-button {
   display: inline-flex;
   width: fit-content;
   min-height: 44px;
@@ -90,16 +32,6 @@
   transition: background .2s,color .2s;
 }
 
-.meere-white-button {
-  background: #fff;
-  color: #000;
-}
-
-.meere-white-button:hover {
-  background: #e10600;
-  color: #fff;
-}
-
 .meere-black-button {
   background: #000;
   color: #fff;
@@ -109,78 +41,10 @@
   background: #e10600;
 }
 
-.meere-hero-controls {
-  position: absolute;
-  right: 24px;
-  bottom: 24px;
-  display: flex;
-  gap: 8px;
-  color: #000;
-}
-
-.meere-collections {
-  display: grid;
-  grid-template-columns: repeat(2,minmax(0,1fr));
-}
-
-.meere-collections[data-count='1'] {
-  grid-template-columns: 1fr;
-}
-
-.meere-collection {
-  position: relative;
-  min-height: 100svh;
-  background: #eee;
-  color: #fff;
-}
-
-.meere-collection-copy {
-  position: sticky;
-  top: calc(100svh - 132px);
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 16px;
-  padding: 24px;
-}
-
-.meere-editorial {
-  height: 120svh;
-}
-
-@media (max-width: 767px) {
-  .meere-display {
-    font-size: 32px;
-  }
-
-  .meere-hero-slide {
-    height: 110svh;
-  }
-
-  .meere-collections {
-    grid-template-columns: 1fr;
-  }
-
-  .meere-hero-copy > p {
-    max-width: 100%;
-  }
-
-}
-
 @media (prefers-reduced-motion: reduce) {
   .meere-storefront *, .meere-newsletter * {
     animation: none !important;
     transition: none !important;
     scroll-behavior: auto !important;
   }
-
-  .meere-hero-copy, .meere-collection-copy {
-    position: relative;
-  }
-
-}
-
-.home-hero-track:has(> :only-child) {
-  display: block;
-  overflow: visible;
 }

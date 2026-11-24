@@ -12,20 +12,8 @@ export function useHomeCollections(initial?: CatalogCategory[]) {
   return useApiRead<CatalogCategory[]>('/api/catalog/categories', { initialData: initial, shouldRetryOnError: false })
 }
 
-export function useHomeProducts(initial?: CatalogPage) {
-  return useApiRead<CatalogPage>(`/api/catalog/${homeProductQueries.arrivals}`, {
-    initialData: initial, shouldRetryOnError: false,
-  })
-}
-
-export function useHomeFeaturedNecklaces(initial?: CatalogPage) {
-  return useApiRead<CatalogPage>(`/api/catalog/${homeProductQueries.necklaces}`, {
-    initialData: initial, shouldRetryOnError: false,
-  })
-}
-
-export function useHomeFeaturedProducts(initial?: CatalogPage) {
-  return useApiRead<CatalogPage>(`/api/catalog/${homeProductQueries.featured}`, {
+export function useHomeProducts(section: keyof typeof homeProductQueries, initial?: CatalogPage) {
+  return useApiRead<CatalogPage>(`/api/catalog/${homeProductQueries[section]}`, {
     initialData: initial, shouldRetryOnError: false,
   })
 }

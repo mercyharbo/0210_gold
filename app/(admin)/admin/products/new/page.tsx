@@ -1,5 +1,5 @@
-import { AdminUnavailable } from '@/components/admin/admin-unavailable'
+import { ProductEditor } from '@/components/admin/products/product-editor'
 
 export default function Page() {
-  return <AdminUnavailable title='Add product' />
+  return <ProductEditor />
 }

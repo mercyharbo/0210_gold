@@ -33,10 +33,12 @@ export function HomeHero({ initial }: { initial?: CatalogBanner[] }) {
   }
 
   return (
-    <section aria-label="Featured jewellery" className="meere-hero">
+    <section aria-label="Featured jewellery" className="relative bg-black text-white">
       <div ref={track} tabIndex={slides.length > 1 ? 0 : undefined}
         aria-label={slides.length > 1 ? 'Featured banners. Use arrow keys to browse.' : undefined}
-        className="home-hero-track"
+        className={slides.length > 1
+          ? 'flex snap-x snap-mandatory overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden'
+          : 'block overflow-visible'}
         onKeyDown={(event) => {
           if (event.target !== event.currentTarget) return
           if (event.key === 'ArrowRight' || event.key === 'ArrowLeft') {
@@ -45,21 +47,21 @@ export function HomeHero({ initial }: { initial?: CatalogBanner[] }) {
           }
         }}>
         {slides.map((slide, index) => (
-          <div key={slide.id} className="meere-hero-slide">
+          <div key={slide.id} className="relative h-[110svh] min-w-0 shrink-0 basis-full snap-start md:h-[120svh]">
             <Image src={slide.image} alt={slide.alt} fill priority={index === 0}
               sizes="100vw" className="object-cover" />
-            <div className="meere-image-shade" />
-            <div className="meere-hero-copy">
-              {index === 0 ? <h1 className="meere-display">{slide.title}</h1>
-                : <h2 className="meere-display">{slide.title}</h2>}
-              <p>{slide.description}</p>
-              <Link href={slide.route} className="meere-white-button">Shop All</Link>
+            <div className="pointer-events-none absolute inset-0 bg-black/18" />
+            <div className="sticky top-0 flex h-svh flex-col items-start justify-end gap-4 px-6 py-16 motion-reduce:relative">
+              {index === 0 ? <h1 className="text-[32px] font-semibold leading-none md:text-[9.737vw]">{slide.title}</h1>
+                : <h2 className="text-[32px] font-semibold leading-none md:text-[9.737vw]">{slide.title}</h2>}
+              <p className="max-w-full text-base font-medium leading-[1.6] md:max-w-[520px]">{slide.description}</p>
+              <Link href={slide.route} className="inline-flex min-h-11 w-fit items-center justify-center gap-2.5 bg-white px-4 text-sm font-medium leading-[1.6] text-black transition-colors duration-200 hover:bg-[#e10600] hover:text-white motion-reduce:transition-none">Shop All</Link>
             </div>
           </div>
         ))}
       </div>
       {slides.length > 1 && (
-        <div className="meere-hero-controls">
+        <div className="absolute bottom-6 right-6 flex gap-2 text-black">
           <Button variant="outline" size="icon" aria-label="Previous banner" onClick={() => move(-1)}><ArrowLeft /></Button>
           <Button variant="outline" size="icon" aria-label="Next banner" onClick={() => move(1)}><ArrowRight /></Button>
         </div>

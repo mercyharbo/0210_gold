@@ -17,7 +17,9 @@ function load(file) {
     compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022, esModuleInterop: true },
   }).outputText
   const compiled = { exports: {} }
-  const localRequire = (name) => name === 'react' ? { useCallback: (callback) => callback } : name === 'swr' ? swr :
+  const localRequire = (name) => name === 'server-only' ? {} : name === 'next/navigation' ?
+    { unstable_rethrow: (error) => { if (error?.digest?.startsWith('NEXT_')) throw error } } :
+    name === 'react' ? { useCallback: (callback) => callback, cache: (callback) => callback } : name === 'swr' ? swr :
     name.startsWith('@/') ? load(`${name.slice(2)}.ts`) : name.startsWith('.') ?
       load(path.resolve(path.dirname(resolved), `${name}.ts`)) : require(name)
   new Function('require', 'module', 'exports', source)(localRequire, compiled, compiled.exports)
@@ -78,12 +80,12 @@ test('home fallback and profile keys stay stable; identity and admin policies st
   home.useHomeCollections([])
   assert.equal(reads.at(-1).key, '/api/catalog/categories')
   assert.equal(reads.at(-1).options.shouldRetryOnError, false)
-  home.useHomeProducts()
+  home.useHomeProducts('arrivals')
   assert.equal(reads.at(-1).key, '/api/catalog/products?sort=newest&page=1&page_size=8')
-  home.useHomeFeaturedNecklaces({ items: [], total: 0, page: 1, page_size: 4 })
+  home.useHomeProducts('necklaces', { items: [], total: 0, page: 1, page_size: 4 })
   assert.equal(reads.at(-1).key, '/api/catalog/products?category=gold-necklaces&label=featured&sort=newest&page=1&page_size=4')
   assert.equal(reads.at(-1).options.fallbackData.data.page_size, 4)
-  home.useHomeFeaturedProducts()
+  home.useHomeProducts('featured')
   assert.equal(reads.at(-1).key, '/api/catalog/products?label=featured&sort=newest&page=1&page_size=4')
   const account = load('hooks/use-account-endpoint.ts')
   account.useAccountProfile()
@@ -153,4 +155,37 @@ test('location adapters retain their public shapes, conditional reads and encode
   readResult = { isLoading: true }
   assert.deepEqual(locations.useStates().states, [])
   assert.equal(locations.useStates().loading, false)
+})
+
+
+test('homepage preloads match every SWR key and preserve failed reads as unavailable', async (t) => {
+  const previousOrigin = process.env.BACKEND_URL
+  process.env.BACKEND_URL = 'https://backend.example.invalid'
+  const requests = []
+  t.mock.method(globalThis, 'fetch', async (url, options) => {
+    const endpoint = url.pathname + url.search
+    requests.push(endpoint)
+    assert.equal(url.origin, 'https://backend.example.invalid')
+    assert.equal(options.cache, 'no-store')
+    if (endpoint === '/v1/catalog/categories') return Response.json({ success: false,
+      error: { message: 'Catalog unavailable.' } }, { status: 503 })
+    return Response.json({ success: true, status: 200, data: { endpoint } })
+  })
+  try {
+    const { readHomeContent } = load('lib/catalog/home.ts')
+    const initial = await readHomeContent()
+    assert.equal(initial.categories, undefined)
+    assert.equal(requests.length, 5)
+    assert.deepEqual(initial.banners, { endpoint: '/v1/catalog/banners' })
+    const home = load('hooks/use-home-endpoint.ts')
+    for (const [section, field] of [['arrivals', 'products'], ['necklaces', 'necklaces'], ['featured', 'featuredProducts']]) {
+      home.useHomeProducts(section, initial[field])
+      const read = reads.at(-1)
+      assert.equal(initial[field].endpoint, read.key.replace('/api/', '/v1/'))
+      assert.deepEqual(read.options.fallbackData.data, initial[field])
+    }
+  } finally {
+    if (previousOrigin === undefined) delete process.env.BACKEND_URL
+    else process.env.BACKEND_URL = previousOrigin
+  }
 })

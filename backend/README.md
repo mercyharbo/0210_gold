@@ -10,6 +10,10 @@ Public/admin product reads support documented reusable filters and sorting; see
 [catalog filters and homepage integration](docs/catalog-filters.md) for query examples,
 price/stock semantics, permissions and pagination. All filters also appear in Swagger.
 
+Admin product CRUD is connected to the website; see the
+[admin product integration guide](../docs/admin-products-guide.md). Product
+detail/create/update/delete responses now include documented success messages.
+
 ## Local setup
 
 1. Create a Python 3.12 virtual environment in `backend/.venv`.

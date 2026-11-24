@@ -8,7 +8,7 @@ import { Textarea } from '@/components/ui/textarea'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { categoryTypeOptions } from '@/lib/categories/category-options'
-import { categorySlug } from '@/lib/categories/slug'
+import { createSlug } from '@/lib/slug'
 import type { CategoryFormValues } from '@/lib/validations/admin-category'
 
 export function CategoryDetailsFields({ autoSlug = false }: { autoSlug?: boolean }) {
@@ -25,11 +25,11 @@ export function CategoryDetailsFields({ autoSlug = false }: { autoSlug?: boolean
           <Field data-invalid={!!errors.name} className='sm:col-span-2'>
             <FieldLabel htmlFor='name'>Category name</FieldLabel>
             <Input id='name' className='h-11 rounded-md' placeholder='e.g. Gold necklaces' {...nameField} aria-invalid={!!errors.name} onChange={(event) => {
-              const previousSlug = categorySlug(getValues('name'))
+              const previousSlug = createSlug(getValues('name'))
               const slug = getValues('slug')
               // Follow the name on creation, while preserving a manually chosen slug.
               if (autoSlug && (!slug || slug === previousSlug)) {
-                setValue('slug', categorySlug(event.target.value), { shouldDirty: true, shouldValidate: isSubmitted })
+                setValue('slug', createSlug(event.target.value), { shouldDirty: true, shouldValidate: isSubmitted })
               }
               void nameField.onChange(event)
             }} />
