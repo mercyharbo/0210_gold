@@ -1,6 +1,5 @@
 'use client'
 
-import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import { FormProvider, useForm, type FieldPath } from 'react-hook-form'
@@ -69,23 +68,25 @@ export function CategoryForm({ category }: { category?: CatalogCategory }) {
 
   return (
     <section className='flex flex-col gap-6'>
-      <div className='flex flex-wrap items-start justify-between gap-4'>
-        <AdminPageHeader title={category ? 'Edit category' : 'Add category'} description='Manage product collections and optional storefront featured cards.' />
-        <Button variant='outline' asChild><Link href='/admin/categories'>Back to categories</Link></Button>
-      </div>
       <FormProvider {...form}>
         <form onSubmit={submit} noValidate className='flex flex-col gap-6'>
-          <fieldset disabled={busy} className='grid min-w-0 gap-6 md:grid-cols-3'>
-            <CategoryDetailsFields />
+          <div className='flex flex-col justify-between gap-4 border-b border-border pb-6 sm:flex-row sm:items-start'>
+            <AdminPageHeader title={category ? 'Edit category' : 'Add category'} description='Set up the details and appearance of your collection.' />
+            <div className='flex shrink-0 items-center gap-3'>
+              <Button type='button' variant='outline' disabled={busy} onClick={() => router.push('/admin/categories')} className='h-11 flex-1 rounded-md px-5 sm:flex-none'>Cancel</Button>
+              <Button type='submit' disabled={busy} aria-busy={busy} className='h-11 flex-1 rounded-md bg-black px-5 text-white hover:bg-gold sm:flex-none'>
+                {uploading ? 'Uploading...' : busy ? 'Saving...' : 'Save category'}
+              </Button>
+            </div>
+          </div>
+          <fieldset disabled={busy} className='grid min-w-0 items-start gap-6 lg:grid-cols-3'>
+            <div className='flex min-w-0 flex-col gap-6 lg:col-span-2'>
+              <CategoryDetailsFields autoSlug={!category} />
+              <CategoryImage onBusy={setUploading} disabled={busy} />
+            </div>
             <CategoryVisibilityFields />
-            <CategoryImage onBusy={setUploading} />
           </fieldset>
           {uploading && <p role='status' className='text-sm'>Uploading and validating image…</p>}
-          <div className='flex justify-end'>
-            <Button type='submit' disabled={busy} aria-busy={busy} className='bg-black text-white hover:bg-gold'>
-              {uploading ? 'Uploading…' : busy ? 'Saving…' : 'Save category'}
-            </Button>
-          </div>
         </form>
       </FormProvider>
     </section>

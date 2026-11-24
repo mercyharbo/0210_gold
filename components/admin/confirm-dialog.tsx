@@ -24,6 +24,7 @@ type ConfirmDialogProps = {
   variant?: 'destructive' | 'default'
   isPending?: boolean
   onConfirm: () => void
+  onCloseAutoFocus?: (event: Event) => void
 }
 
 export function ConfirmDialog({
@@ -36,38 +37,45 @@ export function ConfirmDialog({
   variant = 'destructive',
   isPending = false,
   onConfirm,
+  onCloseAutoFocus,
 }: ConfirmDialogProps) {
   return (
-    <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className='bg-white text-black font-sans max-w-sm sm:max-w-md p-6 space-y-4 rounded-lg border border-border shadow-xl'>
-        <DialogHeader className='space-y-2 text-left'>
+    <Dialog open={isOpen} onOpenChange={(open) => { if (!isPending) onOpenChange(open) }}>
+      <DialogContent
+        showCloseButton={!isPending}
+        onCloseAutoFocus={onCloseAutoFocus}
+        onEscapeKeyDown={(event) => { if (isPending) event.preventDefault() }}
+        onInteractOutside={(event) => { if (isPending) event.preventDefault() }}
+        className='max-w-sm gap-3 rounded-md bg-white p-5 text-black sm:max-w-md'
+      >
+        <DialogHeader className='gap-3 text-left'>
           <div className='flex items-center gap-2.5'>
             {variant === 'destructive' ? (
-              <div className='size-9 rounded-full bg-rose-100 text-rose-600 flex items-center justify-center shrink-0'>
+              <div className='flex size-9 shrink-0 items-center justify-center rounded-md bg-destructive/10 text-destructive'>
                 <AlertTriangle className='size-5' />
               </div>
             ) : (
-              <div className='size-9 rounded-full bg-neutral-100 text-black flex items-center justify-center shrink-0 font-bold'>
+              <div className='flex size-9 shrink-0 items-center justify-center rounded-md bg-gray-100 font-bold text-black'>
                 ?
               </div>
             )}
-            <DialogTitle className='text-base font-bold text-foreground font-sans'>
+            <DialogTitle className='text-base font-bold text-foreground '>
               {title}
             </DialogTitle>
           </div>
-          <DialogDescription className='text-xs text-muted-foreground leading-relaxed font-sans'>
+          <DialogDescription className='text-xs text-muted-foreground leading-relaxed'>
             {description}
           </DialogDescription>
         </DialogHeader>
 
-        <DialogFooter className='flex flex-row justify-end gap-2 pt-2 border-t border-border bg-neutral-50 -mx-6 -mb-6 p-4 rounded-b-lg'>
+        <DialogFooter className='flex flex-row justify-end gap-2 border-t-none bg-transparent'>
           <DialogClose asChild>
             <Button
               type='button'
               variant='outline'
               size='sm'
               disabled={isPending}
-              className='h-9 text-xs font-medium border-border bg-white hover:bg-neutral-100 cursor-pointer'
+              className='h-10 rounded-md'
             >
               {cancelText}
             </Button>
@@ -81,7 +89,7 @@ export function ConfirmDialog({
             onClick={() => {
               onConfirm()
             }}
-            className='h-9 text-xs font-semibold px-4 cursor-pointer gap-1.5'
+            className='h-10 gap-2 rounded-md px-4'
           >
             {isPending && <Spinner className='size-3' />}
             {confirmText}

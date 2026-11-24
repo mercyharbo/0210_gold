@@ -1,5 +1,3 @@
-import * as React from 'react'
-
 import { cn } from '@/lib/utils'
 
 type StatusBadgeProps = {
@@ -20,6 +18,9 @@ function getStatusStyles(status: string): string {
   const normalized = (status || '').toLowerCase()
 
   switch (normalized) {
+    case 'featured':
+      return 'bg-gold/10 text-gold border-gold/20'
+
     case 'delivered':
     case 'paid':
     case 'active':
@@ -45,7 +46,7 @@ function getStatusStyles(status: string): string {
       return 'bg-rose-500/10 text-rose-700 border-rose-300'
 
     default:
-      return 'bg-neutral-100 text-neutral-800 border-neutral-300'
+      return 'bg-gray-100 text-gray-800 border-gray-300'
   }
 }
 
@@ -56,9 +57,9 @@ export function StatusBadge({ status, className }: StatusBadgeProps) {
   return (
     <span
       className={cn(
-        'inline-flex items-center justify-center px-2.5 py-0.5 text-sm font-medium border font-sans shrink-0',
+        'inline-flex items-center justify-center px-2.5 py-0.5 text-xs font-medium border rounded-full shrink-0',
         colorStyles,
-        className
+        className,
       )}
     >
       {formattedText}

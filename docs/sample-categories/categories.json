@@ -1,0 +1,58 @@
+[
+  {
+    "name": "Gold rings",
+    "slug": "gold-rings",
+    "description": "Discover gold rings for everyday wear, meaningful gifts and special occasions.",
+    "category_type": "Gold",
+    "is_active": true,
+    "is_featured": false,
+    "sort_order": 0,
+    "featured_sort_order": 0,
+    "images": [],
+    "image_file": "gold-rings.jpg",
+    "image_alt": "Gold ring on a white surface",
+    "image_source": "https://unsplash.com/photos/a-close-up-of-a-gold-ring-on-a-white-surface-SmnqtLFnNnw"
+  },
+  {
+    "name": "Gold necklaces",
+    "slug": "gold-necklaces",
+    "description": "Explore gold necklaces and chains, from simple everyday pieces to statement designs.",
+    "category_type": "Gold",
+    "is_active": true,
+    "is_featured": false,
+    "sort_order": 1,
+    "featured_sort_order": 1,
+    "images": [],
+    "image_file": "gold-necklaces.jpg",
+    "image_alt": "Gold necklace displayed on red velvet",
+    "image_source": "https://unsplash.com/photos/a-gold-necklace-on-a-red-velvet-table-dFYwqdbWHj4"
+  },
+  {
+    "name": "Gold bracelets",
+    "slug": "gold-bracelets",
+    "description": "Find gold bracelets and bangles to wear alone or pair with your favourite jewellery.",
+    "category_type": "Gold",
+    "is_active": true,
+    "is_featured": false,
+    "sort_order": 2,
+    "featured_sort_order": 2,
+    "images": [],
+    "image_file": "gold-bracelets.jpg",
+    "image_alt": "Gold chain bracelet on a white surface",
+    "image_source": "https://unsplash.com/photos/a-close-up-of-a-gold-bracelet-on-a-white-surface-bov7ApDHO4o"
+  },
+  {
+    "name": "Gold earrings",
+    "slug": "gold-earrings",
+    "description": "Browse gold hoops, studs and drop earrings for everyday styling and special occasions.",
+    "category_type": "Gold",
+    "is_active": true,
+    "is_featured": false,
+    "sort_order": 3,
+    "featured_sort_order": 3,
+    "images": [],
+    "image_file": "gold-earrings.jpg",
+    "image_alt": "Gold hoop earrings on a white surface",
+    "image_source": "https://unsplash.com/photos/a-pair-of-gold-hoop-earrings-on-a-white-surface-ZKCt2rMG8JY"
+  }
+]
