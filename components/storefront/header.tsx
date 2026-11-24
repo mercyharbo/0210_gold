@@ -4,6 +4,7 @@ import { Heart, Menu, Search, ShoppingCart } from 'lucide-react'
 import Link from 'next/link'
 
 import { Button } from '@/components/ui/button'
+import { Marquee } from '@/components/ui/marquee'
 import { useStoreHeader } from '@/stores/hooks/use-store-header'
 
 import { StorefrontAccountMenu } from './account-menu'
@@ -29,24 +30,17 @@ export function StorefrontHeader() {
         className='h-7 overflow-hidden bg-[#e10600] text-white'
         aria-label='Discover FM LUXE gold jewellery'
       >
-        <div
-          className='flex h-full w-max animate-storefront-marquee motion-reduce:animate-none'
-          aria-hidden='true'
-        >
-          {[0, 1].map((group) => (
-            <div className='flex shrink-0 items-center' key={group}>
-              {[0, 1, 2, 3, 4, 5].map((item) => (
-                <span
-                  key={item}
-                  className='flex items-center gap-7 whitespace-nowrap pr-7 text-xs leading-[14px]'
-                >
-                  Discover FM LUXE gold jewellery
-                  <i className='size-[3px] rounded-full bg-white' />
-                </span>
-              ))}
-            </div>
+        <Marquee label='Discover FM LUXE gold jewellery'>
+          {[0, 1, 2, 3, 4, 5].map((item) => (
+            <span
+              key={item}
+              className='flex items-center gap-7 whitespace-nowrap pr-7 text-xs leading-[14px]'
+            >
+              Discover FM LUXE gold jewellery
+              <i className='size-1 rounded-full bg-white' />
+            </span>
           ))}
-        </div>
+        </Marquee>
       </div>
 
       <div
@@ -70,7 +64,7 @@ export function StorefrontHeader() {
           <Link
             className='group inline-flex items-center gap-3 whitespace-nowrap
               text-base font-medium leading-none transition-colors duration-200 hover:text-black motion-reduce:transition-none'
-            href='/#new-arrivals'
+            href='/new-arrivals'
           >
             <NavLabel>New Arrivals</NavLabel>
           </Link>

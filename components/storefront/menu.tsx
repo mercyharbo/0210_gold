@@ -93,7 +93,7 @@ export function StorefrontMenu() {
         </button>
 
         <nav aria-label='Mobile navigation' className='flex flex-col items-start gap-4 text-base font-semibold'>
-          <Link href='/#new-arrivals' onClick={reset}>New Arrivals</Link>
+          <Link href='/new-arrivals' onClick={reset}>New Arrivals</Link>
           <Link href='/shop' onClick={reset}>Shop All</Link>
           <Link href='/categories' onClick={reset}>Collections</Link>
         </nav>

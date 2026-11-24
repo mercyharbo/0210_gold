@@ -8,7 +8,7 @@ const siteUrl = process.env.SITE_URL ?? 'https://fm-luxe.vercel.app'
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   if (getAuthProvider() === 'neon') {
-    const routes: MetadataRoute.Sitemap = ['/', '/shop', '/categories', '/about', '/contact'].map((path) => ({ url: `${siteUrl}${path}` }))
+    const routes: MetadataRoute.Sitemap = ['/', '/shop', '/new-arrivals', '/categories', '/about', '/contact'].map((path) => ({ url: `${siteUrl}${path}` }))
     let page = 1
     let result: CatalogPage
     do {
@@ -19,6 +19,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     return routes
   }
   const staticRoutes: MetadataRoute.Sitemap = [
+    { url: `${siteUrl}/new-arrivals`, changeFrequency: 'daily', priority: 0.9 },
     {
       url: `${siteUrl}`,
       lastModified: new Date(),

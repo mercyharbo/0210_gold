@@ -3,8 +3,8 @@
 import { useApiRead } from './use-api-read'
 import type { CatalogCategory, CatalogPage, CatalogPrice, CatalogRate, CatalogSettings } from '@/types/catalog'
 
-export function useCatalogProducts(query: string, initial?: CatalogPage) {
-  return useApiRead<CatalogPage>(`/api/catalog/products?${query}`, { initialData: initial, shouldRetryOnError: false })
+export function useCatalogProducts(queryString: string, serverProductResults?: CatalogPage) {
+  return useApiRead<CatalogPage>(`/api/catalog/products?${queryString}`, { initialData: serverProductResults, shouldRetryOnError: false })
 }
 
 export function useCatalogCategories() {

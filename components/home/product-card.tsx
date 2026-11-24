@@ -4,7 +4,10 @@ import { Heart } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
 
-export function HomeProductCard({ product }: { product: CatalogProduct }) {
+export function HomeProductCard({ product, imageSizes = '(max-width: 767px) 50vw, 25vw' }: {
+  product: CatalogProduct
+  imageSizes?: string
+}) {
   const [image, alternate] = product.images
 
   return (
@@ -20,7 +23,7 @@ export function HomeProductCard({ product }: { product: CatalogProduct }) {
               src={image.url}
               alt={image.alt}
               fill
-              sizes='(max-width: 767px) 50vw, 25vw'
+              sizes={imageSizes}
               className='object-cover'
             />
           )}
@@ -29,7 +32,7 @@ export function HomeProductCard({ product }: { product: CatalogProduct }) {
               src={alternate.url}
               alt=''
               fill
-              sizes='(max-width: 767px) 50vw, 25vw'
+              sizes={imageSizes}
               className='object-cover opacity-0 transition-opacity duration-300 ease-[ease] group-hover:opacity-100 group-focus-visible:opacity-100 motion-reduce:transition-none'
             />
           )}
@@ -44,7 +47,7 @@ export function HomeProductCard({ product }: { product: CatalogProduct }) {
       </div>
       <div className='flex flex-col gap-1'>
         <Link href={`/products/${product.slug}`}>
-          <h3 className='text-sm font-semibold leading-[1.6]'>{product.name}</h3>
+          <h3 className='break-words text-sm font-semibold leading-[1.6]'>{product.name}</h3>
         </Link>
         <p className='text-sm font-medium'>
           <CatalogPriceLabel

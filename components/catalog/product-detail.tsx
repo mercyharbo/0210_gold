@@ -7,7 +7,7 @@ import { useCatalogPrice } from '@/hooks/use-catalog-endpoint'
 import { useCatalogSelection } from '@/stores/catalog-ui'
 import type { CatalogProduct } from '@/types/catalog'
 import { CatalogPriceLabel } from './price'
-import { CatalogFeedback } from './feedback'
+import { ApiFeedback } from '@/components/ui/api-feedback'
 
 export function CatalogProductDetail({ product }: { product: CatalogProduct }) {
   const [imageIndex, setImageIndex] = useState(0)
@@ -65,8 +65,8 @@ export function CatalogProductDetail({ product }: { product: CatalogProduct }) {
               starting={product.pricing_type === 'starting_from'}
             />
           </p>
-          {isValidating && <p className="text-xs text-gray-600">Updating price…</p>}
-          <CatalogFeedback message={error?.message} error />
+          {isValidating && <p className="text-xs text-gray-600">Updating priceâ€¦</p>}
+          <ApiFeedback message={error?.message} error />
           <p className="whitespace-pre-line text-sm leading-7 text-gray-700">{product.description}</p>
           {(
             [
@@ -97,7 +97,7 @@ export function CatalogProductDetail({ product }: { product: CatalogProduct }) {
           {product.gold_weight_grams && <p className="text-sm">Weight: {product.gold_weight_grams} g</p>}
           {product.note && <p className="text-sm text-gray-600">{product.note}</p>}
           <p className="text-sm">{product.stock > 0 ? `${product.stock} available` : 'Out of stock'}</p>
-          <CatalogFeedback message="Online checkout and saved items are temporarily unavailable while we complete the store upgrade." />
+          <ApiFeedback message="Online checkout and saved items are temporarily unavailable while we complete the store upgrade." />
           {!!product.details?.length && (
             <ul className="flex list-inside list-disc flex-col gap-2 text-sm">
               {product.details.map((detail) => (

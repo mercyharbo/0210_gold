@@ -109,6 +109,7 @@ Use the `nextjs-api-state` skill for frontend request and state architecture.
 - Props remain appropriate for reusable presentation components and short parent-child communication.
 
 ## Small Files and Predictable Folders
+- Name domain values explicitly: use `productResults` and `serverProductResults` instead of vague `page` or `initial` variables for product data. Preserve framework conventions and actual API field names such as the `page` pagination parameter.
 - Separate imports, state, derived values, handlers, effects and JSX with blank lines. Expand conditional blocks and multi-prop JSX for readability; do not compress code to fit a line limit.
 - Use inline Tailwind utilities in each component's `className` for storefront layout and appearance. Do not introduce feature CSS selectors or class-string helper files; retain minimal custom CSS only for animation definitions that require it.
 - Keep handwritten feature files below 200 lines. Split components and responsibilities before files become difficult to follow. Generated files, lockfiles, and vendored shadcn primitives are exempt; do not compress code to meet the limit.
@@ -121,6 +122,7 @@ Use the `nextjs-api-state` skill for frontend request and state architecture.
 - Apply these conventions incrementally to touched features; do not restructure unrelated code.
 
 ## UI, Errors, and Verification
+- Reuse `components/ui/api-feedback.tsx` for API read errors and optional retry controls instead of duplicating error markup. Keep form-field validation inline and mutation feedback in the existing toast system.
 - Reuse shadcn components while preserving the FM LUXE identity and all frontend rules above. Prefer parent flex/grid `gap-*` spacing.
 - Show field errors inline, focus the first invalid field, prevent duplicate submissions, and preserve input after failures.
 - Reset forms and close dialogs only after confirmed success. Revalidate affected SWR keys after mutations; distinguish a successful write followed by a failed refresh from a failed write.
