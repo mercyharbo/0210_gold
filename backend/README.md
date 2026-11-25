@@ -1,10 +1,13 @@
 # FM LUXE API
 
+Render setup, production frontend origins, callback URLs and verification:
+[Render deployment guide](docs/render-deployment.md).
+
 This directory contains the standalone FastAPI backend for identity, roles,
 catalog management, manual gold pricing, store settings, managed images,
 checkout/payments, customer accounts, reviews, notifications and fulfilment.
-The migrated storefront uses Neon. Phase 4/5 commerce and account APIs remain
-separate from website integration; production deployment remains Phase 6.
+The migrated storefront uses Neon. The backend is hosted on Render; remaining
+commerce and account workflows are integrated into the website separately.
 
 Public/admin product reads support documented reusable filters and sorting; see
 [catalog filters and homepage integration](docs/catalog-filters.md) for query examples,

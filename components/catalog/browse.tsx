@@ -27,6 +27,7 @@ import type { CatalogCategory, CatalogPage } from '@/types/catalog'
 
 import { CatalogFilters } from './filters'
 import { CatalogPagination } from './pagination'
+import { CatalogProductsLoading } from './products-loading'
 
 export function CatalogBrowse({
   serverProductResults,
@@ -59,6 +60,7 @@ export function CatalogBrowse({
   // Render server-loaded products immediately; SWR owns subsequent refreshes.
   const productResults = productsResponse?.data ?? serverProductResults
   const isUpdatingProducts = isNavigating || isValidating
+  const showProductLoading = isNavigating || (isLoading && !productResults)
   const { heading, description } = catalogPageCopy[catalogPath]
 
   useEffect(() => {
@@ -121,19 +123,15 @@ export function CatalogBrowse({
 
 
         <ApiFeedback
-          message={productsError?.message || (!productResults ? productsLoadError : undefined)}
+          message={isNavigating ? undefined : productsError?.message || (!productResults ? productsLoadError : undefined)}
           error
           onRetry={() => { void mutate() }}
           isRetrying={isValidating}
         />
 
-        {isLoading && !productResults && (
-          <p role='status' className='text-sm'>
-            Loading...
-          </p>
-        )}
+        {showProductLoading && <CatalogProductsLoading />}
 
-        {productResults && (
+        {productResults && !showProductLoading && (
           <>
             {!!productResults.items.length && (
               <div className='flex flex-col gap-6'>
