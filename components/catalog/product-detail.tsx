@@ -1,110 +1,142 @@
 'use client'
-import Image from 'next/image'
+
 import Link from 'next/link'
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
+import { ArrowUpRight, ChevronRight, Heart } from 'lucide-react'
+
+import { ApiFeedback } from '@/components/ui/api-feedback'
 import { Button } from '@/components/ui/button'
 import { useCatalogPrice } from '@/hooks/use-catalog-endpoint'
-import { useCatalogSelection } from '@/stores/catalog-ui'
+import { useStoreProduct } from '@/stores/hooks/use-store-product'
 import type { CatalogProduct } from '@/types/catalog'
+
 import { CatalogPriceLabel } from './price'
-import { ApiFeedback } from '@/components/ui/api-feedback'
+import { ProductGallery } from './product-gallery'
+import { ProductInformation } from './product-information'
+import { ProductOptions } from './product-options'
 
 export function CatalogProductDetail({ product }: { product: CatalogProduct }) {
-  const [imageIndex, setImageIndex] = useState(0)
-  const selectedKarat = useCatalogSelection((state) => state.karat)
-  const selectedSize = useCatalogSelection((state) => state.size)
-  const selectedColor = useCatalogSelection((state) => state.color)
-  const select = useCatalogSelection((state) => state.select)
-  const reset = useCatalogSelection((state) => state.reset)
+  const { productId, karat, select, reset } = useStoreProduct()
+  const selectedKarat = productId === product.id ? karat : null
+
+  // Retain the existing server-calculated price preview; no new API integration.
+  const { data, error, isValidating, mutate } = useCatalogPrice(product.slug, selectedKarat)
+
   useEffect(() => {
     select({ productId: product.id, karat: null, size: null, color: null })
+
     return reset
   }, [product.id, select, reset])
-  const { data, error, isValidating } = useCatalogPrice(product.slug, selectedKarat)
-  const image = product.images[imageIndex] ?? product.images[0]
+
   return (
-    <section className="mx-auto flex max-w-7xl flex-col gap-8 px-5 py-10 sm:px-8 lg:px-12">
-      <Link href="/shop" className="text-sm underline underline-offset-4">
-        Back to shop
-      </Link>
-      <div className="grid gap-8 lg:grid-cols-2">
-        <div className="flex min-w-0 flex-col gap-4">
-          {image && (
-            <div className="relative aspect-square bg-gray-100">
-              <Image
-                src={image.url}
-                alt={image.alt}
-                fill
-                priority
-                sizes="(max-width: 1024px) 100vw, 50vw"
-                className="object-cover"
-              />
+    <section className='mx-auto flex w-full max-w-screen-2xl flex-col gap-8 px-5 py-8 sm:px-8 lg:gap-10 lg:px-12 lg:py-12'>
+      <nav aria-label='Breadcrumb' className='min-w-0'>
+        <ol className='flex flex-wrap items-center gap-2 text-sm text-gray-600'>
+          <li>
+            <Link href='/shop' className='transition-colors hover:text-[#e10600]'>
+              Shop
+            </Link>
+          </li>
+          <li aria-hidden='true'>
+            <ChevronRight className='size-3' />
+          </li>
+          <li>
+            <Link
+              href={`/shop?category=${encodeURIComponent(product.category.slug)}`}
+              className='transition-colors hover:text-[#e10600]'
+            >
+              {product.category.name}
+            </Link>
+          </li>
+          <li aria-hidden='true'>
+            <ChevronRight className='size-3' />
+          </li>
+          <li aria-current='page' className='break-words text-black'>
+            {product.name}
+          </li>
+        </ol>
+      </nav>
+
+      <div className='grid min-w-0 gap-8 lg:grid-cols-2 lg:items-start lg:gap-16'>
+        <ProductGallery key={product.id} images={product.images} productName={product.name} />
+
+        <div className='flex min-w-0 flex-col gap-7 lg:sticky lg:top-28'>
+          <div className='flex flex-col gap-4'>
+            {product.label && (
+              <p className='text-xs font-medium capitalize text-[#e10600]'>{product.label}</p>
+            )}
+
+            <h1 className='break-words text-[28px] font-medium leading-tight md:text-[34px]'>
+              {product.name}
+            </h1>
+
+            <div aria-live='polite' aria-busy={isValidating} className='flex flex-col gap-2'>
+              <p className='text-xl'>
+                <CatalogPriceLabel
+                  price={data?.data ?? product.display_price}
+                  starting={product.pricing_type === 'starting_from' && !selectedKarat}
+                />
+              </p>
+              {isValidating && <p className='text-xs text-gray-600'>Updating price...</p>}
             </div>
-          )}
-          <div className="flex flex-wrap gap-3">
-            {product.images.map((item, index) => (
-              <button
-                key={item.media_id}
-                type="button"
-                onClick={() => setImageIndex(index)}
-                aria-label={`View image ${index + 1}`}
-                aria-pressed={imageIndex === index}
-                className="relative size-16 overflow-hidden rounded border focus-visible:outline-2 focus-visible:outline-offset-2"
-              >
-                <Image src={item.url} alt={item.alt} fill sizes="64px" className="object-cover" />
-              </button>
-            ))}
-          </div>
-        </div>
-        <div className="flex min-w-0 flex-col items-start gap-6">
-          <p className="text-sm text-gray-600">{product.category.name}</p>
-          <h1 className="max-w-full break-words text-3xl font-semibold sm:text-4xl">{product.name}</h1>
-          <p className="text-xl" aria-live="polite">
-            <CatalogPriceLabel
-              price={data?.data ?? product.display_price}
-              starting={product.pricing_type === 'starting_from'}
+
+            <ApiFeedback
+              message={error?.message}
+              error
+              onRetry={() => void mutate()}
+              isRetrying={isValidating}
             />
+
+            {product.description && (
+              <p className='whitespace-pre-line text-sm leading-7 text-gray-600'>
+                {product.description}
+              </p>
+            )}
+          </div>
+
+          <ProductOptions product={product} />
+
+          <div className='flex flex-col gap-4'>
+            <p className='flex items-center gap-2 text-sm'>
+              <span className={`size-2 rounded-full ${product.stock > 0 ? 'bg-black' : 'bg-gray-400'}`} />
+              {product.stock > 0 ? 'In stock' : 'Out of stock'}
+            </p>
+
+            <div className='flex gap-3'>
+              <Button
+                type='button'
+                disabled
+                aria-describedby='product-shopping-availability'
+                className='h-12 flex-1 rounded-none bg-black text-white hover:bg-[#e10600] disabled:opacity-60'
+              >
+                {product.stock > 0 ? 'Add to bag' : 'Out of stock'}
+                <ArrowUpRight data-icon='inline-end' />
+              </Button>
+              <Button
+                type='button'
+                variant='outline'
+                disabled
+                aria-label='Save to wishlist, currently unavailable'
+                aria-describedby='product-shopping-availability'
+                className='size-12 rounded-none border-gray-300'
+              >
+                <Heart className='size-5' strokeWidth={1.5} />
+              </Button>
+            </div>
+
+            <p id='product-shopping-availability' className='text-xs leading-5 text-gray-600'>
+              Online checkout and saved items are currently unavailable.
+            </p>
+          </div>
+
+          <ProductInformation product={product} />
+
+          <p className='text-sm text-gray-600'>
+            Have a question about this piece?{' '}
+            <Link href='/contact' className='text-black underline underline-offset-4 hover:text-[#e10600]'>
+              Contact us
+            </Link>
           </p>
-          {isValidating && <p className="text-xs text-gray-600">Updating priceâ€¦</p>}
-          <ApiFeedback message={error?.message} error />
-          <p className="whitespace-pre-line text-sm leading-7 text-gray-700">{product.description}</p>
-          {(
-            [
-              ['Size', product.sizes ?? [], selectedSize, 'size'],
-              ['Color', product.colors ?? [], selectedColor, 'color'],
-              ['Karat', product.gold_karats ?? [], selectedKarat, 'karat'],
-            ] as const
-          ).map(([label, options, selected, key]) =>
-            options.length ? (
-              <fieldset key={key} className="flex flex-col gap-3">
-                <legend className="py-2 text-sm font-medium">{label}</legend>
-                <div className="flex flex-wrap gap-2">
-                  {options.map((value) => (
-                    <Button
-                      key={value}
-                      variant={selected === value ? 'default' : 'outline'}
-                      type="button"
-                      aria-pressed={selected === value}
-                      onClick={() => select({ [key]: value })}
-                    >
-                      {value}
-                    </Button>
-                  ))}
-                </div>
-              </fieldset>
-            ) : null,
-          )}
-          {product.gold_weight_grams && <p className="text-sm">Weight: {product.gold_weight_grams} g</p>}
-          {product.note && <p className="text-sm text-gray-600">{product.note}</p>}
-          <p className="text-sm">{product.stock > 0 ? `${product.stock} available` : 'Out of stock'}</p>
-          <ApiFeedback message="Online checkout and saved items are temporarily unavailable while we complete the store upgrade." />
-          {!!product.details?.length && (
-            <ul className="flex list-inside list-disc flex-col gap-2 text-sm">
-              {product.details.map((detail) => (
-                <li key={detail}>{detail}</li>
-              ))}
-            </ul>
-          )}
         </div>
       </div>
     </section>
