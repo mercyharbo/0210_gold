@@ -14,6 +14,10 @@ export async function neonProxy(request: NextRequest) {
         { status: 409 },
       )
     }
+    // These routes now render UI only; legacy order/payment submissions stay blocked.
+    if (path === '/cart' || path === '/checkout') {
+      return NextResponse.next()
+    }
     return NextResponse.redirect(new URL('/auth/preview/account', request.url))
   }
   // The admin layout and FastAPI validate the backend session and role.

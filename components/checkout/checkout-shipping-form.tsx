@@ -1,159 +1,121 @@
 'use client'
 
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Controller, useFormContext, useWatch } from 'react-hook-form'
+
+import { Field, FieldError, FieldGroup, FieldLabel } from '@/components/ui/field'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { useCheckout } from '@/stores/hooks/use-checkout'
+import {
+  Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue,
+} from '@/components/ui/select'
+import { NIGERIA_STATES } from '@/lib/data/nigeria-states'
+import type { CheckoutDetails } from '@/lib/validations/checkout-details'
+
+import { CheckoutTextField } from './checkout-text-field'
 
 export function CheckoutShippingForm() {
-  const {
-    customerName,
-    setCustomerName,
-    customerEmail,
-    setCustomerEmail,
-    customerPhone,
-    setCustomerPhone,
-    shippingAddress,
-    setShippingAddress,
-    shippingCity,
-    setShippingCity,
-    shippingState,
-    setShippingState,
-    statesList,
-  } = useCheckout()
-
-  const matchedState = statesList.find(
-    (s) =>
-      s.state.toLowerCase() === shippingState.toLowerCase() ||
-      shippingState.toLowerCase().includes(s.state.toLowerCase())
-  )
-  const availableCities = matchedState ? matchedState.cities : []
-  const isOsogbo = shippingCity.toLowerCase().trim() === 'osogbo'
+  const { control, setValue } = useFormContext<CheckoutDetails>()
+  const selectedState = useWatch({ control, name: 'state' })
+  // The bundled dataset calls these entries “cities”; they are local government areas.
+  const localAreas = NIGERIA_STATES.find((entry) => entry.state === selectedState)?.cities ?? []
 
   return (
-    <div className='flex flex-col gap-8'>
-      {/* Contact Info Card */}
-      <Card className='rounded-none border-black/10'>
-        <CardHeader className='pb-4 border-b border-black/10'>
-          <CardTitle className='text-lg font-semibold flex items-center gap-2'>
-            1. Contact information
-          </CardTitle>
-        </CardHeader>
-        <CardContent className='pt-6 space-y-4'>
-          <div className='flex flex-col gap-1.5'>
-            <Label htmlFor='customer-name'>Full Name *</Label>
-            <Input
-              id='customer-name'
-              className='h-10 rounded-none'
-              value={customerName}
-              onChange={(e) => setCustomerName(e.target.value)}
-              placeholder='e.g. John Doe'
-              required
-            />
-          </div>
-          <div className='grid gap-4 sm:grid-cols-2'>
-            <div className='flex flex-col gap-1.5'>
-              <Label htmlFor='customer-email'>Email address *</Label>
-              <Input
-                id='customer-email'
-                type='email'
-                className='h-10 rounded-none'
-                value={customerEmail}
-                onChange={(e) => setCustomerEmail(e.target.value)}
-                placeholder='e.g. john@example.com'
-                required
-              />
-            </div>
-            <div className='flex flex-col gap-1.5'>
-              <Label htmlFor='customer-phone'>Phone number *</Label>
-              <Input
-                id='customer-phone'
-                type='tel'
-                className='h-10 rounded-none'
-                value={customerPhone}
-                onChange={(e) => setCustomerPhone(e.target.value)}
-                placeholder='e.g. 08012345678'
-                required
-              />
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+    <div className='flex flex-col gap-10'>
+      <section aria-labelledby='checkout-contact-heading' className='flex flex-col gap-6'>
+        <h2 id='checkout-contact-heading' className='text-xl font-medium'>Contact information</h2>
 
-      {/* Shipping Address Card */}
-      <Card className='rounded-none border-black/10'>
-        <CardHeader className='pb-4 border-b border-black/10'>
-          <CardTitle className='text-lg font-semibold flex items-center gap-2'>
-            2. Shipping address
-          </CardTitle>
-        </CardHeader>
-        <CardContent className='pt-6 space-y-4'>
-          <div className='flex flex-col gap-1.5'>
-            <Label htmlFor='shipping-address'>Street address *</Label>
-            <Input
-              id='shipping-address'
-              className='h-10 rounded-none'
-              value={shippingAddress}
-              onChange={(e) => setShippingAddress(e.target.value)}
-              placeholder='e.g. 14, Ring Road'
-              required
-            />
-          </div>
+        <FieldGroup className='grid gap-5 sm:grid-cols-2'>
+          <CheckoutTextField name='recipient_name' label='Full name' autoComplete='shipping name' />
+          <CheckoutTextField name='email' label='Email address' type='email' autoComplete='email' />
+          <CheckoutTextField name='phone' label='Phone number' type='tel' autoComplete='shipping tel' />
+        </FieldGroup>
+      </section>
 
-          <div className='grid gap-4 sm:grid-cols-2'>
-            <div className='flex flex-col gap-1.5'>
-              <Label htmlFor='shipping-state'>State *</Label>
-              <select
-                id='shipping-state'
-                value={matchedState?.state || shippingState}
-                onChange={(e) => {
-                  const val = e.target.value
-                  setShippingState(val)
-                  const s = statesList.find((st) => st.state === val)
-                  if (s && s.cities.length > 0) {
-                    setShippingCity(s.cities[0])
-                  } else {
-                    setShippingCity('')
-                  }
-                }}
-                className='flex h-10 w-full rounded-none border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50'
-                required
-              >
-                <option value=''>Select State</option>
-                {statesList.map((s) => (
-                  <option key={s.state} value={s.state}>
-                    {s.state}
-                  </option>
-                ))}
-              </select>
-            </div>
+      <section aria-labelledby='checkout-delivery-heading' className='flex flex-col gap-6 border-t border-gray-200 pt-8'>
+        <h2 id='checkout-delivery-heading' className='text-xl font-medium'>Delivery address</h2>
 
-            <div className='flex flex-col gap-1.5'>
-              <Label htmlFor='shipping-city'>City / LGA *</Label>
-              <select
-                id='shipping-city'
-                value={shippingCity}
-                onChange={(e) => setShippingCity(e.target.value)}
-                className='flex h-10 w-full rounded-none border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50'
-                required
-                disabled={!shippingState}
-              >
-                <option value=''>Select City/LGA</option>
-                {availableCities.map((c: string) => (
-                  <option key={c} value={c}>
-                    {c}
-                  </option>
-                ))}
-              </select>
-              {isOsogbo && (
-                <p className='text-xs font-semibold text-gold mt-1'>
-                  Local Osogbo delivery rate (₦2,000) applied!
-                </p>
+        <FieldGroup className='gap-5'>
+          <Field className='gap-2'>
+            <FieldLabel htmlFor='checkout-country'>Country</FieldLabel>
+            <Input id='checkout-country' value='Nigeria' readOnly autoComplete='shipping country-name' className='h-12 rounded-none border-gray-200 bg-gray-50' />
+          </Field>
+
+          <CheckoutTextField name='address_line_1' label='Street address' autoComplete='shipping address-line1' />
+
+          <div className='grid min-w-0 gap-5 sm:grid-cols-2'>
+            <Controller
+              control={control}
+              name='state'
+              render={({ field, fieldState }) => (
+                <Field className='gap-2' data-invalid={Boolean(fieldState.error)}>
+                  <FieldLabel htmlFor='checkout-state'>State / FCT</FieldLabel>
+                  <Select
+                    value={field.value}
+                    onValueChange={(state) => {
+                      field.onChange(state)
+                      setValue('local_area', '', { shouldDirty: true })
+                    }}
+                  >
+                    <SelectTrigger
+                      id='checkout-state'
+                      ref={field.ref}
+                      onBlur={field.onBlur}
+                      aria-invalid={Boolean(fieldState.error)}
+                      aria-describedby={fieldState.error ? 'checkout-state-error' : undefined}
+                      className='h-12 w-full rounded-none border-gray-200 bg-gray-50 data-[size=default]:h-12'
+                    >
+                      <SelectValue placeholder='Choose a state' />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectGroup>
+                        {NIGERIA_STATES.map((entry) => (
+                          <SelectItem key={entry.state} value={entry.state}>
+                            {entry.state}
+                          </SelectItem>
+                        ))}
+                      </SelectGroup>
+                    </SelectContent>
+                  </Select>
+                  <FieldError id='checkout-state-error' errors={[fieldState.error]} />
+                </Field>
               )}
-            </div>
+            />
+
+            <Controller
+              control={control}
+              name='local_area'
+              render={({ field, fieldState }) => (
+                <Field className='gap-2' data-invalid={Boolean(fieldState.error)}>
+                  <FieldLabel htmlFor='checkout-local-area'>Local government area</FieldLabel>
+                  <Select value={field.value} onValueChange={field.onChange} disabled={!selectedState}>
+                    <SelectTrigger
+                      id='checkout-local-area'
+                      ref={field.ref}
+                      onBlur={field.onBlur}
+                      aria-invalid={Boolean(fieldState.error)}
+                      aria-describedby={fieldState.error ? 'checkout-local-area-error' : undefined}
+                      className='h-12 w-full rounded-none border-gray-200 bg-gray-50 data-[size=default]:h-12'
+                    >
+                      <SelectValue placeholder='Choose a local area' />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectGroup>
+                        {localAreas.map((area) => (
+                          <SelectItem key={area} value={area}>
+                            {area}
+                          </SelectItem>
+                        ))}
+                      </SelectGroup>
+                    </SelectContent>
+                  </Select>
+                  <FieldError id='checkout-local-area-error' errors={[fieldState.error]} />
+                </Field>
+              )}
+            />
           </div>
-        </CardContent>
-      </Card>
+
+          <CheckoutTextField name='locality' label='Town / neighbourhood (optional)' autoComplete='shipping address-level3' />
+        </FieldGroup>
+      </section>
     </div>
   )
 }

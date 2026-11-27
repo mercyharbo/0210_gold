@@ -1,37 +1,12 @@
-import { getStoreSettingsAction } from '@/app/(admin)/admin/settings/actions'
-import {
-  ensureCustomerProfile,
-  getCustomerAddresses,
-} from '@/lib/profile/customer-profile'
-import { createSupabaseServerClient } from '@/lib/supabase/server'
-import type { CustomerAddress } from '@/types/address'
-import type { CustomerProfile } from '@/types/profile'
+import type { Metadata } from 'next'
+
 import { CheckoutForm } from './checkout-form'
 
-export default async function CheckoutPage() {
-  const supabase = await createSupabaseServerClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+export const metadata: Metadata = {
+  title: 'Checkout | FM LUXE',
+  robots: { index: false, follow: false },
+}
 
-  const settings = await getStoreSettingsAction()
-  let initialProfile: CustomerProfile | null = null
-  let initialAddresses: CustomerAddress[] = []
-
-  if (user) {
-    try {
-      initialProfile = await ensureCustomerProfile(user)
-      initialAddresses = await getCustomerAddresses(user.id)
-    } catch (e) {
-      console.error('Failed to load user profile in checkout:', e)
-    }
-  }
-
-  return (
-    <CheckoutForm
-      initialProfile={initialProfile}
-      initialAddresses={initialAddresses}
-      settings={settings}
-    />
-  )
+export default function CheckoutPage() {
+  return <CheckoutForm />
 }
